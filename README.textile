@@ -1,8 +1,7 @@
-<h2>jslardo</h2>
+<h1>jslardo</h1>
 
+<h3>what is this?</h3>
+just learning something about node.js, mongodb, mongoose and express: jslardo starts as an express application.
 
-
-
-
-<h4>finally, the name, why lardo?</h4>
+<h3>finally, the name, why lardo?</h3>
 because lardo is good
