@@ -1,5 +1,5 @@
 /**
- * jslardo - model data and publish it
+ * jslardo - ...because lardo is good
  *
  *
  * Copyright (C) 2011 Federico Carrara (federico@obliquid.it)
