@@ -1,4 +1,4 @@
-// butter functions
+// jslardo functions
 
 
 //SESSIONS
@@ -29,7 +29,7 @@ function checkValidUser(req, closure)
 			else
 			{
 				//qualcosa è andato storto nella query
-				errorPage(res, 'butter.checkValidUser: '+err);
+				errorPage(res, 'jslardo.checkValidUser: '+err);
 			}
 		}
 	);		
@@ -96,18 +96,18 @@ function checkPermissions(req, res, next) {
 function errorPage(res, errMsg) {
 	console.log(errMsg);
 	res.render('error', { 
-		title: 'Butter error!',
+		title: 'jslardo error!',
 		errMsg: errMsg
 	});			
 }
 
-/* carica le routes per le pagine interne di butter */
+/* carica le routes per le pagine interne di jslardo */
 function defineRoutes(app) {
 	
 	//GET: home
 	app.get('/', function(req, res){ 
 		res.render('home', {
-			title: 'Butter'
+			title: 'jslardo'
 		});
 	});
 

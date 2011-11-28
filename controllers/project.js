@@ -5,7 +5,7 @@ PROJECT
 function defineRoutes(app) {
 
 	//GET: project list
-	app.get('/projects', app.butter.checkPermissions, function(req, res){
+	app.get('/projects', app.jslardo.checkPermissions, function(req, res){
 		//leggo gli project dal db, e assegno il result al tpl
 		app.project.find(
 			{},
@@ -21,13 +21,13 @@ function defineRoutes(app) {
 		
 	});
 	//GET: project delete
-	app.get('/projects/delete/:id?', app.butter.checkPermissions, function(req, res, next){
+	app.get('/projects/delete/:id?', app.jslardo.checkPermissions, function(req, res, next){
 		if (req.params.id) {
 			//mi hanno passato l'id, quindi posso fare il delete
 			app.project.remove(
 				{ '_id': req.params.id },
 				function(err, project) {
-					if ( err ) app.butter.errorPage(res, 'GET: project delete: '+err);
+					if ( err ) app.jslardo.errorPage(res, 'GET: project delete: '+err);
 				}
 			);	
 			
@@ -38,7 +38,7 @@ function defineRoutes(app) {
 		res.redirect('/projects');
 	});
 	//GET: project form (modify/new)
-	app.get('/projects/edit/:id?/:msg?', app.butter.checkPermissions, function(req, res, next){
+	app.get('/projects/edit/:id?/:msg?', app.jslardo.checkPermissions, function(req, res, next){
 		if (req.params.id) {
 			//mi hanno passato l'id, quindi è un MODIFY
 			//leggo il mio project dal db, e assegno il result al tpl
@@ -74,7 +74,7 @@ function defineRoutes(app) {
 					{
 						//ho trovato lo project da modificare
 						//popolo il mio project con quanto mi arriva dal form
-						app.butter.populateModel(project, req.body);
+						app.jslardo.populateModel(project, req.body);
 						//salvo lo project modificato
 						//e rimando nel form
 						project.save(function(err) {
@@ -83,7 +83,7 @@ function defineRoutes(app) {
 					}
 					else
 					{
-						app.butter.errorPage(res, "POST: project form: project not saved: "+err);
+						app.jslardo.errorPage(res, "POST: project form: project not saved: "+err);
 					}
 				}
 			);
@@ -92,7 +92,7 @@ function defineRoutes(app) {
 			//creo nuovo project
 			var myProject = new app.project();
 			//popolo il mio project con quanto mi arriva dal form
-			app.butter.populateModel(myProject, req.body);
+			app.jslardo.populateModel(myProject, req.body);
 			//salvo il nuovo project
 			myProject.save(function (err) {
 				if (!err) 
@@ -103,13 +103,13 @@ function defineRoutes(app) {
 				}
 				else
 				{
-					app.butter.errorPage(res, "POST: project form: saving project: "+err);
+					app.jslardo.errorPage(res, "POST: project form: saving project: "+err);
 				}
 			});
 		}
 	});
 	//GET: project detail (deve andare dopo il 'GET: project form' (/projects/edit/:id?), altrimenti quando creo un nuovo project (/projects/edit) mi entra nel detail prendendo 'edit' per un id)
-	app.get('/projects/:id?', app.butter.checkPermissions, function(req, res, next){
+	app.get('/projects/:id?', app.jslardo.checkPermissions, function(req, res, next){
 		if (req.params.id) {
 			//leggo il mio project dal db, e assegno il result al tpl
 			app.project.findOne(
@@ -126,7 +126,7 @@ function defineRoutes(app) {
 					}
 					else
 					{
-						app.butter.errorPage(res, "GET: project detail: error loading project: "+err);
+						app.jslardo.errorPage(res, "GET: project detail: error loading project: "+err);
 					}
 				}
 			);	

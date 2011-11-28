@@ -5,7 +5,7 @@ USER
 function defineRoutes(app) {
 
 	//GET: user list
-	app.get('/users/:mode?', app.butter.checkPermissions, function(req, res, next){
+	app.get('/users/:mode?', app.jslardo.checkPermissions, function(req, res, next){
 		//console.log("ccccc! "+req.params.mode);
 		if ( req.params.mode == undefined || req.params.mode == 'select' )
 		{
@@ -29,13 +29,13 @@ function defineRoutes(app) {
 		}
 	});
 	//GET: user delete
-	app.get('/users/delete/:id?', app.butter.checkPermissions, function(req, res, next){
+	app.get('/users/delete/:id?', app.jslardo.checkPermissions, function(req, res, next){
 		if (req.params.id) {
 			//mi hanno passato l'id, quindi posso fare il delete
 			app.user.remove(
 				{ '_id': req.params.id },
 				function(err, user) {
-					if ( err ) app.butter.errorPage(res, 'GET: user delete: '+err);
+					if ( err ) app.jslardo.errorPage(res, 'GET: user delete: '+err);
 				}
 			);	
 			
@@ -46,7 +46,7 @@ function defineRoutes(app) {
 		res.redirect('/users');
 	});
 	//GET: user form (modify/new)
-	app.get('/users/edit/:id?/:msg?', app.butter.checkPermissions, function(req, res, next){
+	app.get('/users/edit/:id?/:msg?', app.jslardo.checkPermissions, function(req, res, next){
 		if (req.params.id) {
 			//mi hanno passato l'id, quindi è un MODIFY
 			//leggo il mio user dal db, e assegno il result al tpl
@@ -82,7 +82,7 @@ function defineRoutes(app) {
 					{
 						//ho trovato lo user da modificare
 						//popolo il mio user con quanto mi arriva dal form
-						app.butter.populateModel(user, req.body);
+						app.jslardo.populateModel(user, req.body);
 						//salvo lo user modificato
 						//e rimando nel form
 						user.save(function(err) {
@@ -91,7 +91,7 @@ function defineRoutes(app) {
 					}
 					else
 					{
-						app.butter.errorPage(res, "POST: user form: user not saved: "+err);
+						app.jslardo.errorPage(res, "POST: user form: user not saved: "+err);
 					}
 				}
 			);
@@ -104,7 +104,7 @@ function defineRoutes(app) {
 					if ( user ) 
 					{
 						//email già usata
-						app.butter.errorPage(res, "POST: user form: already exists user with email: "+req.body.email);
+						app.jslardo.errorPage(res, "POST: user form: already exists user with email: "+req.body.email);
 					}
 					else
 					{
@@ -112,7 +112,7 @@ function defineRoutes(app) {
 						//creo nuovo user
 						var myUser = new app.user();
 						//popolo il mio user con quanto mi arriva dal form
-						app.butter.populateModel(myUser, req.body);
+						app.jslardo.populateModel(myUser, req.body);
 						//salvo il nuovo user
 						myUser.save(function (err) {
 							if (!err) 
@@ -123,7 +123,7 @@ function defineRoutes(app) {
 							}
 							else
 							{
-								app.butter.errorPage(res, "POST: user form: saving user: "+err);
+								app.jslardo.errorPage(res, "POST: user form: saving user: "+err);
 							}
 						});
 					}
@@ -132,10 +132,10 @@ function defineRoutes(app) {
 		}
 	});
 	//GET: user detail (deve andare dopo il 'GET: user form' (/users/edit/:id?), altrimenti quando creo un nuovo user (/users/edit) mi entra nel detail prendendo 'edit' per un id)
-	app.get('/users/:id?', app.butter.checkPermissions, function(req, res, next){
+	app.get('/users/:id?', app.jslardo.checkPermissions, function(req, res, next){
 		//console.log("ccccc!");
 		if (req.params.id) {
-			//app.butter.errorPage(res, "ci passo?");
+			//app.jslardo.errorPage(res, "ci passo?");
 			//leggo il mio user dal db, e assegno il result al tpl
 			app.user.findOne(
 				{ '_id': req.params.id },
@@ -151,7 +151,7 @@ function defineRoutes(app) {
 					}
 					else
 					{
-						app.butter.errorPage(res, "GET: user detail: error loading user: "+err);
+						app.jslardo.errorPage(res, "GET: user detail: error loading user: "+err);
 					}
 				}
 			);	

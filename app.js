@@ -31,7 +31,7 @@ var models = require('./models');
 //serve? var connect = require('connect');
 var connectTimeout = require('connect-timeout');
 var mongoStore = require('connect-mongodb');
-var butter = require('./butter');
+var jslardo = require('./jslardo');
 //var RedisStore = require('connect-redis')(express);
 var app = module.exports = express.createServer();
 
@@ -47,8 +47,8 @@ app.configure(function(){
 	//non lo uso... app.use(express.methodOverride()); //serve per poter usare nei form: <input type="hidden" name="_method" value="put" />, e quindi app.put('/', function(){ console.log(req.body.user); res.redirect('back');});
 	app.use(app.router);
 	app.use(express.static(__dirname + '/public'));
-	//appendo butter all'app express
-	app.butter = butter;
+	//appendo jslardo all'app express
+	app.jslardo = jslardo;
 });
 
 //configurazioni differenziate in base alla modalità del server (sviluppo/produzione)
@@ -67,7 +67,7 @@ app.configure('production', function(){
 
 
 //DB connection
-mongoose.connect('mongodb://localhost/butter');
+mongoose.connect('mongodb://localhost/jslardo');
 
 //carico i modelli del DB, e li salvo a livello di app
 models.defineModels(mongoose, function() {
@@ -91,10 +91,10 @@ app.dynamicHelpers({
 
 
 // Routes
-//nota: le route sono importate, prima quelle di butter, poi quelle per ciascuno degli oggetti persistenti nel db
+//nota: le route sono importate, prima quelle di jslardo, poi quelle per ciascuno degli oggetti persistenti nel db
 
-//route specifiche di butter
-app.butter.defineRoutes(app);
+//route specifiche di jslardo
+app.jslardo.defineRoutes(app);
 
 //route per gli oggetti del db
 var userController = require('./controllers/user');
@@ -104,9 +104,9 @@ projectController.defineRoutes(app);
 
 /*queste non riesco a farle andare...
 //per ultime le route per le pagine di errore, se nessuna altra route è stata matchata
-//app.butter.defineRoute404(app);
+//app.jslardo.defineRoute404(app);
 app.error(function(err, req, res){
-	app.butter.errorPage(res, "404 not found: "+req.path);	
+	app.jslardo.errorPage(res, "404 not found: "+req.path);	
 	//res.send("fica");
 });
 */
@@ -114,7 +114,7 @@ app.error(function(err, req, res){
 
 //attivo l'applicazione Express
 app.listen(8222);
-console.log("Butter server listening on port %d in %s mode", app.address().port, app.settings.env);
+console.log("jslardo server listening on port %d in %s mode", app.address().port, app.settings.env);
 
 
 
