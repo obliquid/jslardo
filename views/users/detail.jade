@@ -1,0 +1,13 @@
+h1 #{title}
+hr
+h2 #{user.name}
+h3 #{user.address}
+br
+h4 piva: #{user.piva}
+h4 email: #{user.email}
+h4 password: #{user.password}
+h4 id: #{user._id}
+hr
+a(href='/users', title='all users').adminButton.backButton
+- if ( session.hasModify )
+	a(href='/users/edit/#{user._id}', title='modify user').adminButton.modifyButton

@@ -1,0 +1,9 @@
+h1 #{title}
+hr
+h2 #{project.name}
+each customer in project.customer
+	h3 #{customer.name}
+hr
+a(href='/projects', title='all projects').adminButton.backButton
+- if ( session.hasModify )
+	a(href='/projects/edit/#{project._id}', title='modify project').adminButton.modifyButton

@@ -1,0 +1,22 @@
+h1 #{title}
+hr
+form(method='post', action='/projects/#{project._id || ""}').size4
+
+	span name
+	input(name='name', value='#{project.name || ""}').size3
+	
+	br
+	span customer
+	each customer in project.customer
+		a #{customer.name}
+	a(href='/users/select', target='_blank', title='add').adminButton.addButton
+	
+	
+	
+	hr
+	input(name='id', value='#{project._id || ""}', type='hidden')
+	a(href='/projects/#{project._id}', title='show').adminButton.backButton
+	input(type='submit',value='', title='save').adminButton.saveButton
+	- if (typeof msg !== "undefined" && msg == 'success' )
+		hr
+		h4.formSuccess successfully saved!

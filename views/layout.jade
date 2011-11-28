@@ -1,0 +1,13 @@
+!!!
+html
+	head
+		title Butter #{title}
+		link(rel='stylesheet', href='/stylesheets/style.css')
+	body
+		include includes/header
+		- if ( session.signedin )
+			include includes/headerAdmin
+		div.bodyCont
+			div.body.size6!= body //- la variabile body contiene il template principale della pagina (unescaped, altrimenti visualizza i tag html)
+		include includes/footer
+	

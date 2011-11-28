@@ -1,0 +1,24 @@
+h1 #{title}
+hr
+form(method='post', action='/users/#{user._id || ""}').size4
+	span name/firm
+	input(name='name', value='#{user.name || ""}').size3
+	br
+	span address
+	textarea(name='address').size3 #{user.address || ""}
+	br
+	span p.iva
+	input(name='piva', value='#{user.piva || ""}').size3
+	br
+	span email
+	input(name='email', value='#{user.email || ""}').size3
+	br
+	span password
+	input(name='password', value='#{user.password || ""}').size3
+	hr
+	input(name='id', value='#{user._id || ""}', type='hidden')
+	a(href='/users', title='all users').adminButton.backButton
+	input(type='submit',value='', title='save').adminButton.saveButton
+	- if (typeof msg !== "undefined" && msg == 'success' )
+		hr
+		h4.formSuccess successfully saved!

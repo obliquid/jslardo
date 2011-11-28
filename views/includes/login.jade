@@ -1,0 +1,17 @@
+div.outerCont
+	h4 access
+	div.innerCont
+		form(method='post', action='/signin')
+			- if ( session.signedin )
+				p #{ session.email }
+				a(href='/signout') sign out
+			- else
+				span email
+				input(name='email').size1
+				br
+				span password
+				input(name='password',type='password').size1
+				br
+				input(type='submit',value='sign in')
+				span or
+				a(href='/users/edit') register

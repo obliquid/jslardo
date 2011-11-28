@@ -1,0 +1,15 @@
+h1 #{title}
+hr
+ul
+	each myUser in user
+		li
+			a(href='/users/#{myUser._id}') #{myUser.name} (#{myUser.email}) [#{myUser._id}]
+			- if ( session.hasModify )
+				a(href='/users/edit/#{myUser._id}', title='modify user').adminButton.modifyButton
+				- if ( mode == 'select' )
+					a(title='select user', onclick='').adminButton.selectButton
+				- else
+					a(title='delete user', onclick='if(confirm("delete for sure?")) window.location = "/users/delete/#{myUser._id}";').adminButton.deleteButton
+- if ( session.hasModify )
+	hr
+	a(href='/users/edit', title='new user').adminButton.addButton

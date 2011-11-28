@@ -1,0 +1,12 @@
+h1 #{title}
+hr
+ul
+	each myProject in project
+		li
+			a(href='/projects/#{myProject._id}') #{myProject.name} (#{myProject.email}) [#{myProject._id}]
+			- if ( session.hasModify )
+				a(href='/projects/edit/#{myProject._id}', title='modify project').adminButton.modifyButton
+				a(title='delete project', onclick='if(confirm("delete for sure?")) window.location = "/projects/delete/#{myProject._id}";').adminButton.deleteButton
+- if ( session.hasModify )
+	hr
+	a(href='/projects/edit', title='new project').adminButton.addButton
