@@ -27,31 +27,69 @@
 
 var express = require('express'); //non devo mettere il './' perchè si tratta di un modulo, e non di un file da importare
 var mongoose = require('mongoose');
-var models = require('./models');
 //serve? var connect = require('connect');
 var connectTimeout = require('connect-timeout');
-var mongoStore = require('connect-mongodb');
-var jslardo = require('./jslardo');
+//var mongoStore = require('connect-mongodb');
 //var RedisStore = require('connect-redis')(express);
+//var i18n = require("i18n");
+
+//create express server
 var app = module.exports = express.createServer();
 
-//configurazioni comuni
+
+
+
+
+
+//configurazioni comuni dell'app 
 app.configure(function(){
 	app.set('views', __dirname + '/views');
 	app.set('view engine', 'jade');
 	app.use(express.logger({ format: '\x1b[1m:method\x1b[0m \x1b[33m:url\x1b[0m :response-time ms' })); //attivo il logger di Express
 	app.use(express.bodyParser()); //serve a popolare la variabile req.body (per esempio con tutto ciò che gli arriva in POST dai form)
 	app.use(express.cookieParser());
-	app.use(express.session({ store: mongoStore(app.set('db-uri')), secret: 'topsecret' }));
+	//app.use(express.session({ store: mongoStore(app.set('db-uri')), secret: 'topsecret' }));
+	app.use(express.session({ secret: 'topsecret' }));
 	app.use(connectTimeout({ time: 120000 })); //2 minuti
 	//non lo uso... app.use(express.methodOverride()); //serve per poter usare nei form: <input type="hidden" name="_method" value="put" />, e quindi app.put('/', function(){ console.log(req.body.user); res.redirect('back');});
+	//configuro i18n
+	app.i18n = require("i18n");
+	app.i18n.configure({
+		// setup some locales - other locales default to en silently
+		locales:['en','it']
+	});
+	// using 'accept-language' header to guess language settings
+    app.use(app.i18n.init);
+	//init router
 	app.use(app.router);
+	//declare public dir
 	app.use(express.static(__dirname + '/public'));
+	//Helpers
+	//questo serve per passare a jade le sessions
+	app.dynamicHelpers({
+		session: function (req, res) {
+			return req.session;
+		},
+		app: function (req, res) {
+			return req.app;
+		}
+	});
+	//register i18n helpers for use in jade templates
+	app.helpers({
+		__i: app.i18n.__,
+		__n: app.i18n.__n
+	});
 	//appendo jslardo all'app express
-	app.jslardo = jslardo;
+	app.jslardo = require('./jslardo');
+	//importo il necessario per jslardo
+	app.jslardo.config = require('./config').jslardo_config;
+	app.jslardo.models = require('./models');
+	app.jslardo.crypto = require('crypto');
+	//console.log(app.jslardo);
+	//console.log(app.jslardo.config);
 });
 
-//configurazioni differenziate in base alla modalità del server (sviluppo/produzione)
+//configurazioni dell'app differenziate in base alla modalità del server (sviluppo/produzione)
 app.configure('development', function(){
 	//aumento il livello di debug
 	app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
@@ -70,22 +108,14 @@ app.configure('production', function(){
 mongoose.connect('mongodb://localhost/jslardo');
 
 //carico i modelli del DB, e li salvo a livello di app
-models.defineModels(mongoose, function() {
-	app.user = mongoose.model('user');
-	app.project = mongoose.model('project');
+app.jslardo.models.defineModels(mongoose, function() {
+	app.jslardo.user = mongoose.model('user');
+	app.jslardo.project = mongoose.model('project');
 	//console.log("finito coi modelli!");
 })
 
 
 
-//Helpers
-
-//questo serve per passare a jade le sessions
-app.dynamicHelpers({
-    session: function (req, res) {
-        return req.session;
-    }
-});
 
 
 
@@ -97,10 +127,10 @@ app.dynamicHelpers({
 app.jslardo.defineRoutes(app);
 
 //route per gli oggetti del db
-var userController = require('./controllers/user');
-userController.defineRoutes(app);
-var projectController = require('./controllers/project');
-projectController.defineRoutes(app);
+//var userController = require('./controllers/user');
+require('./controllers/user').defineRoutes(app);
+//var projectController = require('./controllers/project');
+require('./controllers/project').defineRoutes(app);
 
 /*queste non riesco a farle andare...
 //per ultime le route per le pagine di errore, se nessuna altra route è stata matchata

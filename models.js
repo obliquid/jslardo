@@ -12,10 +12,11 @@ function defineModels(mongoose, cb) {
 	//Schema user
 	var User = new Schema({
 		'name': { type: String, index: true, required: true },
-		'address': { type: String },
-		'piva': { type: String },
+		'profile': { type: String },
 		'email': { type: String, validate: [validatePresenceOf, 'an email is required'], index: { unique: true } },
-		'password': { type: String, required: true }
+		'password': { type: String, required: true },
+		'status': { type: String, required: true, enum: ['public', 'private'] },
+		'created': { type: Date }
 	});
 	mongoose.model('user', User);
 	

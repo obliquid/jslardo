@@ -1,12 +1,12 @@
-h1 #{title}
+h3 #{title}
 hr
 form(method='post', action='/projects/#{project._id || ""}').size4
 
-	span name
+	h5.formLabel name
 	input(name='name', value='#{project.name || ""}').size3
 	
 	br
-	span customer
+	h5.formLabel customer
 	each customer in project.customer
 		a #{customer.name}
 	a(href='/users/select', target='_blank', title='add').adminButton.addButton

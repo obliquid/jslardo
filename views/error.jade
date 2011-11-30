@@ -1,4 +1,5 @@
-h1 Error
+h1 #{__i('error')}
 hr
-h4 #{errMsg}
-a(onclick='history.go(-1);', title='back').adminButton.backButton
+h4 #{publicMsg}
+p #{errMsg}
+a(onclick='history.go(-1);', title='#{__i('back')}').adminButton.backButton

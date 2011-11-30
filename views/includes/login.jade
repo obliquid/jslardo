@@ -1,17 +1,22 @@
 div.outerCont
-	h4 access
+	h4 #{__i('access')}
 	div.innerCont
 		form(method='post', action='/signin')
-			- if ( session.signedin )
-				p #{ session.email }
-				a(href='/signout') sign out
+			- if ( session.user_id )
+				h4 #{ session.email }
+				hr
+				a(href='/signout') #{__i('sign out')}
+				- if ( session.user_id == 'superadmin' )
+					span #{__i('super admin mode')}!
+				- else
+					a(href='/users/edit/#{session.user_id}') #{__i('your profile')}
 			- else
 				span email
-				input(name='email').size1
+				input(name='login_email').size1
 				br
 				span password
-				input(name='password',type='password').size1
+				input(name='login_password',type='password').size1
 				br
-				input(type='submit',value='sign in')
+				input(type='submit',value='#{__i('sign in')}')
 				span or
-				a(href='/users/edit') register
+				a(href='/users/edit/new') #{__i('register')}

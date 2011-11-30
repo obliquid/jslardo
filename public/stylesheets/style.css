@@ -60,7 +60,7 @@ img
 
 
 
-/* TEXTS AND TITLES */
+/* texts and titles */
 
 h1 
 {
@@ -124,7 +124,7 @@ h6
 
 
 
-/* LINKS */
+/* links */
 
 a
 {
@@ -139,7 +139,7 @@ a:hover
 
 
 
-/* FORMS */
+/* forms */
 
 input
 {
@@ -151,7 +151,7 @@ textarea
 
 
 
-/* LISTS */
+/* lists */
 
 ul
 {
@@ -167,7 +167,7 @@ li
 }
 
 
-/* OTHER */
+/* other */
 hr
 {
 	margin-top: 15px;
@@ -342,7 +342,8 @@ a,
 input,
 textarea,
 .outerCont,
-.innerCont
+.innerCont,
+.adminIcon
 {
 	border-radius: 14px; 
 	-moz-border-radius: 14px; 
@@ -540,7 +541,13 @@ textarea:hover
 	clear: both;
 }
 
-.adminButton 
+.formLabel
+{
+	display: inline-block;
+}
+
+.adminButton,
+.adminIcon
 {
 	display: inline-block;
 	width: 24px;
@@ -559,6 +566,11 @@ textarea:hover
 .adminButton:hover
 {
 	background-color: #874300;
+}
+
+.adminIcon
+{
+	background-color: #aaaaaa;
 }
 
 .addButton
@@ -591,6 +603,11 @@ textarea:hover
 	background-image:url('../images/pov/icon_core_set_20x15.png');
 }
 
+.privateButton
+{
+	background-image:url('../images/pov/icon_data_account_20x15.png');
+}
+
 /*
 .unlinkButton
 {
@@ -617,6 +634,52 @@ textarea:hover
 	background-image:url('../images/pov/icon_arrow_s_15x15.png');
 }
 */
+
+
+
+
+/* PAGINATION RELATED */
+
+.paginationActualResults
+{
+	float: left;
+	margin-top: 3px;
+	margin-right: 4px;
+}
+
+.paginationLinkFirst
+{
+	background-image:url('../images/pov/icon_pagination_first_20x20.png');
+}
+
+.paginationLinkPrev10pages
+{
+	background-image:url('../images/pov/icon_pagination_prev10pages_20x20.png');
+}
+
+.paginationLinkPrev
+{
+	background-image:url('../images/pov/icon_pagination_prev_20x20.png');
+}
+
+.paginationLinkNext
+{
+	background-image:url('../images/pov/icon_pagination_next_20x20.png');
+}
+
+.paginationLinkNext10pages
+{
+	background-image:url('../images/pov/icon_pagination_next10pages_20x20.png');
+}
+
+.paginationLinkLast
+{
+	background-image:url('../images/pov/icon_pagination_last_20x20.png');
+}
+
+.paginationBox
+{
+}
 
 
 

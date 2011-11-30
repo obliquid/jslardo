@@ -7,7 +7,7 @@ function defineRoutes(app) {
 	//GET: project list
 	app.get('/projects', app.jslardo.checkPermissions, function(req, res){
 		//leggo gli project dal db, e assegno il result al tpl
-		app.project.find(
+		app.jslardo.project.find(
 			{},
 			[], 
 			{ sort: ['nome', 'descending'] },	
@@ -24,10 +24,10 @@ function defineRoutes(app) {
 	app.get('/projects/delete/:id?', app.jslardo.checkPermissions, function(req, res, next){
 		if (req.params.id) {
 			//mi hanno passato l'id, quindi posso fare il delete
-			app.project.remove(
+			app.jslardo.project.remove(
 				{ '_id': req.params.id },
 				function(err, project) {
-					if ( err ) app.jslardo.errorPage(res, 'GET: project delete: '+err);
+					if ( err ) app.jslardo.errorPage(res, err, 'GET: project delete: ');
 				}
 			);	
 			
@@ -42,7 +42,7 @@ function defineRoutes(app) {
 		if (req.params.id) {
 			//mi hanno passato l'id, quindi è un MODIFY
 			//leggo il mio project dal db, e assegno il result al tpl
-			app.project.findOne(
+			app.jslardo.project.findOne(
 				{ '_id': req.params.id },
 				function(err, project) {
 					res.render('projects/form', { 
@@ -63,11 +63,11 @@ function defineRoutes(app) {
 		}
 	});
 	//POST: project form (modify/new)
-	app.post('/projects/:id?', function(req, res, next){
+	app.post('/projects/:id?', app.jslardo.checkPermissions, function(req, res, next){
 		if (req.params.id) {
 			//mi hanno passato l'id, quindi devo fare un MODIFY
 			//update del mio project nel db
-			app.project.findOne(
+			app.jslardo.project.findOne(
 				{ '_id': req.body.id },
 				function(err, project) {
 					if (!err)
@@ -83,14 +83,14 @@ function defineRoutes(app) {
 					}
 					else
 					{
-						app.jslardo.errorPage(res, "POST: project form: project not saved: "+err);
+						app.jslardo.errorPage(res, err, "POST: project form: project not saved: ");
 					}
 				}
 			);
 		} else {
 			//non mi hanno passato l'id, quindi devo fare un NEW
 			//creo nuovo project
-			var myProject = new app.project();
+			var myProject = new app.jslardo.project();
 			//popolo il mio project con quanto mi arriva dal form
 			app.jslardo.populateModel(myProject, req.body);
 			//salvo il nuovo project
@@ -103,7 +103,7 @@ function defineRoutes(app) {
 				}
 				else
 				{
-					app.jslardo.errorPage(res, "POST: project form: saving project: "+err);
+					app.jslardo.errorPage(res, err, "POST: project form: saving project: ");
 				}
 			});
 		}
@@ -112,7 +112,7 @@ function defineRoutes(app) {
 	app.get('/projects/:id?', app.jslardo.checkPermissions, function(req, res, next){
 		if (req.params.id) {
 			//leggo il mio project dal db, e assegno il result al tpl
-			app.project.findOne(
+			app.jslardo.project.findOne(
 				{ '_id': req.params.id },
 				[], 
 				{ sort: ['name', 'descending'] },	
@@ -126,7 +126,7 @@ function defineRoutes(app) {
 					}
 					else
 					{
-						app.jslardo.errorPage(res, "GET: project detail: error loading project: "+err);
+						app.jslardo.errorPage(res, err, "GET: project detail: error loading project");
 					}
 				}
 			);	

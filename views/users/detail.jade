@@ -1,13 +1,28 @@
-h1 #{title}
+h3 #{__i('user detail')}
 hr
-h2 #{user.name}
-h3 #{user.address}
+h1 #{user.name}
 br
-h4 piva: #{user.piva}
-h4 email: #{user.email}
-h4 password: #{user.password}
-h4 id: #{user._id}
+h4
+	span [
+		a(href='mailto:#{user.email}') #{user.email}
+		]
+br
+if user.profile
+	p #{user.profile}
+	br
+h5  #{__i('status')}: 
+	h4 #{user.status}
+if user.created
+	br
+	h5 #{__i('created')}: 
+		h4 #{user.created}
+br
+h5 id: 
+	h4 #{user._id}
 hr
-a(href='/users', title='all users').adminButton.backButton
-- if ( session.hasModify )
-	a(href='/users/edit/#{user._id}', title='modify user').adminButton.modifyButton
+a(onclick='window.history.go(-1)', title='#{__i('back')}').adminButton.backButton
+if ( session.user_id == 'superadmin' )
+	a(href='/users/edit/#{user._id}', title='#{__i('modify user')}').adminButton.modifyButton
+	a(title='#{__i('delete user')}', onclick='if(confirm(#{__i("delete for sure?")})) window.location = "/users/delete/#{user._id}";').adminButton.deleteButton
+	if user.status == 'private'
+		div(title='private').adminIcon.privateButton
