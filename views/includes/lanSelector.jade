@@ -1,0 +1,8 @@
+div.outerCont
+	h4 #{__i('languages')}
+	div.innerCont
+		each locale in app.i18n.getLocalesNames()
+			if locale == app.i18n.getLocale()
+				span #{locale}
+			else
+				a(href='/lan/#{locale}') #{locale}
