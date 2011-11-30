@@ -20,5 +20,5 @@ defined as a middleware in express
 <br/>
 
 
-<h3>finally, the name, why lardo?</h3>
+<h2>finally, the name, why lardo?</h2>
 because lardo is good
