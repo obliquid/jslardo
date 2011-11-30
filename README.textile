@@ -10,11 +10,14 @@ as a template engine jslardo uses jade.
 
 <h3>yet implemented functionalities</h3>
 <h4>users management</h4>
-- users can register, and modify their profile
+users can register, and modify their profile
+<br/>
 <h4>internationalization</h4>
-- via i18n
+via i18n
+<br/>
 <h4>pagination</h4>
-- defined as a middleware in express
+defined as a middleware in express
+<br/>
 
 
 <h3>finally, the name, why lardo?</h3>
