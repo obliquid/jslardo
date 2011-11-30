@@ -3,18 +3,19 @@
 <h3>what is this?</h3>
 jslardo is a sort of a social cms. users will be able to register to the application, define their own models for data, and create their own frontend views (websites) to represent the data.
 code is in early stage, a few functionalities are implemented yet. come back in a few months!
-<br/>
+
+<h3>it's based upon?</h3>
 jslardo starts as an express application, backed up by mongodb with mongoose.
 as a template engine jslardo uses jade.
 
+<h3>functionalities implemented till now</h3>
+<h4>users management
+- users can register, and modify their profile
+<h4>internationalization
+- via i18n
+<h4>pagination
+- defined as a middleware in express
 
-<h3>functionalities implemented</h3>
-- users management
-	- users can register, and modify their profile
-- internationalization
-	- via i18n
-- pagination
-	- defined as a middleware in express
 
 <h3>finally, the name, why lardo?</h3>
 because lardo is good
