@@ -8,12 +8,12 @@ code is in early stage, a few functionalities are implemented yet. come back in 
 jslardo starts as an express application, backed up by mongodb with mongoose.
 as a template engine jslardo uses jade.
 
-<h3>functionalities implemented till now</h3>
-<h4>users management
+<h3>yet implemented functionalities</h3>
+<h4>users management<h4>
 - users can register, and modify their profile
-<h4>internationalization
+<h4>internationalization<h4>
 - via i18n
-<h4>pagination
+<h4>pagination<h4>
 - defined as a middleware in express
 
 
