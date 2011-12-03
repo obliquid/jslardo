@@ -1,0 +1,19 @@
+h3 #{__i('all users')}
+hr
+ul
+	each user in users
+		li
+			a(href='/users/#{user._id}') #{user.name} (#{user.email})
+			if ( session.user_id == 'superadmin' )
+				a(href='/users/edit/#{user._id}', title='#{__i('modify user')}').adminButton.modifyButton
+				a(title='#{__i('delete user')}', onclick='if(confirm(#{__i("delete for sure?")})) window.location = "/users/delete/#{user._id}";').adminButton.deleteButton
+				if user.status == 'private'
+					div(title='#{__i('private')}').adminIcon.privateButton
+				//- non ancora implementato
+					if ( mode == 'select' )
+						a(title='#{__i('select user')}', onclick='').adminButton.selectButton
+//- solo il super admin ha i bottoni di add, tutti gli altri utenti si creano solo col bottone "register"
+if ( session.user_id == 'superadmin' )
+	hr
+	a(href='/users/edit', title='#{__i('new user')}').adminButton.addButton
+include ../includes/pagination
