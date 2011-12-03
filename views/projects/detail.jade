@@ -1,9 +1,0 @@
-h3 #{title}
-hr
-h1 #{project.name}
-each customer in project.customer
-	h3 #{customer.name}
-hr
-a(href='/projects', title='all projects').adminButton.backButton
-- if ( session.hasModify )
-	a(href='/projects/edit/#{project._id}', title='modify project').adminButton.modifyButton
