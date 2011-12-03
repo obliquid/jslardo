@@ -39,5 +39,19 @@
 	"change password": "change password",
 	"created": "created",
 	"error": "error",
-	"successfully saved": "successfully saved"
+	"successfully saved": "successfully saved",
+	"an email is required": "an email is required",
+	"host is required": "host is required",
+	"linked servers": "linked servers",
+	"all linkedservers": "all linkedservers",
+	"new linkedserver": "new linkedserver",
+	"create new linkedserver": "create new linkedserver",
+	"configuration": "configuration",
+	"host": "host",
+	"description": "description",
+	"modify linkedserver": "modify linkedserver",
+	"linkedserver detail": "linkedserver detail",
+	"delete linkedserver": "delete linkedserver",
+	"public users": "public users",
+	"public linkedservers": "public linkedservers"
 }

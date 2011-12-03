@@ -1,6 +1,6 @@
 //models
 
-function defineModels(mongoose, cb) {
+function defineModels(mongoose, app, next) {
 	
 	//definisco gli Schema per i modelli
 	var Schema = mongoose.Schema;
@@ -13,19 +13,31 @@ function defineModels(mongoose, cb) {
 	var User = new Schema({
 		'name': { type: String, index: true, required: true },
 		'profile': { type: String },
-		'email': { type: String, validate: [validatePresenceOf, 'an email is required'], index: { unique: true } },
+		'email': { type: String, validate: [validatePresenceOf, app.i18n.__('an email is required')], index: { unique: true } },
 		'password': { type: String, required: true },
 		'status': { type: String, required: true, enum: ['public', 'private'] },
 		'created': { type: Date }
 	});
 	mongoose.model('user', User);
 	
-	//Schema project
-	var Project = new Schema({
-		'name': { type: String, index: true, required: true },
-		'customer': [User]
+	//Schema site
+	var Site = new Schema({
+		'title': { type: String, index: { unique: true }, required: true },
+		'author_id': { type: Schema.ObjectId, ref: 'User' },
+		'status': { type: String, required: true, enum: ['public', 'private'] },
+		'created': { type: Date }
 	});
-	mongoose.model('project', Project);
+	mongoose.model('site', Site);
+	
+	//Schema linkedserver
+	var Linkedserver = new Schema({
+		'host': { type: String, validate: [validatePresenceOf, app.i18n.__('host is required')], index: { unique: true }, required: true },
+		'description': String,
+		'author_id': { type: Schema.ObjectId, ref: 'User' },
+		'status': { type: String, required: true, enum: ['public', 'private'] },
+		'created': { type: Date }
+	});
+	mongoose.model('linkedserver', Linkedserver);
 	
 	
 	
@@ -46,8 +58,8 @@ function defineModels(mongoose, cb) {
 	
 	
 	//attaccare metodi custom ad uno schema
-	AnimalSchema.methods.findSimilarType = function findSimilarType (cb) {
-	  return this.find({ type: this.type }, cb);
+	AnimalSchema.methods.findSimilarType = function findSimilarType (next) {
+	  return this.find({ type: this.type }, next);
 	};	
 	var dog = new Animal({ name: 'Rover', type: 'dog' });
 	dog.findSimilarType(function (err, dogs) {
@@ -144,7 +156,7 @@ function defineModels(mongoose, cb) {
 	
 	
 	//alla fine chiamo il callback che mi hanno passato
-	cb();
+	next();
 }
 
 exports.defineModels = defineModels; 

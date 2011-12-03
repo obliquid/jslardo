@@ -1,40 +1,126 @@
 // jslardo functions
 
 
+
+//PERMISSIONS
+//questi sono wrapper che mi servono per differenziare i permessi in base all'oggetto trattato
+function readStrucPermOn_users(req, res, next) {
+	readStrucPerm('user', req, res, next);
+}
+/*
+function readStrucPermOn_linkedservers(req, res, next) {
+	readStrucPerm('linkedserver', req, res, next);
+}
+*/
+//quando si assegnano i middleware alle routes, prima bisogna sempre leggere i permessi (readStrucPermOn_XXX)
+//poi si possono imporre lecondizioni in base ai permessi (needStrucPermXXX)
+function needStrucPermCreate(req, res, next) {
+	( req.session.canCreate ) ? next() : res.redirect('/');
+}
+function needStrucPermModifyMine(req, res, next) {
+	( req.session.canModifyMine ) ? next() : res.redirect('/');
+}
+function needStrucPermModifyAll(req, res, next) {
+	( req.session.canModifyAll ) ? next() : res.redirect('/');
+}
+function needStrucPermModifyMyself(req, res, next) {
+	( req.session.canModifyMyself ) ? next() : res.redirect('/');
+}
+
+//questo metodo viene richiamato prima di eseguire ogni request che lo richiede
+//in qualunque controller di qualunque oggetto
+function readStrucPerm(on, req, res, next) {
+	//console.log('readStrucPerm: req.session.user_id = ' + req.session.user_id);
+	//azzero i permessi
+	req.session.canCreate = false;
+	req.session.canModifyMine = false;
+	req.session.canModifyAll = false;
+	req.session.canModifyMyself = false; //questo è un permesso che vale solo per l'elemento "users"
+	//controllo se sono loggato
+	if (req.session.user_id) {
+		//l'utente risulta loggato
+		//controllo se i suoi dati di login sono validi
+		//(questo controllo va fatto ogni volta, perchè se dall'ultimo conrollo l'utente fosse stato cancellato, non me ne accorgerei senza controllo
+		checkValidUser(req, function(result, user_id) { 
+			if ( result )
+			{
+				//i dati di login sono validi
+				if ( user_id == 'superadmin' )
+				{
+					//se sono super admin, ho sempre permesso di modify su tutti i contenuti, ma non ho il create
+					//questo perchè quando si crea un contenuto, questo è strettamente legato all'utente che lo crea, e il superadmin
+					//non è un utente vero è proprio (non è presente nel db, non ha id). il super admin serve solo per poter vedere e modificare tutto, ma non può creare nulla
+					req.session.canModifyAll = true;
+					req.session.canModifyMyself = true; //questo serve per permettere al super admin di modificare gli utenti (il form di modifica lo richiede)
+					//la request puo essere processata
+					next();
+				}
+				else
+				{
+					//non sono superadmin
+					//siccome si tratta di permessi su elementi della struttura, chiunque (loggato) ha sempre il permesso di create nuovi elementi
+					//(tranne per il caso degli "user" in cui si creano altri utenti con il bottone "registrati", che però non prevede di essere loggati)
+					req.session.canCreate = true;
+					//differenzio i permessi di modify in base all'oggetto trattato
+					switch (on)
+					{
+						case 'user':
+							//user è un elemento della struttura particolare, perchè, a differenza di tutti gli altri elementi di struttura, ogni utente può solo modificare
+							//se stesso. inoltre user non ha un "author_id" poichè un utente è creato da se stesso tramite il bottone "register"
+							//nel caso di modifica di users, ho modify solo per modificare me stesso
+							if ( req.params.id == req.session.user_id ) //controllo se l'id dell'utente da modificare è quello dell'utente loggato, cioè se modifico me stesso
+							{
+								//lo user id nella route richiesta corrisponde al mio, quindi posso modificare me stesso (il mio profilo)
+								req.session.canModifyMyself = true; 
+							}
+							break;
+						default:
+							//ora come ora per tutti gli altri elementi della struttura chiunque ha permesso di modify, ma solo sui propri elementi
+							req.session.canModifyMine = true; 
+							break;
+					}
+					//continuo
+					next();
+					
+				}
+			}
+			else
+			{
+				//i dati di login non sono validi
+				//console.log('readStrucPerm: login NON valido');
+				//forzo un logout (potrebbe verificarsi il caso in cui un utente è loggato, e viene cancellato dal db. in quel caso deve avvenire anche il suo logout)
+				setSignedOut(req);
+				//vengo mandato in home
+				res.redirect('/');
+			}
+		});
+		
+	} else {
+		//console.log('readStrucPerm: utente non loggato');			
+		//non sono loggato. l'unica cosa che posso fare è di registrarmi, ovvero creare un nuovo user
+		if ( on == 'user' )
+		{
+			req.session.canCreate = true;
+		}
+		//non ho nessun permesso, continuo
+		next();
+	}
+}
+
+
+
+
+
 //SESSIONS
 /* controllo nel db se lo user (che sia in POST o dalle sessions) esiste */
 function checkValidUser(req, closure)
 {
 	//console.log('checkValidUser: req.body.login_email='+req.body.login_email);
-	//console.log('checkValidUser: req.session.email='+req.session.email);
 	//controllo se ho le credenziali in POST (cioè se sto facendo un login dal form), oppure se le ho nelle session (sono già loggato)
 	var email = ( req.body && req.body.login_email && req.body.login_email != "" ) ? req.body.login_email : req.session.email;
 	var password = ( req.body && req.body.login_password && req.body.login_password != "" ) ? req.body.login_password : req.session.password;
-	/*
-	if ( req.session && req.session.email && req.session.email != "" ) 
-	{
-		console.log('checkValidUser: req.session.email='+req.session.email);
-	}
-	if ( req.body && req.body.login_email && req.body.login_email != "" ) 
-	{
-		console.log('checkValidUser: req.body.login_email='+req.body.login_email);
-		
-	}
-	if ( req.body && req.body.password && req.body.password != "" ) console.log('checkValidUser: req.body.password='+req.body.password);
-	if ( req.session && req.session.password && req.session.password != "" ) console.log('checkValidUser: req.session.password='+req.session.password);
-	console.log('checkValidUser: email='+email);
-	console.log('checkValidUser: password='+password);
-	*/
-	
-	
-	
-	/*
-	console.log(req.app.jslardo);
-	console.log(req.app.jslardo.config);
-	console.log(req.app.jslardo.config.superadminEmail);
-	*/
 	//prima controllo se si tratta del super admin
-	if ( req.app.jslardo.config.superadminEmail == email && req.app.jslardo.config.superadminPw == password )
+	if ( req.app.jsl.config.superadminEmail == email && req.app.jsl.config.superadminPw == password )
 	{
 		closure(true, 'superadmin'); //se sono super user, salvo come id la parola "superadmin"
 	}
@@ -43,7 +129,7 @@ function checkValidUser(req, closure)
 		//verifico se effettivamente esiste nel db il mio utente
 		var hashedPw = hashPw(req, password);
 		//console.log("checkValidUser: hashedPw="+hashedPw);
-		req.app.jslardo.user.findOne(
+		req.app.jsl.user.findOne(
 			{ 'email': email, 'password': hashedPw },
 			function(err, user) {
 				if (!err)
@@ -72,15 +158,6 @@ function checkValidUser(req, closure)
 /* dopo che è stato effettuato il controllo, questo metodo salva effettivamente le variabili che dicono che l'utente è loggato */
 function setSignedIn(req, user_id)
 {
-	//console.log(req);
-	//console.log(user_id);
-	/*
-	console.log('setSignedIn: req.body.email='+req.body.email);
-	console.log('setSignedIn: req.body.password='+req.body.password);
-	console.log('setSignedIn: req.body.login_email='+req.body.login_email);
-	console.log('setSignedIn: req.body.login_password='+req.body.login_password);
-	*/
-	
 	//devo considerare i casi in cui i dati arrivano dal form di login, e il caso in cui arrivano dal form di modifica dell'utente
 	if ( req.body && req.body.login_email && req.body.login_email != "" ) 
 	{
@@ -98,14 +175,10 @@ function setSignedIn(req, user_id)
 	{
 		var password = req.body.password;
 	}
-	//console.log('setSignedIn: email='+email);
-	//console.log('setSignedIn: password='+password);
-	
 	//salvo nelle session che il mio utente è loggato
 	req.session.email = email;
 	req.session.password = password;
 	req.session.user_id = user_id;
-	//non più usato, al suo posto controllo user_id: req.session.signedin = true;
 }
 
 /* slogga l'utente */
@@ -115,10 +188,14 @@ function setSignedOut(req)
 	req.session.destroy(function() {});
 }
 
+/* hashing delle password */
 function hashPw(req, password)
 {
-	return req.app.jslardo.crypto.createHash('sha1').update(password).digest('hex');
+	return req.app.jsl.crypto.createHash('sha1').update(password).digest('hex');
 }
+
+
+
 
 
 
@@ -127,16 +204,16 @@ function paginationInit(req, res, next) {
 	//numero di pagina corrente
 	req.session.pageNum = parseInt(req.params.page) || 1;
 	//skip
-	req.session.skip = req.app.jslardo.config.elementsPerPage * ( req.session.pageNum - 1 );
+	req.session.skip = req.app.jsl.config.elementsPerPage * ( req.session.pageNum - 1 );
 	//limit
-	req.session.limit = req.app.jslardo.config.elementsPerPage;
+	req.session.limit = req.app.jsl.config.elementsPerPage;
 	//la request puo essere processata
 	next();
 
 }
 function paginationDo(req, total, url) {
 	//actual range
-	var recordsPerPage = req.app.jslardo.config.elementsPerPage;
+	var recordsPerPage = req.app.jsl.config.elementsPerPage;
 	var endToRecord = req.session.pageNum * recordsPerPage;
 	if( endToRecord > total )
 	{
@@ -215,73 +292,6 @@ function paginationDo(req, total, url) {
 }
 	
 	
-//PERMISSIONS
-//questo metodo viene richiamato prima di eseguire ogni request che lo richiede
-//in qualunque controller di qualunque oggetto
-function checkPermissions(req, res, next) {
-	//console.log('checkPermissions: req.session.user_id = ' + req.session.user_id);
-	//controllo i permessi
-	if (req.session.user_id) {
-		//l'utente risulta loggato
-		//console.log('checkPermissions: utente loggato');
-		//controllo se i suoi dati di login sono validi
-		checkValidUser(req, function(result, user_id) { 
-			if ( result )
-			{
-				//i dati di login sono validi
-				//console.log('checkPermissions: i dati di login sono validi: user_id='+user_id);
-				if ( user_id == 'superadmin' )
-				{
-					//console.log('checkPermissions: sono superadmin');
-					//se sono super admin, ho sempre permesso di modify
-					req.session.hasModify = true; //questo perloppiù lo uso nei template
-					//la request puo essere processata
-					next();
-				}
-				else
-				{
-					//non sono superadmin
-					//nel caso di modifica di users, ho modify solo per modificare me stesso
-					//console.log(req);
-					//console.log(req.url);
-					//console.log(req.originalUrl);
-					//console.log(req.app.jslardo);
-					if ( req.params.id == req.session.user_id ) //questo controllo funziona perchè gli id di mongo sono sempre unici, indipendentemente dalla collection????????????????
-					{
-						//console.log('checkPermissions: NON sono superadmin, modifico me stesso');
-						//lo user id nella route richiesta corrisponde al mio, quindi posso modificare me stesso (il mio profilo)
-						req.session.hasModify = true; 
-						//la request puo essere processata
-						next();
-					}
-					else
-					{
-						//console.log('checkPermissions: NON sono superadmin e NON modifico me stesso, vado in home');
-						//vengo mandato in home
-						res.redirect('/');
-					}
-				}
-			}
-			else
-			{
-				//i dati di login non sono validi
-				//console.log('checkPermissions: login NON valido');
-				//forzo un logout (potrebbe verificarsi il caso in cui un utente è loggato, e viene cancellato dal db. in quel caso deve avvenire anche ilsuo logout)
-				setSignedOut(req);
-				//vengo mandato in home
-				res.redirect('/');
-			}
-		});
-		
-	} else {
-		//console.log('checkPermissions: utente non loggato');			
-		//se l'utente non è loggato, lo rimando nella home
-		res.redirect('/');
-	}
-}
-
-
-
 // VARIE
 
 /* visualizza una pagina di errore e logga sulla console */
@@ -298,12 +308,14 @@ function defineRoutes(app) {
 	
 	//GET: home
 	app.get('/', function(req, res){ 
+		app.jsl.routeInit(req);
 		res.render('home', {
 		});
 	});
 
 	//POST: login signin
 	app.post('/signin', function(req, res) {
+		app.jsl.routeInit(req);
 		//controllo se esiste il mio utente nel db
 		checkValidUser(req, function(result, user_id) { 
 			if ( result )
@@ -328,6 +340,7 @@ function defineRoutes(app) {
 	
 	//GET: login signout
 	app.get('/signout', function(req, res) {
+		app.jsl.routeInit(req);
 		//resetto le session
 		console.log("POST: login signout: for user: "+req.session.email);
 		req.session.destroy(function() {});
@@ -337,6 +350,7 @@ function defineRoutes(app) {
 	
 	//GET: change language
 	app.get('/lan/:locale?', function(req, res) {
+		app.jsl.routeInit(req);
 		//cambio la lingua
 		//console.log("cambierei con: "+req.params.locale);
 		req.app.i18n.setLocale(req.params.locale);
@@ -353,6 +367,7 @@ function defineRoutes(app) {
 function defineRoute404(app) {
 	/*
 	app.get('*', function(req, res){
+		app.jsl.routeInit(req);
 		errorPage(res, "404 not found: "+req.path);	
 	});	
 	*/
@@ -378,6 +393,12 @@ function populateModel(model, modelData) {
 	
 }
 
+/* questa va richiamata da ogni route, e compie operazioni utili e comuni a tutte le route */
+function routeInit(req)
+{
+	//prima loggo la route in cui sono entrato
+	console.log('route matched: ('+req.route.method.toUpperCase()+') '+req.route.path);	
+}
 
 
 exports.defineRoutes = defineRoutes; 
@@ -385,11 +406,17 @@ exports.defineRoute404 = defineRoute404;
 exports.errorPage = errorPage; 
 exports.setSignedIn = setSignedIn; 
 exports.populateModel = populateModel; 
-exports.checkPermissions = checkPermissions; 
+exports.readStrucPermOn_users = readStrucPermOn_users; 
+exports.needStrucPermCreate = needStrucPermCreate;
+exports.needStrucPermModifyMine = needStrucPermModifyMine;
+exports.needStrucPermModifyAll = needStrucPermModifyAll;
+exports.needStrucPermModifyMyself = needStrucPermModifyMyself;
+
 exports.checkValidUser = checkValidUser; 
 exports.hashPw = hashPw; 
 exports.paginationInit = paginationInit; 
 exports.paginationDo = paginationDo; 
+exports.routeInit = routeInit; 
 
 
 

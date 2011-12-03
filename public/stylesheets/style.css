@@ -206,6 +206,7 @@ hr
 
 
 /* COMMON STYLES */
+/* generic styles useful for differents elements and in different contexts */
 
 /* grid units */
 .sizeQuarter
@@ -256,12 +257,26 @@ textarea:hover
 {
 	background-color: #66aa66;
 }
+a.outerCont:hover
+{
+	background-image: none;
+}
+
 
 /* corporate color B */
 .formError
 {
 	color: #E57200;
 }
+
+/* commont texts formatting */
+
+.textMini
+{
+	font-size:12px;
+}
+
+
 
 /* links and buttons */
 a,
@@ -397,7 +412,16 @@ textarea:hover
 	text-shadow: rgba(0, 0, 0, 0.5) 0px 1px 0px;
 }
 
+/* floats */
+.floatLeft
+{
+	float: left;
+}
 
+.clear
+{
+	clear: both;
+}
 
 
 
@@ -443,6 +467,7 @@ textarea:hover
 
 
 /* CUSTOM CLASSES */
+/* styles dedicated to specific elements */
 
 .outerCont
 {
@@ -456,6 +481,11 @@ textarea:hover
 	margin-bottom:15px;
 	*/
 	display:inline-block;
+	overflow: hidden;
+}
+.elemGrid.outerCont
+{
+	display: block;
 }
 
 .innerCont
@@ -471,6 +501,7 @@ textarea:hover
 	padding: 3px;
 	margin: 0px;
 	margin-top: 5px;
+	overflow: hidden;
 }
 
 .headerCont,
@@ -522,6 +553,24 @@ textarea:hover
 	padding-bottom: 10px;
 }
 
+/* element in a grid view */
+
+.elemGrid
+{
+	height: 120px;
+	position: relative;
+}
+.elemGridAdminCont
+{
+	position: absolute;
+	bottom: 3px;
+	right: 3px;
+	
+}
+
+/* element in a list view */
+
+
 /*
 .pageTitle
 {
@@ -531,15 +580,8 @@ textarea:hover
 }
 */
 
-.floatLeft
-{
-	float: left;
-}
+/* forms */
 
-.clear
-{
-	clear: both;
-}
 
 .formLabel
 {
@@ -642,7 +684,7 @@ textarea:hover
 
 .paginationActualResults
 {
-	float: left;
+	display: inline-block;
 	margin-top: 3px;
 	margin-right: 4px;
 }
@@ -679,6 +721,7 @@ textarea:hover
 
 .paginationBox
 {
+	text-align: right;
 }
 
 

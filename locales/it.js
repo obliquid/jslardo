@@ -36,5 +36,19 @@
 	"email is also used as username": "l'email verrà usata anche come username per effettuare l'accesso",
 	"retype": "riscrivi",
 	"change password": "cambia password",
-	"created": "created"
+	"created": "creato",
+	"linkedserver detail": "linkedserver detail",
+	"linked servers": "linked servers",
+	"public linkedservers": "public linkedservers",
+	"modify linkedserver": "modify linkedserver",
+	"delete linkedserver": "delete linkedserver",
+	"new linkedserver": "new linkedserver",
+	"host is required": "host is required",
+	"configuration": "configuration",
+	"host": "host",
+	"description": "description",
+	"successfully saved": "successfully saved",
+	"public users": "public users",
+	"error": "error",
+	"delete for sure": "delete for sure"
 }

@@ -21,8 +21,9 @@ h5 id:
 	h4 #{user._id}
 hr
 a(onclick='window.history.go(-1)', title='#{__i('back')}').adminButton.backButton
-if ( session.user_id == 'superadmin' )
+if session.user_id == 'superadmin' || session.user_id == user._id
 	a(href='/users/edit/#{user._id}', title='#{__i('modify user')}').adminButton.modifyButton
-	a(title='#{__i('delete user')}', onclick='if(confirm(#{__i("delete for sure?")})) window.location = "/users/delete/#{user._id}";').adminButton.deleteButton
+	//- non si può mai cancellare un utente se non dal suo form
+		a(title='#{__i('delete user')}', onclick='if(confirm(#{__i("delete for sure?")})) window.location = "/users/delete/#{user._id}";').adminButton.deleteButton
 	if user.status == 'private'
 		div(title='private').adminIcon.privateButton

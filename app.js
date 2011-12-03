@@ -72,6 +72,12 @@ app.configure(function(){
 		},
 		app: function (req, res) {
 			return req.app;
+		},
+		req: function (req, res) {
+			return req;
+		},
+		res: function (req, res) {
+			return res;
 		}
 	});
 	//register i18n helpers for use in jade templates
@@ -80,13 +86,13 @@ app.configure(function(){
 		__n: app.i18n.__n
 	});
 	//appendo jslardo all'app express
-	app.jslardo = require('./jslardo');
+	app.jsl = require('./jslardo');
 	//importo il necessario per jslardo
-	app.jslardo.config = require('./config').jslardo_config;
-	app.jslardo.models = require('./models');
-	app.jslardo.crypto = require('crypto');
-	//console.log(app.jslardo);
-	//console.log(app.jslardo.config);
+	app.jsl.config = require('./config').jslardo_config;
+	app.jsl.models = require('./models');
+	app.jsl.crypto = require('crypto');
+	//console.log(app.jsl);
+	//console.log(app.jsl.config);
 });
 
 //configurazioni dell'app differenziate in base alla modalità del server (sviluppo/produzione)
@@ -108,9 +114,10 @@ app.configure('production', function(){
 mongoose.connect('mongodb://localhost/jslardo');
 
 //carico i modelli del DB, e li salvo a livello di app
-app.jslardo.models.defineModels(mongoose, function() {
-	app.jslardo.user = mongoose.model('user');
-	app.jslardo.project = mongoose.model('project');
+app.jsl.models.defineModels(mongoose, app, function() {
+	app.jsl.user = mongoose.model('user');
+	app.jsl.site = mongoose.model('site');
+	//app.jsl.linkedserver = mongoose.model('linkedserver');
 	//console.log("finito coi modelli!");
 })
 
@@ -124,19 +131,18 @@ app.jslardo.models.defineModels(mongoose, function() {
 //nota: le route sono importate, prima quelle di jslardo, poi quelle per ciascuno degli oggetti persistenti nel db
 
 //route specifiche di jslardo
-app.jslardo.defineRoutes(app);
+app.jsl.defineRoutes(app);
 
 //route per gli oggetti del db
-//var userController = require('./controllers/user');
 require('./controllers/user').defineRoutes(app);
-//var projectController = require('./controllers/project');
-require('./controllers/project').defineRoutes(app);
+//require('./controllers/site').defineRoutes(app);
+//require('./controllers/linkedserver').defineRoutes(app);
 
 /*queste non riesco a farle andare...
 //per ultime le route per le pagine di errore, se nessuna altra route è stata matchata
-//app.jslardo.defineRoute404(app);
+//app.jsl.defineRoute404(app);
 app.error(function(err, req, res){
-	app.jslardo.errorPage(res, "404 not found: "+req.path);	
+	app.jsl.errorPage(res, "404 not found: "+req.path);	
 	//res.send("fica");
 });
 */

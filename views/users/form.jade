@@ -3,36 +3,36 @@ script
 	{
 		if( $('#name').val() == '' )
 		{
-			alert('#{__i('name is required')}');
+			alert("#{__i('name is required')}");
 			return false;
 		}
 		if( $('#email').val() == '' )
 		{
-			alert('#{__i('email is required')}');
+			alert("#{__i('email is required')}");
 			return false;
 		}
 		if( $('#password').val() == '' )
 		{
-			alert('#{__i('password is required')}');
+			alert("#{__i('password is required')}");
 			return false;
 		}
 		if( $('#retype_password').val() != $('#password').val() )
 		{
-			alert('#{__i('retype password not matching')}');
+			alert("#{__i('retype password not matching')}");
 			return false;
 		}
 		if( $('#retype_new_password').val() != $('#new_password').val() )
 		{
-			alert('#{__i('retype password not matching')}');
+			alert("#{__i('retype password not matching')}");
 			return false;
 		}
 	}
 h3 #{title}
-- if (typeof msg !== "undefined" && msg == 'success' )
+- if (typeof msg !== 'undefined' && msg == 'success' )
 	hr
 	h4.formSuccess #{__i('successfully saved')}!
 hr
-form(method='post', action='/users/#{user._id || ""}', onsubmit='return validateUserForm()' ).size4
+form(method='post', action='/users/edit/#{user._id || ""}', onsubmit='return validateUserForm()' ).size4
 	h4 #{__i('your profile')}
 	p #{__i('email is also used as username')}
 	h5.formLabel #{__i('name')}
@@ -41,14 +41,14 @@ form(method='post', action='/users/#{user._id || ""}', onsubmit='return validate
 	br
 	h5.formLabel #{__i('profile')}
 		span.formError &nbsp;
-	textarea(name='profile').size3 #{user.profile || ""}
+	textarea(name='profile').size3 #{user.profile || ''}
 	br
 	h5.formLabel email
 		span.formError *
 	input(id='email', name='email', value='#{user.email || ""}').size3
 	//- se è un nuovo utente, è obbligatorio inserire la pw
 	//- se è un modify, la pw viene inserita solo per cambiarla
-	if (typeof user._id === "undefined" || user._id == '' )
+	if (typeof user._id === 'undefined' || user._id == '' )
 		br
 		h5.formLabel password
 			span.formError *

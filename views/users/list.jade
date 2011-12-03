@@ -1,19 +1,32 @@
-h3 #{__i('all users')}
+h3(style='float:left;') #{__i('public users')}
+include ../includes/pagination
+div.clear
 hr
-ul
-	each myUser in user
-		li
-			a(href='/users/#{myUser._id}') #{myUser.name} (#{myUser.email})
-			if ( session.user_id == 'superadmin' )
-				a(href='/users/edit/#{myUser._id}', title='#{__i('modify user')}').adminButton.modifyButton
-				a(title='#{__i('delete user')}', onclick='if(confirm(#{__i("delete for sure?")})) window.location = "/users/delete/#{myUser._id}";').adminButton.deleteButton
-				if myUser.status == 'private'
+each user,i in users
+	div.floatLeft.size1
+		a(href='/users/#{user._id}').elemGrid.outerCont
+			h5 #{user.name} 
+			div.innerCont
+				span.textMini email: 
+					h6 #{user.email}
+			div.elemGridAdminCont
+				if user.status == 'private'
 					div(title='#{__i('private')}').adminIcon.privateButton
+		//- funziona, ma ho deciso di non mettere bottoni di admin nelle liste
+			if session.user_id == 'superadmin' || session.user_id == user._id
+				a(href='/users/edit/#{user._id}', title='#{__i('modify user')}').adminButton.modifyButton
+				//- eliminato perchè cancellare un utente è troppo delicato, comporta cancellare tutti i suoi contenuti, andrà messa una function apposita nel form di modify, con un bel warning
+					a(title='#{__i('delete user')}', onclick='if(confirm("#{__i("delete for sure?")}")) window.location = "/users/delete/#{user._id}";').adminButton.deleteButton
 				//- non ancora implementato
 					if ( mode == 'select' )
 						a(title='#{__i('select user')}', onclick='').adminButton.selectButton
-//- solo il super admin ha i bottoni di add, tutti gli altri utenti si creano solo col bottone "register"
-if ( session.user_id == 'superadmin' )
-	hr
-	a(href='/users/edit', title='#{__i('new user')}').adminButton.addButton
+	if (i+1)%6==0
+		div.clear
+div.clear
+hr
 include ../includes/pagination
+//- no
+	//- solo il super admin ha i bottoni di add, tutti gli altri utenti si creano solo col bottone 'register'
+	if ( session.user_id == 'superadmin' )
+		hr
+		a(href='/users/edit', title='#{__i('new user')}').adminButton.addButton
