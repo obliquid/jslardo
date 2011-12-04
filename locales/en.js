@@ -53,5 +53,8 @@
 	"linkedserver detail": "linkedserver detail",
 	"delete linkedserver": "delete linkedserver",
 	"public users": "public users",
-	"public linkedservers": "public linkedservers"
+	"public linkedservers": "public linkedservers",
+	"jslardo is a social cms": "jslardo is a social cms",
+	"more info on": "more info on",
+	"or on": "or on"
 }

@@ -50,5 +50,8 @@
 	"successfully saved": "successfully saved",
 	"public users": "public users",
 	"error": "error",
-	"delete for sure": "delete for sure"
+	"delete for sure": "delete for sure",
+	"jslardo is a social cms": "jslardo is a social cms",
+	"more info on": "more info on",
+	"or on": "or on"
 }

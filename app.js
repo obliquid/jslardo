@@ -1,5 +1,5 @@
 /**
- * jslardo - ...because lardo is good
+ * jslardo - a social cms based on node.js
  *
  *
  * Copyright (C) 2011 Federico Carrara (federico@obliquid.it)
@@ -19,6 +19,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 
 
 /**
@@ -52,14 +53,6 @@ app.configure(function(){
 	app.use(express.session({ secret: 'topsecret' }));
 	app.use(connectTimeout({ time: 120000 })); //2 minuti
 	//non lo uso... app.use(express.methodOverride()); //serve per poter usare nei form: <input type="hidden" name="_method" value="put" />, e quindi app.put('/', function(){ console.log(req.body.user); res.redirect('back');});
-	//configuro i18n
-	app.i18n = require("./custom_modules/i18n");
-	app.i18n.configure({
-		// setup some locales - other locales default to en silently
-		locales:['en','it']
-	});
-	// using 'accept-language' header to guess language settings
-    app.use(app.i18n.init);
 	//init router
 	app.use(app.router);
 	//declare public dir
@@ -80,11 +73,6 @@ app.configure(function(){
 			return res;
 		}
 	});
-	//register i18n helpers for use in jade templates
-	app.helpers({
-		__i: app.i18n.__,
-		__n: app.i18n.__n
-	});
 	//appendo jslardo all'app express
 	app.jsl = require('./jslardo');
 	//importo il necessario per jslardo
@@ -93,6 +81,19 @@ app.configure(function(){
 	app.jsl.crypto = require('crypto');
 	//console.log(app.jsl);
 	//console.log(app.jsl.config);
+	//configuro i18n
+	app.i18n = require("./custom_modules/i18n");
+	app.i18n.configure({
+		// setup some locales - other locales default to en silently
+		locales: app.jsl.config.locales
+	});
+	// using 'accept-language' header to guess language settings
+    //non dovrebbe servire...: app.use(app.i18n.init);
+	//register i18n helpers for use in jade templates
+	app.helpers({
+		__i: app.i18n.__,
+		__n: app.i18n.__n
+	});
 });
 
 //configurazioni dell'app differenziate in base alla modalità del server (sviluppo/produzione)
