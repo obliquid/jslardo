@@ -24,5 +24,12 @@
 	{ 
 		"node" : ">= 0.4",
 		"npm" : ">= 1" 
-	}
+	},
+	"licenses" :
+	[
+		{ 
+			"type" : "GPL v3", 
+			"url" : "https://github.com/obliquid/jslardo/blob/master/LICENSE"
+		}
+	]
 }
