@@ -1,9 +1,28 @@
 {
-    "name": "jslardo"
-  , "version": "0.0.1"
-  , "private": true
-  , "dependencies": {
-      "express": "2.4.7"
-    , "jade": ">= 0.0.1"
-  }
+    "name": "jslardo", 
+	"description" : "a social CMS. will be... (the project has just started. come back in a few weeks!)", 
+	"author": "federico carrara <federico@obliquid.it>", 
+	"homepage" : "http://obliquid.org/", 
+	"keywords" : [ "cms", "express", "mongodb" ], 
+	"repository" :
+	{ 
+		"type" : "git", 
+		"url" : "https://github.com/obliquid/jslardo"
+	}, 
+	"main" : "./app.js", 
+	"version": "0.0.1", 
+	"dependencies": 
+	{
+		"express": ">= 2.4.0", 
+		"jade": ">= 0.0.1",
+		"connect-timeout": ">= 0.0.1",
+		"mongoose": ">= 2.4.0",
+		"crypto": ">= 0.0.3",
+		"sprintf": ">= 0.1.1"
+    }, 
+	"engines" : 
+	{ 
+		"node" : ">= 0.4",
+		"npm" : ">= 1" 
+	}
 }

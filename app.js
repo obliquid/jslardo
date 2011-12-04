@@ -53,7 +53,7 @@ app.configure(function(){
 	app.use(connectTimeout({ time: 120000 })); //2 minuti
 	//non lo uso... app.use(express.methodOverride()); //serve per poter usare nei form: <input type="hidden" name="_method" value="put" />, e quindi app.put('/', function(){ console.log(req.body.user); res.redirect('back');});
 	//configuro i18n
-	app.i18n = require("i18n");
+	app.i18n = require("./custom_modules/i18n");
 	app.i18n.configure({
 		// setup some locales - other locales default to en silently
 		locales:['en','it']
