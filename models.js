@@ -47,21 +47,25 @@ function defineModels(mongoose, app, next) {
 	//Schema site
 	var Site = new Schema({
 		'title': { type: String, index: { unique: true }, required: true },
-		'author_id': { type: Schema.ObjectId, ref: 'User' },
-		'status': { type: String, required: true, enum: ['public', 'private'] },
+		'domain': { type: String, index: { unique: true }, required: true },
+		'author': { type: Schema.ObjectId, ref: 'user' },
+		'status': { type: String, required: true, enum: ['public', 'private', 'share'] },
 		'created': { type: Date }
 	});
 	mongoose.model('site', Site);
 	
+	
+	/*
 	//Schema linkedserver
 	var Linkedserver = new Schema({
 		'host': { type: String, validate: [validatePresenceOf, app.i18n.__('host is required')], index: { unique: true }, required: true },
 		'description': String,
-		'author_id': { type: Schema.ObjectId, ref: 'User' },
+		'author': { type: Schema.ObjectId, ref: 'User' },
 		'status': { type: String, required: true, enum: ['public', 'private'] },
 		'created': { type: Date }
 	});
 	mongoose.model('linkedserver', Linkedserver);
+	*/
 	
 	
 	

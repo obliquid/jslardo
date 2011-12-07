@@ -28,18 +28,12 @@
 
 var express = require('express'); //non devo mettere il './' perchè si tratta di un modulo, e non di un file da importare
 var mongoose = require('mongoose');
-//serve? var connect = require('connect');
 var connectTimeout = require('connect-timeout');
-//var mongoStore = require('connect-mongodb');
-//var RedisStore = require('connect-redis')(express);
-//var i18n = require("i18n");
+
+
 
 //create express server
 var app = module.exports = express.createServer();
-
-
-
-
 
 
 //configurazioni comuni dell'app 
@@ -49,7 +43,6 @@ app.configure(function(){
 	app.use(express.logger({ format: '\x1b[1m:method\x1b[0m \x1b[33m:url\x1b[0m :response-time ms' })); //attivo il logger di Express
 	app.use(express.bodyParser()); //serve a popolare la variabile req.body (per esempio con tutto ciò che gli arriva in POST dai form)
 	app.use(express.cookieParser());
-	//app.use(express.session({ store: mongoStore(app.set('db-uri')), secret: 'topsecret' }));
 	app.use(express.session({ secret: 'topsecret' }));
 	app.use(connectTimeout({ time: 120000 })); //2 minuti
 	//non lo uso... app.use(express.methodOverride()); //serve per poter usare nei form: <input type="hidden" name="_method" value="put" />, e quindi app.put('/', function(){ console.log(req.body.user); res.redirect('back');});
@@ -85,7 +78,8 @@ app.configure(function(){
 	app.i18n = require("./custom_modules/i18n");
 	app.i18n.configure({
 		// setup some locales - other locales default to en silently
-		locales: app.jsl.config.locales
+		locales: app.jsl.config.locales,
+		app_session: app
 	});
 	// using 'accept-language' header to guess language settings
     //non dovrebbe servire...: app.use(app.i18n.init);
@@ -136,6 +130,7 @@ app.jsl.defineRoutes(app);
 
 //route per gli oggetti del db
 require('./controllers/user').defineRoutes(app);
+require('./controllers/site').defineRoutes(app);
 //require('./controllers/site').defineRoutes(app);
 //require('./controllers/linkedserver').defineRoutes(app);
 

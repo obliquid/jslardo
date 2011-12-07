@@ -1,5 +1,5 @@
 script
-	function validateUserForm()
+	function validate_userForm()
 	{
 		if( $('#name').val() == '' )
 		{
@@ -30,9 +30,9 @@ script
 h3 #{title}
 - if (typeof msg !== 'undefined' && msg == 'success' )
 	hr
-	h4.formSuccess #{__i('successfully saved')}!
+	h4.formSuccess.size2 #{__i('successfully saved')}!
 hr
-form(method='post', action='/users/edit/#{user._id || ""}', onsubmit='return validateUserForm()' ).size4
+form(method='post', action='/users/edit/#{user._id || ""}', onsubmit='return validate_userForm()' ).size4
 	h4 #{__i('your profile')}
 	p #{__i('email is also used as username')}
 	h5.formLabel #{__i('name')}
@@ -76,18 +76,16 @@ form(method='post', action='/users/edit/#{user._id || ""}', onsubmit='return val
 	hr
 	h5.formLabel #{__i('status')}
 		span.formError *
-	- if (user.status != 'private' )
+	if (user.status != 'private' )
 		input(type='radio', name='status', value='public', checked=true) 
-		span #{__i('public')}
-	- else
+	else
 		input(type='radio', name='status', value='public') 
-		span #{__i('public')}
-	- if (user.status == 'private' )
+	span #{__i('public')}
+	if (user.status == 'private' )
 		input(type='radio', name='status', value='private', checked=true) 
-		span #{__i('private')}
-	- else
+	else
 		input(type='radio', name='status', value='private') 
-		span #{__i('private')}
+	span #{__i('private')}
 	
 
 
@@ -97,8 +95,8 @@ form(method='post', action='/users/edit/#{user._id || ""}', onsubmit='return val
 	hr
 	input(name='id', value='#{user._id || ""}', type='hidden')
 	- if ( user._id )
-		a(href='/users/#{user._id}', title='#{__i('back')}').adminButton.backButton
+		a(href='/users/#{user._id}', title='#{__i('view')}').adminButton.viewButton
 	- else
-		a(href='/users', title='#{__i('back')}').adminButton.backButton
+		a(href='/users', title='#{__i('all')}').adminButton.allButton
 	input(type='submit',value='', title='#{__i('save')}').adminButton.saveButton
 

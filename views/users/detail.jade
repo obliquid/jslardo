@@ -10,20 +10,20 @@ br
 if user.profile
 	p #{user.profile}
 	br
-h5  #{__i('status')}: 
-	h4 #{user.status}
+hr
+h6  #{__i('status')}: 
+	h5 #{user.status}
 if user.created
 	br
-	h5 #{__i('created')}: 
-		h4 #{user.created}
+	h6 #{__i('created')}: 
+		h5 #{user.created}
 br
-h5 id: 
-	h4 #{user._id}
+h6 id: 
+	h5 #{user._id}
 hr
-a(onclick='window.history.go(-1)', title='#{__i('back')}').adminButton.backButton
+//- a(onclick='window.history.go(-1)', title='#{__i('back')}').adminButton.backButton
+a(href='/users', title='#{__i('all')}').adminButton.allButton
 if session.user_id == 'superadmin' || session.user_id == user._id
 	a(href='/users/edit/#{user._id}', title='#{__i('modify user')}').adminButton.modifyButton
-	//- non si può mai cancellare un utente se non dal suo form
-		a(title='#{__i('delete user')}', onclick='if(confirm(#{__i("delete for sure?")})) window.location = "/users/delete/#{user._id}";').adminButton.deleteButton
 	if user.status == 'private'
 		div(title='private').adminIcon.privateButton

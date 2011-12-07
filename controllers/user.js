@@ -48,7 +48,16 @@ function defineRoutes(app) {
 			//leggo gli user dal db, e assegno il result al tpl
 			//se sono superadmin vedo anche i non public
 			//console.log(req.session.user_id);
-			var conditions = ( req.session.user_id == 'superadmin' ) ? {} : { 'status': 'public' };
+			//var conditions = ( req.session.user_id == 'superadmin' ) ? {} : { 'status': 'public' };
+			var conditions = ( req.session.user_id == 'superadmin' ) 
+			? 
+			{} 
+			: 
+			{ $or: [
+					{ 'status': 'public' }, 
+					{'_id': req.session.user_id }
+			]};
+			
 			//per via della paginazione, ogni query di list va preceduta da una query di count
 			app.jsl.user.count(
 				conditions,
@@ -90,7 +99,14 @@ function defineRoutes(app) {
 		app.jsl.routeInit(req);
 		//leggo il mio user dal db, e assegno il result al tpl
 		//se sono superadmin vedo anche i non public
-		var conditions = ( req.session.user_id == 'superadmin' ) ? { '_id': req.params.id } : { '_id': req.params.id,  'status': 'public' };
+		//var conditions = ( req.session.user_id == 'superadmin' ) ? { '_id': req.params.id } : { '_id': req.params.id,  'status': 'public' };
+		
+		//solo per gli utenti, posso sempre vedere il dettaglio del mio user, oppure posso vedere quelli public
+		var conditions = ( req.params.id == req.session.user_id || req.session.user_id == 'superadmin' ) ? { '_id': req.params.id } : { '_id': req.params.id,  'status': 'public' };
+		
+		
+		
+		
 		app.jsl.user.findOne(
 			conditions,
 			[], 
@@ -110,7 +126,8 @@ function defineRoutes(app) {
 					else
 					{
 						//non esiste un utente public col mio id, quindi torno in home
-						app.jsl.errorPage(res, err, "GET: user detail: user not found");
+						//app.jsl.errorPage(res, err, "GET: user detail: user not found");
+						res.redirect('/');
 					}
 				}
 				else
@@ -148,30 +165,30 @@ function defineRoutes(app) {
 				{
 					//email libera
 					//creo nuovo user
-					var myUser = new app.jsl.user();
+					var my_user = new app.jsl.user();
 					//popolo il mio user con quanto mi arriva dal form
-					app.jsl.populateModel(myUser, req.body);
+					app.jsl.populateModel(my_user, req.body);
 					//inizializzo la data di creazione (che non è gestita dal form)
-					myUser.created = new Date();
+					my_user.created = new Date();
 					//encripto la pw (lo faccio solo perchè è un new)
-					myUser.password = app.jsl.hashPw(req, myUser.password);
+					my_user.password = app.jsl.hashPw(req, my_user.password);
 					//elimino il campo retype_password che mi arriva dal form e che non voglio avere nel db
-					delete myUser.retype_password;
+					delete my_user.retype_password;
 					//salvo il nuovo user
-					myUser.save(function (err) {
+					my_user.save(function (err) {
 						if (!err) 
 						{
 							//ho creato con successo il mio user nuovo
 							//forzo il suo login per comodità
 							//console.log("setSignedIn con req = "+req);
-							//console.log("e con myUser.id = "+myUser.id);
-							app.jsl.setSignedIn(req, myUser.id);
+							//console.log("e con my_user.id = "+my_user.id);
+							app.jsl.setSignedIn(req, my_user.id);
 							//e rimando nel form
-							res.redirect('/users/edit/'+myUser.id+'/success');
+							res.redirect('/users/edit/'+my_user.id+'/success');
 						}
 						else
 						{
-							app.jsl.errorPage(res, err, "POST: user form: saving user: ");
+							app.jsl.errorPage(res, err, "POST: user form: saving user");
 						}
 					});
 				}
@@ -181,7 +198,7 @@ function defineRoutes(app) {
 	
 	//GET: user form (modify) //quando entro in un form da un link (GET) e non ci arrivo dal suo stesso submit (caso POST)
 	//nota che per gli user un utente può sempre e solo modificare se stesso (ModifyMyself), a differenza di tutti gli altri elementi
-	//della struttura in cui un utente può modificare i suoi elementi (ModifyMine)
+	//della struttura in cui un utente può modificare i suoi elementi (Modify)
 	app.get('/users/edit/:id/:msg?', app.jsl.readStrucPermOn_users, app.jsl.needStrucPermModifyMyself, function(req, res, next){
 		app.jsl.routeInit(req);
 		//mi hanno passato l'id obbligatoriamente
@@ -257,9 +274,8 @@ function defineRoutes(app) {
 	});
 	
 	//GET: user delete
-	app.get('/users/delete/:id?', app.jsl.readStrucPermOn_users, app.jsl.needStrucPermModifyMine, function(req, res, next){
+	app.get('/users/delete/:id', app.jsl.readStrucPermOn_users, app.jsl.needStrucPermModify, function(req, res, next){
 		app.jsl.routeInit(req);
-		//do per scontato che mi hanno passato l'id, altrimenti needStrucPermModifyMine fallirebbe e non potrei entrare in questa route
 		//cancello l'utente
 		app.jsl.user.remove(
 			{ '_id': req.params.id },

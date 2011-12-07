@@ -56,5 +56,18 @@
 	"public linkedservers": "public linkedservers",
 	"jslardo is a social cms": "jslardo is a social cms",
 	"more info on": "more info on",
-	"or on": "or on"
+	"or on": "or on",
+	"sites": "sites",
+	"all sites": "all sites",
+	"new site": "new site",
+	"create new site": "create new site",
+	"title is required": "title is required",
+	"domain is required": "domain is required",
+	"title": "title",
+	"domain": "domain",
+	"modify site": "modify site",
+	"site detail": "site detail",
+	"author": "author",
+	"delete site": "delete site",
+	"share": "share"
 }

@@ -94,6 +94,7 @@ h1
 	letter-spacing: -3px;
 	padding: 0px;
 	margin: 0px;
+	margin-bottom: 20px;
 }
 
 h2 
@@ -104,6 +105,7 @@ h2
 	letter-spacing: -2px;
 	padding: 0px;
 	margin: 0px;
+	margin-bottom: 15px;
 }
 
 h3 
@@ -114,6 +116,7 @@ h3
 	letter-spacing: -1px;
 	padding: 0px;
 	margin: 0px;
+	margin-bottom: 10px;
 }
 
 h4
@@ -124,6 +127,7 @@ h4
 	letter-spacing: 0px;
 	padding: 0px;
 	margin: 0px;
+	margin-bottom: 5px;
 }
 
 h5 
@@ -576,6 +580,10 @@ textarea:hover,
 	padding-top: 10px;
 	padding-bottom: 10px;
 }
+.logoLabel
+{
+	margin: 0px;
+}
 
 /* element in a grid view */
 
@@ -667,6 +675,16 @@ textarea:hover,
 .backButton
 {
 	background-image:url('../images/pov/icon_pagination_prev10pages_frontend_20x20.png');
+}
+
+.viewButton
+{
+	background-image:url('../images/pov/icon_view_one_20x15.png');
+}
+
+.allButton
+{
+	background-image:url('../images/pov/icon_view_all_20x15.png');
 }
 
 .selectButton

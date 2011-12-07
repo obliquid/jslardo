@@ -53,5 +53,19 @@
 	"delete for sure": "delete for sure",
 	"jslardo is a social cms": "jslardo is a social cms",
 	"more info on": "more info on",
-	"or on": "or on"
+	"or on": "or on",
+	"sites": "sites",
+	"all sites": "all sites",
+	"new site": "new site",
+	"site detail": "site detail",
+	"author": "author",
+	"modify site": "modify site",
+	"delete site": "delete site",
+	"title is required": "title is required",
+	"domain is required": "domain is required",
+	"title": "title",
+	"domain": "domain",
+	"share": "share",
+	"all": "all",
+	"view": "view"
 }

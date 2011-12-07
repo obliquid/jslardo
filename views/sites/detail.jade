@@ -1,0 +1,30 @@
+h3 #{__i('site detail')}
+hr
+h1 #{site.title}
+br
+h4
+	span http://
+		a(href='http://#{site.domain}', target='_blank') #{site.domain}
+		
+hr
+h6  #{__i('author')}: 
+h5 
+	a(href='/users/#{site.author._id}') #{site.author.name}
+br
+h6  #{__i('status')}: 
+	h5 #{site.status}
+if site.created
+	br
+	h6 #{__i('created')}: 
+		h5 #{site.created}
+br
+h6 id: 
+	h5 #{site._id}
+hr
+//- a(onclick='window.history.go(-1)', title='#{__i('back')}').adminButton.backButton
+a(href='/sites', title='#{__i('all')}').adminButton.allButton
+if session.user_id == 'superadmin' || ( session.user_id == site.author._id && session.canModify )
+	a(href='/sites/edit/#{site._id}', title='#{__i('modify site')}').adminButton.modifyButton
+	a(title='#{__i('delete site')}', onclick='if(confirm(\'#{__i("delete for sure?")}\')) window.location = "/sites/delete/#{site._id}";').adminButton.deleteButton
+	if site.status == 'private'
+		div(title='private').adminIcon.privateButton

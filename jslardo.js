@@ -27,25 +27,24 @@
 
 
 //PERMISSIONS
+
 //questi sono wrapper che mi servono per differenziare i permessi in base all'oggetto trattato
 function readStrucPermOn_users(req, res, next) {
 	readStrucPerm('user', req, res, next);
 }
-/*
-function readStrucPermOn_linkedservers(req, res, next) {
-	readStrucPerm('linkedserver', req, res, next);
+exports.readStrucPermOn_users = readStrucPermOn_users; 
+function readStrucPermOn_sites(req, res, next) {
+	readStrucPerm('site', req, res, next);
 }
-*/
+exports.readStrucPermOn_sites = readStrucPermOn_sites; 
+
 //quando si assegnano i middleware alle routes, prima bisogna sempre leggere i permessi (readStrucPermOn_XXX)
 //poi si possono imporre lecondizioni in base ai permessi (needStrucPermXXX)
 function needStrucPermCreate(req, res, next) {
 	( req.session.canCreate ) ? next() : res.redirect('/');
 }
-function needStrucPermModifyMine(req, res, next) {
-	( req.session.canModifyMine ) ? next() : res.redirect('/');
-}
-function needStrucPermModifyAll(req, res, next) {
-	( req.session.canModifyAll ) ? next() : res.redirect('/');
+function needStrucPermModify(req, res, next) {
+	( req.session.canModify ) ? next() : res.redirect('/');
 }
 function needStrucPermModifyMyself(req, res, next) {
 	( req.session.canModifyMyself ) ? next() : res.redirect('/');
@@ -57,8 +56,7 @@ function readStrucPerm(on, req, res, next) {
 	//console.log('readStrucPerm: req.session.user_id = ' + req.session.user_id);
 	//azzero i permessi
 	req.session.canCreate = false;
-	req.session.canModifyMine = false;
-	req.session.canModifyAll = false;
+	req.session.canModify = false;
 	req.session.canModifyMyself = false; //questo è un permesso che vale solo per l'elemento "users"
 	//controllo se sono loggato
 	if (req.session.user_id) {
@@ -74,7 +72,7 @@ function readStrucPerm(on, req, res, next) {
 					//se sono super admin, ho sempre permesso di modify su tutti i contenuti, ma non ho il create
 					//questo perchè quando si crea un contenuto, questo è strettamente legato all'utente che lo crea, e il superadmin
 					//non è un utente vero è proprio (non è presente nel db, non ha id). il super admin serve solo per poter vedere e modificare tutto, ma non può creare nulla
-					req.session.canModifyAll = true;
+					req.session.canModify = true;
 					req.session.canModifyMyself = true; //questo serve per permettere al super admin di modificare gli utenti (il form di modifica lo richiede)
 					//la request puo essere processata
 					next();
@@ -90,7 +88,7 @@ function readStrucPerm(on, req, res, next) {
 					{
 						case 'user':
 							//user è un elemento della struttura particolare, perchè, a differenza di tutti gli altri elementi di struttura, ogni utente può solo modificare
-							//se stesso. inoltre user non ha un "author_id" poichè un utente è creato da se stesso tramite il bottone "register"
+							//se stesso. inoltre user non ha un "author" poichè un utente è creato da se stesso tramite il bottone "register"
 							//nel caso di modifica di users, ho modify solo per modificare me stesso
 							if ( req.params.id == req.session.user_id ) //controllo se l'id dell'utente da modificare è quello dell'utente loggato, cioè se modifico me stesso
 							{
@@ -100,7 +98,7 @@ function readStrucPerm(on, req, res, next) {
 							break;
 						default:
 							//ora come ora per tutti gli altri elementi della struttura chiunque ha permesso di modify, ma solo sui propri elementi
-							req.session.canModifyMine = true; 
+							req.session.canModify = true; 
 							break;
 					}
 					//continuo
@@ -314,20 +312,12 @@ function paginationDo(req, total, url) {
 		lastBtn: { link:url+lastLinkPage, tooltip:lastRangeString}
 	}
 }
-	
-	
-// VARIE
 
-/* visualizza una pagina di errore e logga sulla console */
-function errorPage(res, errMsg, publicMsg) {
-	console.log(errMsg);
-	res.render('error', { 
-		errMsg: errMsg,
-		publicMsg: publicMsg
-	});			
-}
+	
+// ROUTES
 
-/* carica le routes per le pagine interne di jslardo */
+
+/* carica le routes interne di jslardo */
 function defineRoutes(app) {
 	
 	//GET: home
@@ -386,6 +376,25 @@ function defineRoutes(app) {
 	
 }
 
+
+
+
+
+
+
+
+
+// VARIE
+
+/* visualizza una pagina di errore e logga sulla console */
+function errorPage(res, errMsg, publicMsg) {
+	console.log(errMsg);
+	res.render('error', { 
+		errMsg: errMsg,
+		publicMsg: publicMsg
+	});			
+}
+
 /* carica la route di default da usare quando nessuna altra route è stata matchata */
 //non va
 function defineRoute404(app) {
@@ -430,12 +439,9 @@ exports.defineRoute404 = defineRoute404;
 exports.errorPage = errorPage; 
 exports.setSignedIn = setSignedIn; 
 exports.populateModel = populateModel; 
-exports.readStrucPermOn_users = readStrucPermOn_users; 
 exports.needStrucPermCreate = needStrucPermCreate;
-exports.needStrucPermModifyMine = needStrucPermModifyMine;
-exports.needStrucPermModifyAll = needStrucPermModifyAll;
+exports.needStrucPermModify = needStrucPermModify;
 exports.needStrucPermModifyMyself = needStrucPermModifyMyself;
-
 exports.checkValidUser = checkValidUser; 
 exports.hashPw = hashPw; 
 exports.paginationInit = paginationInit; 
