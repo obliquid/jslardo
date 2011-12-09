@@ -69,5 +69,10 @@
 	"site detail": "site detail",
 	"author": "author",
 	"delete site": "delete site",
-	"share": "share"
+	"share": "share",
+	"all": "all",
+	"mail to": "mail to",
+	"open": "open",
+	"view": "view",
+	"view all": "view all"
 }

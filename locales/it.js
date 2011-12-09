@@ -67,5 +67,9 @@
 	"domain": "domain",
 	"share": "share",
 	"all": "all",
-	"view": "view"
+	"view": "view",
+	"mail to": "mail to",
+	"view all": "view all",
+	"open": "open",
+	"an email is required": "an email is required"
 }

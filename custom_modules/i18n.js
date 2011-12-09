@@ -16,7 +16,8 @@ var vsprintf = require('sprintf').vsprintf, // 0.1.1
     
     locales = {},
     localesNames = {},
-    locale = 'en',
+    defaultLocale = '',
+    currentLocale = '',
     directory = './locales';
 
 // public exports
@@ -26,6 +27,9 @@ var i18n = exports;
 i18n.version = '0.3.0';
 
 i18n.configure = function(opt){
+	//console.log("i18n.configure");
+	defaultLocale = opt.defaultLocale;
+	currentLocale = defaultLocale;
     if( typeof opt.locales === 'object' ){
 		//mi tengo una copia dei locales che mi arrivano durante il configure
 		localesNames = opt.locales;
@@ -41,16 +45,32 @@ i18n.configure = function(opt){
     }
 }
 
-i18n.init = function(request, response, next) { 
-    if( typeof request === 'object' ){
-        guessLanguage(request);
-    }
-    if( typeof next === 'function' ){
-        next();
-    }
-};
+i18n.t = function(req,msg) {
+	i18n.setLocale( req.session.currentLocale );
+    return translate(msg);
+}
 
 i18n.__ = function() {
+	//console.log("req:"+app);
+	/*
+	for ( var x=0; x<arguments.length;x++) 
+	{
+		console.log("argument:"+arguments[x]);
+	}
+	*/
+	
+	/*
+	console.log("args num: "+arguments.length);
+	console.log("arguments[0]: "+arguments[0]);
+	for ( arg in arguments )
+	{
+		console.log("arg="+arg);
+		for ( prop in arg )
+		{
+			console.log("prop="+arg);
+		}
+	}
+	*/
     var msg = translate(arguments[0]);
     if (arguments.length > 1) {
         msg = vsprintf(msg, Array.prototype.slice.call(arguments, 1));
@@ -77,17 +97,19 @@ i18n.__n = function() {
     return msg;
 };
 
+
+//a questa posso passare le session, perchè la richiamo dall'app
 i18n.setLocale = function() {
-	//console.log(arguments[0]);
+	//console.log("i18n.setLocale con arguments[0]="+arguments[0]);
     if (locales[arguments[0]]) {
-        locale = arguments[0];
+        currentLocale = arguments[0];
     }
 	//console.log(i18n.getLocale());
     return i18n.getLocale();
 };
 
 i18n.getLocale = function() {
-    return locale;
+    return currentLocale;
 };
 
 i18n.getLocalesNames = function() {
@@ -95,28 +117,115 @@ i18n.getLocalesNames = function() {
     return localesNames;
 };
 
+i18n.init = function(req, res, next) { 
+	//se le session dell'utente non hanno ancora una lingua definita, provo a leggerla da quella di dafult del browser
+	if ( req.session && req.session.currentLocale ) 
+	{
+		//se nelle session c'è la lingua scelta dall'utente, quella ha la precedenza
+		//imposto la mia variabile locale in base alle session
+		i18n.setLocale(req.session.currentLocale);
+	}
+	else
+	{
+		//altrimenti provo ad indovinarla dagli header del browser usato
+		//req.session.currentLocale = defaultLocale;
+		i18n.setLocale( guessLanguage(req) );
+	}
+	
+	
+	//console.log("i18n.init: req.session.currentLocale = "+req.session.currentLocale);
+	/*
+    if( typeof request === 'object' ){
+        guessLanguage(request);
+    }
+    if( typeof next === 'function' ){
+        next();
+    }
+	*/
+	
+	
+	next();
+};
+
+
+
+
 // ===================
 // = private methods =
 // ===================
 
+
+// read currentLocale file, translate a msg and write to fs if new
+//QUI!!! metodo che usa currentLocale globale
+function translate(singular, plural) {
+    if (!locales[currentLocale]) {
+        read(currentLocale);
+    }
+
+    if (plural) {
+        if (!locales[currentLocale][singular]) {
+            locales[currentLocale][singular] = {
+                'one': singular,
+                'other': plural
+            };
+            write(currentLocale);
+        }
+    }
+
+    if (!locales[currentLocale][singular]) {
+        locales[currentLocale][singular] = singular;
+        write(currentLocale);
+    }
+    return locales[currentLocale][singular];
+}
+
+// try reading a file
+function read(myLocale) {
+    locales[myLocale] = {};
+    try {
+        locales[myLocale] = JSON.parse(fs.readFileSync(locate(myLocale)));
+    } catch(e) {
+        console.log('initializing ' + locate(myLocale));
+        write(myLocale);
+    }
+}
+
+// try writing a file in a created directory
+function write(myLocale) {
+    try {
+        stats = fs.lstatSync(directory);
+    } catch(e) {
+        fs.mkdirSync(directory, 0755);
+    }
+    fs.writeFile(locate(myLocale), JSON.stringify(locales[myLocale], null, "\t"));
+}
+
+// basic normalization of filepath
+function locate(myLocale) {
+    return path.normalize(directory + '/' + myLocale + '.js');
+}
+
+
+
+
 // guess language setting based on http headers
 function guessLanguage(request){
+	//console.log("guessLanguage");
     if(typeof request === 'object'){
         var language_header = request.headers['accept-language'],
         languages = [];
         regions = [];
-        request.languages = [locale];
+        request.languages = [currentLocale];
 		/*
 		for (x in request.languages)
 		{
 			console.log(request.languages[x] + x);
 		}
 		*/
-        request.regions = [locale];
-        request.language = locale;
-        request.region = locale;
+        request.regions = [currentLocale];
+        request.language = currentLocale;
+        request.region = currentLocale;
 
-		/*
         if (language_header) {
             language_header.split(',').forEach(function(l) {
                 header = l.split(';', 1)[0];
@@ -139,56 +248,7 @@ function guessLanguage(request){
                 request.region = regions[0];
             }
         }
-		*/
         i18n.setLocale(request.language);
     }
 }
 
-// read locale file, translate a msg and write to fs if new
-function translate(singular, plural) {
-    if (!locales[locale]) {
-        read(locale);
-    }
-
-    if (plural) {
-        if (!locales[locale][singular]) {
-            locales[locale][singular] = {
-                'one': singular,
-                'other': plural
-            };
-            write(locale);
-        }
-    }
-
-    if (!locales[locale][singular]) {
-        locales[locale][singular] = singular;
-        write(locale);
-    }
-    return locales[locale][singular];
-}
-
-// try reading a file
-function read(locale) {
-    locales[locale] = {};
-    try {
-        locales[locale] = JSON.parse(fs.readFileSync(locate(locale)));
-    } catch(e) {
-        console.log('initializing ' + locate(locale));
-        write(locale);
-    }
-}
-
-// try writing a file in a created directory
-function write(locale) {
-    try {
-        stats = fs.lstatSync(directory);
-    } catch(e) {
-        fs.mkdirSync(directory, 0755);
-    }
-    fs.writeFile(locate(locale), JSON.stringify(locales[locale], null, "\t"));
-}
-
-// basic normalization of filepath
-function locate(locale) {
-    return path.normalize(directory + '/' + locale + '.js');
-}

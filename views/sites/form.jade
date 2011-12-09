@@ -36,6 +36,6 @@ form(method='post', action='/sites/edit/#{site._id || ""}', onsubmit='return val
 	- if ( site._id )
 		a(href='/sites/#{site._id}', title='#{__i('view')}').adminButton.viewButton
 	- else
-		a(href='/sites', title='#{__i('all')}').adminButton.allButton
+		a(href='/sites', title='#{__i('view all')}').adminButton.allButton
 	input(type='submit',value='', title='#{__i('save')}').adminButton.saveButton
 

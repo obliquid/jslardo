@@ -4,12 +4,12 @@ h1 #{site.title}
 br
 h4
 	span http://
-		a(href='http://#{site.domain}', target='_blank') #{site.domain}
+		a(href='http://#{site.domain}', target='_blank', title='#{__i('open')}') #{site.domain}
 		
 hr
 h6  #{__i('author')}: 
 h5 
-	a(href='/users/#{site.author._id}') #{site.author.name}
+	a(href='/users/#{site.author._id}', title='#{__i('view')}') #{site.author.name}
 br
 h6  #{__i('status')}: 
 	h5 #{site.status}
@@ -21,8 +21,7 @@ br
 h6 id: 
 	h5 #{site._id}
 hr
-//- a(onclick='window.history.go(-1)', title='#{__i('back')}').adminButton.backButton
-a(href='/sites', title='#{__i('all')}').adminButton.allButton
+a(href='/sites', title='#{__i('view all')}').adminButton.allButton
 if session.user_id == 'superadmin' || ( session.user_id == site.author._id && session.canModify )
 	a(href='/sites/edit/#{site._id}', title='#{__i('modify site')}').adminButton.modifyButton
 	a(title='#{__i('delete site')}', onclick='if(confirm(\'#{__i("delete for sure?")}\')) window.location = "/sites/delete/#{site._id}";').adminButton.deleteButton

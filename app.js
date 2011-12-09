@@ -33,7 +33,8 @@ var connectTimeout = require('connect-timeout');
 
 
 //create express server
-var app = module.exports = express.createServer();
+//var app = module.exports = express.createServer();
+var app = express.createServer();
 
 
 //configurazioni comuni dell'app 
@@ -46,10 +47,34 @@ app.configure(function(){
 	app.use(express.session({ secret: 'topsecret' }));
 	app.use(connectTimeout({ time: 120000 })); //2 minuti
 	//non lo uso... app.use(express.methodOverride()); //serve per poter usare nei form: <input type="hidden" name="_method" value="put" />, e quindi app.put('/', function(){ console.log(req.body.user); res.redirect('back');});
-	//init router
-	app.use(app.router);
-	//declare public dir
-	app.use(express.static(__dirname + '/public'));
+	
+	//appendo jslardo all'app express
+	app.jsl = require('./jslardo');
+	//importo il necessario per jslardo
+	app.jsl.config = require('./config').jslardo_config;
+	app.jsl.models = require('./models');
+	app.jsl.crypto = require('crypto');
+	//console.log(app.jsl);
+	//console.log(app.jsl.config);
+	//configuro i18n
+	app.i18n = require("./custom_modules/i18n");
+	app.i18n.configure({
+		// setup some locales - other locales default to en silently
+		locales: app.jsl.config.locales,
+		defaultLocale: app.jsl.config.defaultLocale
+	});
+    app.use(app.i18n.init);
+	// using 'accept-language' header to guess language settings
+    //non dovrebbe servire...: 
+	//app.use(app.i18n.init);
+	//register i18n helpers for use in jade templates
+	/*
+	app.helpers({
+		__i: app.i18n.__,
+		__n: app.i18n.__n
+	});
+	*/
+	
 	//Helpers
 	//questo serve per passare a jade le sessions
 	app.dynamicHelpers({
@@ -64,30 +89,26 @@ app.configure(function(){
 		},
 		res: function (req, res) {
 			return res;
+		},
+		__i: function (req, res) {
+			if ( req.session && req.session.currentLocale ) app.i18n.setLocale(req.session.currentLocale);
+			return app.i18n.__;
+		},
+		__n: function (req, res) {
+			if ( req.session && req.session.currentLocale ) app.i18n.setLocale(req.session.currentLocale);
+			return app.i18n.__n;
 		}
 	});
-	//appendo jslardo all'app express
-	app.jsl = require('./jslardo');
-	//importo il necessario per jslardo
-	app.jsl.config = require('./config').jslardo_config;
-	app.jsl.models = require('./models');
-	app.jsl.crypto = require('crypto');
-	//console.log(app.jsl);
-	//console.log(app.jsl.config);
-	//configuro i18n
-	app.i18n = require("./custom_modules/i18n");
-	app.i18n.configure({
-		// setup some locales - other locales default to en silently
-		locales: app.jsl.config.locales,
-		app_session: app
-	});
-	// using 'accept-language' header to guess language settings
-    //non dovrebbe servire...: app.use(app.i18n.init);
-	//register i18n helpers for use in jade templates
-	app.helpers({
-		__i: app.i18n.__,
-		__n: app.i18n.__n
-	});
+	
+	
+	
+	
+	//init router
+	app.use(app.router);
+	//declare public dir
+	app.use(express.static(__dirname + '/public'));
+	
+
 });
 
 //configurazioni dell'app differenziate in base alla modalità del server (sviluppo/produzione)
@@ -112,6 +133,7 @@ mongoose.connect('mongodb://localhost/jslardo');
 app.jsl.models.defineModels(mongoose, app, function() {
 	app.jsl.user = mongoose.model('user');
 	app.jsl.site = mongoose.model('site');
+	app.jsl.debuggin = mongoose.model('debuggin');
 	//app.jsl.linkedserver = mongoose.model('linkedserver');
 	//console.log("finito coi modelli!");
 })
@@ -131,6 +153,7 @@ app.jsl.defineRoutes(app);
 //route per gli oggetti del db
 require('./controllers/user').defineRoutes(app);
 require('./controllers/site').defineRoutes(app);
+require('./controllers/debuggin').defineRoutes(app);
 //require('./controllers/site').defineRoutes(app);
 //require('./controllers/linkedserver').defineRoutes(app);
 

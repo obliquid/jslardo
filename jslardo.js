@@ -366,13 +366,12 @@ function defineRoutes(app) {
 	app.get('/lan/:locale?', function(req, res) {
 		app.jsl.routeInit(req);
 		//cambio la lingua
+		req.session.currentLocale = req.params.locale;
 		//console.log("cambierei con: "+req.params.locale);
-		req.app.i18n.setLocale(req.params.locale);
+		//req.app.i18n.setLocale(req.params.locale);
 		//alla fine ricarico la pagina da cui arrivavo
 		res.redirect('back');
 	});
-	
-	
 	
 }
 

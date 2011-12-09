@@ -46,7 +46,6 @@ function defineRoutes(app) {
 		{
 			//leggo gli site dal db, e assegno il result al tpl
 			//se sono superadmin vedo anche i non share
-			console.log("trovo i siti per user: "+req.session.user_id);
 			var conditions = ( req.session.user_id == 'superadmin' ) 
 			? 
 			{} 
@@ -137,7 +136,7 @@ function defineRoutes(app) {
 		app.jsl.routeInit(req);
 		//è un NEW, renderizzo il form, ma senza popolarlo
 		res.render('sites/form', { 
-			title: app.i18n.__('create new site'),
+			title: app.i18n.t(req,'create new site'),
 			site: ""
 		});	
 	});
@@ -194,7 +193,7 @@ function defineRoutes(app) {
 				if (!err)
 				{
 					res.render('sites/form', { 
-						title: app.i18n.__('modify site'),
+						title: app.i18n.t(req,'modify site'),
 						site: site,
 						msg: req.params.msg
 					});	

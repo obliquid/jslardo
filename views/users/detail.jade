@@ -4,7 +4,7 @@ h1 #{user.name}
 br
 h4
 	span [
-		a(href='mailto:#{user.email}') #{user.email}
+		a(href='mailto:#{user.email}', title='#{__i('mail to')}') #{user.email}
 		]
 br
 if user.profile
@@ -22,7 +22,7 @@ h6 id:
 	h5 #{user._id}
 hr
 //- a(onclick='window.history.go(-1)', title='#{__i('back')}').adminButton.backButton
-a(href='/users', title='#{__i('all')}').adminButton.allButton
+a(href='/users', title='#{__i('view all')}').adminButton.allButton
 if session.user_id == 'superadmin' || session.user_id == user._id
 	a(href='/users/edit/#{user._id}', title='#{__i('modify user')}').adminButton.modifyButton
 	if user.status == 'private'

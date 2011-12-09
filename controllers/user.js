@@ -144,7 +144,7 @@ function defineRoutes(app) {
 		app.jsl.routeInit(req);
 		//è un NEW, renderizzo il form, ma senza popolarlo
 		res.render('users/form', { 
-			title: app.i18n.__('create new user'),
+			title: app.i18n.t(req,'create new user'),
 			user: ""
 		});	
 	});
@@ -209,7 +209,7 @@ function defineRoutes(app) {
 				if (!err)
 				{
 					res.render('users/form', { 
-						title: app.i18n.__('modify user'),
+						title: app.i18n.t(req,'modify user'),
 						user: user,
 						msg: req.params.msg
 					});	

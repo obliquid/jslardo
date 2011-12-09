@@ -54,6 +54,13 @@ function defineModels(mongoose, app, next) {
 	});
 	mongoose.model('site', Site);
 	
+	//Schema debug
+	//usato per testing
+	var Debuggin = new Schema({
+		'somevalue': { type: String }
+	});
+	mongoose.model('debuggin', Debuggin);
+	
 	
 	/*
 	//Schema linkedserver
