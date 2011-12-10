@@ -1,22 +1,18 @@
-h3(style='float:left;') #{__i('all users')}
-include ../includes/pagination
-div.clear
-hr
-each user,i in users
+h3 #{__i('all users')}
+include ../includes/paginationTop
+each element,i in elements
 	div.floatLeft.size1
-		a(href='/users/#{user._id}').elemGrid.outerCont
-			h5 #{user.name} 
+		a(href='/#{elementName}s/#{element._id}').elemGrid.outerCont
+			h5 #{element.name} 
 			div.innerCont
 				span.textMini email: 
-					h6 #{user.email}
+					h6 #{element.email}
 			div.elemGridAdminCont
-				if user.status == 'private'
+				if element.status == 'private'
 					div(title='#{__i('private')}').adminIcon.privateButton
 			//- non ancora implementato
 				if ( mode == 'select' )
-					a(title='#{__i('select user')}', onclick='').adminButton.selectButton
+					a(title='#{__i('select')} #{__i(elementName)}', onclick='').adminButton.selectButton
 	if (i+1)%6==0
 		div.clear
-div.clear
-hr
-include ../includes/pagination
+include ../includes/paginationBottom

@@ -1,5 +1,5 @@
 script
-	function validate_userForm()
+	function validate_elementForm()
 	{
 		if( $('#name').val() == '' )
 		{
@@ -27,32 +27,30 @@ script
 			return false;
 		}
 	}
-h3 #{title}
-- if (typeof msg !== 'undefined' && msg == 'success' )
-	hr
-	h4.formSuccess.size2 #{__i('successfully saved')}!
-hr
-form(method='post', action='/users/edit/#{user._id || ""}', onsubmit='return validate_userForm()' ).size4
+
+include ../includes/formHeader
+
+form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmit='return validate_elementForm()' ).size4
 	h4 #{__i('your profile')}
 	p #{__i('email is also used as username')}
 	h5.formLabel #{__i('name')}
 		span.formError *
-	input(id='name', name='name', value='#{user.name || ""}').size3
+	input(id='name', name='name', value='#{element.name || ""}').size3
 	br
 	h5.formLabel #{__i('profile')}
 		span.formError &nbsp;
-	textarea(name='profile').size3 #{user.profile || ''}
+	textarea(name='profile').size3 #{element.profile || ''}
 	br
 	h5.formLabel email
 		span.formError *
-	input(id='email', name='email', value='#{user.email || ""}').size3
+	input(id='email', name='email', value='#{element.email || ""}').size3
 	//- se è un nuovo utente, è obbligatorio inserire la pw
 	//- se è un modify, la pw viene inserita solo per cambiarla
-	if (typeof user._id === 'undefined' || user._id == '' )
+	if (typeof element._id === 'undefined' || element._id == '' )
 		br
 		h5.formLabel password
 			span.formError *
-		input(type='password', id='password', name='password', value='#{user.password || ""}').size3
+		input(type='password', id='password', name='password', value='#{element.password || ""}').size3
 		br
 		h5.formLabel #{__i('retype')} password
 			span.formError *
@@ -72,31 +70,21 @@ form(method='post', action='/users/edit/#{user._id || ""}', onsubmit='return val
 			span.formError *
 		input(type='password', id='retype_new_password', name='retype_new_password').size3
 		
-	
+	//- nota: non si può usare 	'include ../includes/formStatus' perchè lo status degli user ha solo public e private
 	hr
 	h5.formLabel #{__i('status')}
 		span.formError *
-	if (user.status != 'private' )
+	if (element.status != 'private' )
 		input(type='radio', name='status', value='public', checked=true) 
 	else
 		input(type='radio', name='status', value='public') 
 	span #{__i('public')}
-	if (user.status == 'private' )
+	if (element.status == 'private' )
 		input(type='radio', name='status', value='private', checked=true) 
 	else
 		input(type='radio', name='status', value='private') 
 	span #{__i('private')}
-	
 
 
-
-
-	
-	hr
-	input(name='id', value='#{user._id || ""}', type='hidden')
-	- if ( user._id )
-		a(href='/users/#{user._id}', title='#{__i('view')}').adminButton.viewButton
-	- else
-		a(href='/users', title='#{__i('view all')}').adminButton.allButton
-	input(type='submit',value='', title='#{__i('save')}').adminButton.saveButton
+	include ../includes/formFooter
 

@@ -1,4 +1,4 @@
-div.paginationBox
+div
 	if pagination.currentLabel.tooltip
 		h5.paginationActualResults #{ pagination.currentLabel.tooltip }
 	
@@ -20,3 +20,4 @@ div.paginationBox
 	if pagination.lastBtn.tooltip
 		a(href='#{pagination.lastBtn.link}', title='#{pagination.lastBtn.tooltip}',  alt='&gt;&gt;|').adminButton.paginationLinkLast
 
+div.clear	

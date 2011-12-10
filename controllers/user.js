@@ -75,7 +75,8 @@ function defineRoutes(app) {
 							},
 							function(err, users) {
 								res.render('users/list', { 
-									users: users,
+									elementName: 'user',
+									elements: users,
 									pagination: app.jsl.paginationDo(req, total, '/users/')
 								});	
 							}
@@ -120,7 +121,9 @@ function defineRoutes(app) {
 					if ( user )
 					{
 						res.render('users/detail', { 
-							user: user
+							elementName: 'user',
+							element: user
+							
 						});	
 					}
 					else
@@ -145,7 +148,8 @@ function defineRoutes(app) {
 		//è un NEW, renderizzo il form, ma senza popolarlo
 		res.render('users/form', { 
 			title: app.i18n.t(req,'create new user'),
-			user: ""
+			elementName: 'user',
+			element: ''
 		});	
 	});
 	//POST: user form (new)
@@ -210,7 +214,8 @@ function defineRoutes(app) {
 				{
 					res.render('users/form', { 
 						title: app.i18n.t(req,'modify user'),
-						user: user,
+						elementName: 'user',
+						element: user,
 						msg: req.params.msg
 					});	
 				}

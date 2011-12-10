@@ -1,5 +1,5 @@
 script
-	function validate_siteForm()
+	function validate_elementForm()
 	{
 		if( $('#title').val() == '' )
 		{
@@ -12,30 +12,22 @@ script
 			return false;
 		}
 	}
-h3 #{title}
-- if (typeof msg !== 'undefined' && msg == 'success' )
-	hr
-	h4.formSuccess.size2 #{__i('successfully saved')}!
-hr
-form(method='post', action='/sites/edit/#{site._id || ""}', onsubmit='return validate_siteForm()' ).size4
+
+
+include ../includes/formHeader
+
+form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmit='return validate_elementForm()' ).size4
 	h5.formLabel #{__i('title')}
 		span.formError *
-	input(id='title', name='title', value='#{site.title || ""}').size3
+	input(id='title', name='title', value='#{element.title || ""}').size3
 	br
 	h5.formLabel  #{__i('domain')}
 		span.formError *
 	span http://&nbsp;
-	input(id='domain', name='domain', value='#{site.domain || ""}').size3
+	input(id='domain', name='domain', value='#{element.domain || ""}').size3
 	
 	
 	include ../includes/formStatus
 
-	
-	hr
-	input(name='id', value='#{site._id || ""}', type='hidden')
-	- if ( site._id )
-		a(href='/sites/#{site._id}', title='#{__i('view')}').adminButton.viewButton
-	- else
-		a(href='/sites', title='#{__i('view all')}').adminButton.allButton
-	input(type='submit',value='', title='#{__i('save')}').adminButton.saveButton
+	include ../includes/formFooter
 

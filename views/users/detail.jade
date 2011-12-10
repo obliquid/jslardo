@@ -1,29 +1,22 @@
-h3 #{__i('user detail')}
+h3 #{__i(elementName)} #{__i('detail')}
 hr
-h1 #{user.name}
+h1 #{element.name}
 br
 h4
 	span [
-		a(href='mailto:#{user.email}', title='#{__i('mail to')}') #{user.email}
+		a(href='mailto:#{element.email}', title='#{__i('mail to')}') #{element.email}
 		]
 br
-if user.profile
-	p #{user.profile}
+if element.profile
+	p #{element.profile}
 	br
-hr
-h6  #{__i('status')}: 
-	h5 #{user.status}
-if user.created
-	br
-	h6 #{__i('created')}: 
-		h5 #{user.created}
-br
-h6 id: 
-	h5 #{user._id}
+
+include ../includes/detailCommon
+
 hr
 //- a(onclick='window.history.go(-1)', title='#{__i('back')}').adminButton.backButton
-a(href='/users', title='#{__i('view all')}').adminButton.allButton
-if session.user_id == 'superadmin' || session.user_id == user._id
-	a(href='/users/edit/#{user._id}', title='#{__i('modify user')}').adminButton.modifyButton
-	if user.status == 'private'
+a(href='/#{elementName}s', title='#{__i('view all')}').adminButton.allButton
+if session.user_id == 'superadmin' || session.user_id == element._id
+	a(href='/#{elementName}s/edit/#{element._id}', title='#{__i('modify user')}').adminButton.modifyButton
+	if element.status == 'private'
 		div(title='private').adminIcon.privateButton

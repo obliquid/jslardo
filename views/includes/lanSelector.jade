@@ -3,6 +3,6 @@ div.outerCont
 	div.innerCont
 		each locale in app.i18n.getLocalesNames()
 			if locale == app.i18n.getLocale()
-				span #{locale}
+				span.linkSelected #{locale}
 			else
 				a(href='/lan/#{locale}') #{locale}

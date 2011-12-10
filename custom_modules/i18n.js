@@ -46,7 +46,7 @@ i18n.configure = function(opt){
 }
 
 i18n.t = function(req,msg) {
-	i18n.setLocale( req.session.currentLocale );
+	i18n.setLocale( req.cookies.currentlocale );
     return translate(msg);
 }
 
@@ -119,21 +119,21 @@ i18n.getLocalesNames = function() {
 
 i18n.init = function(req, res, next) { 
 	//se le session dell'utente non hanno ancora una lingua definita, provo a leggerla da quella di dafult del browser
-	if ( req.session && req.session.currentLocale ) 
+	if ( req.cookies && req.cookies.currentlocale ) 
 	{
 		//se nelle session c'è la lingua scelta dall'utente, quella ha la precedenza
 		//imposto la mia variabile locale in base alle session
-		i18n.setLocale(req.session.currentLocale);
+		i18n.setLocale(req.cookies.currentlocale);
 	}
 	else
 	{
 		//altrimenti provo ad indovinarla dagli header del browser usato
-		//req.session.currentLocale = defaultLocale;
+		//req.cookies.currentlocale = defaultLocale;
 		i18n.setLocale( guessLanguage(req) );
 	}
 	
 	
-	//console.log("i18n.init: req.session.currentLocale = "+req.session.currentLocale);
+	//console.log("i18n.init: req.cookies.currentlocale = "+req.cookies.currentlocale);
 	/*
     if( typeof request === 'object' ){
         guessLanguage(request);

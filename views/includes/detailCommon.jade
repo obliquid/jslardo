@@ -1,0 +1,28 @@
+hr
+if element.author
+	.outerCont
+		h6  #{__i('author')}: 
+		.innerCont
+			h5 
+				if element.author.status == 'public'
+					a(href='/users/#{element.author._id}', title='#{__i('view')}') #{element.author.name}
+				else
+					| private
+	
+.outerCont
+	h6  #{__i('status')}: 
+	.innerCont
+		h5 #{element.status}
+	
+	
+if element.created
+	.outerCont
+		h6 #{__i('created')}: 
+		.innerCont
+			h5 #{element.created}
+		
+		
+.outerCont
+	h6 id: 
+	.innerCont
+		h5 #{element._id}

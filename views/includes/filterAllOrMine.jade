@@ -1,0 +1,9 @@
+if session.user_id != 'superadmin' && session.user_id != undefined 
+	div.filterAllOrMine
+		span #{__i('view')}:
+		if session.filterAllOrMine == 'mine'
+			a(href='/listFilter/all') #{__i('all')}
+			span.linkSelected #{__i('mine only')}			
+		else
+			span.linkSelected #{__i('all')}
+			a(href='/listFilter/mine') #{__i('mine only')}

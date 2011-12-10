@@ -91,11 +91,11 @@ app.configure(function(){
 			return res;
 		},
 		__i: function (req, res) {
-			if ( req.session && req.session.currentLocale ) app.i18n.setLocale(req.session.currentLocale);
+			if ( req.cookies && req.cookies.currentlocale ) app.i18n.setLocale(req.cookies.currentlocale);
 			return app.i18n.__;
 		},
 		__n: function (req, res) {
-			if ( req.session && req.session.currentLocale ) app.i18n.setLocale(req.session.currentLocale);
+			if ( req.cookies && req.cookies.currentlocale ) app.i18n.setLocale(req.cookies.currentlocale);
 			return app.i18n.__n;
 		}
 	});

@@ -74,5 +74,12 @@
 	"mail to": "mail to",
 	"open": "open",
 	"view": "view",
-	"view all": "view all"
+	"view all": "view all",
+	"site": "site",
+	"detail": "detail",
+	"user": "user",
+	"new": "new",
+	"modify": "modify",
+	"delete": "delete",
+	"mine only": "mine only"
 }

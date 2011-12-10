@@ -1,0 +1,7 @@
+hr
+input(name='id', value='#{element._id || ""}', type='hidden')
+- if ( element._id )
+	a(href='/#{elementName}s/#{element._id}', title='#{__i('view')}').adminButton.viewButton
+- else
+	a(href='/#{elementName}s', title='#{__i('view all')}').adminButton.allButton
+input(type='submit', title='#{__i('save')}', value='#{__i('save')}').adminButton.saveButton

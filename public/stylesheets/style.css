@@ -59,7 +59,7 @@ html, body, p, span
 html
 {
 	background-image:url('../images/bg/main_bg.jpg');
-	background-attachment:fixed;
+	/* background-attachment:fixed; */
 	background-color: white;
 	padding: 0px;
 	margin: 0px;
@@ -94,7 +94,7 @@ h1
 	letter-spacing: -3px;
 	padding: 0px;
 	margin: 0px;
-	margin-bottom: 20px;
+	margin-bottom: 25px;
 }
 
 h2 
@@ -105,7 +105,7 @@ h2
 	letter-spacing: -2px;
 	padding: 0px;
 	margin: 0px;
-	margin-bottom: 15px;
+	margin-bottom: 20px;
 }
 
 h3 
@@ -116,7 +116,7 @@ h3
 	letter-spacing: -1px;
 	padding: 0px;
 	margin: 0px;
-	margin-bottom: 10px;
+	margin-bottom: 15px;
 }
 
 h4
@@ -127,7 +127,7 @@ h4
 	letter-spacing: 0px;
 	padding: 0px;
 	margin: 0px;
-	margin-bottom: 5px;
+	margin-bottom: 10px;
 }
 
 h5 
@@ -137,6 +137,7 @@ h5
 	letter-spacing: 0px;
 	padding: 0px;
 	margin: 0px;
+	margin-bottom: 5px;
 }
 
 h6 
@@ -278,7 +279,8 @@ hr
 a:hover,
 input:hover,
 textarea:hover,
-.formSuccess
+.formSuccess,
+.linkSelected
 {
 	background-color: #66aa66;
 }
@@ -293,6 +295,7 @@ a.outerCont:hover
 {
 	color: #E57200;
 }
+
 
 /* commont texts formatting */
 
@@ -322,7 +325,8 @@ textarea
 a:hover,
 input:hover,
 textarea:hover,
-.formSuccess
+.formSuccess,
+.linkSelected
 {
 	color:#ffffff;
 	text-decoration:none;
@@ -331,12 +335,17 @@ textarea:hover,
 	box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.4);
 }
 
+/* links and buttons selected */
+.linkSelected
+{
+}
 
 /* minimum padding */
 a,
 input,
 textarea,
-.minimum_padding
+.minimum_padding,
+.linkSelected
 {
 	padding: 2px 6px;
 }
@@ -385,7 +394,8 @@ textarea,
 .outerCont,
 .innerCont,
 .adminIcon,
-.formSuccess
+.formSuccess,
+.linkSelected
 {
 	border-radius: 14px; 
 	-moz-border-radius: 14px; 
@@ -435,7 +445,8 @@ a:hover h5,
 a:hover h6,
 input:hover,
 textarea:hover,
-.formSuccess
+.formSuccess,
+.linkSelected
 {
 	text-shadow: rgba(0, 0, 0, 0.5) 0px 1px 0px;
 }
@@ -539,7 +550,7 @@ textarea:hover,
 	background-repeat:repeat-x;
 	background-position:center bottom;	
 	margin: 0px;
-	padding: 0px;
+	padding: 5px 0px;
 }
 .footerCont
 {
@@ -548,6 +559,7 @@ textarea:hover,
 	background-position:center top;
 	margin: 0px;
 	padding: 0px;
+	padding-top: 10px;
 }
 .bodyCont
 {
@@ -577,8 +589,9 @@ textarea:hover,
 {
 	clear:both;
 	margin: 0 auto;
-	padding-top: 10px;
-	padding-bottom: 10px;
+	padding-top: 15px;
+	padding-bottom: 20px;
+	position: relative;
 }
 .logoLabel
 {
@@ -659,7 +672,12 @@ textarea:hover,
 
 .saveButton
 {
-	background-image:url('../images/pov/icon_save_20x15.png');
+	width: 100px;
+	height: 30px;
+	font-size: 18px;
+	background-image:url('../images/pov/icon_save_30x23.png');
+	background-position: 5px 4px;
+	padding-left: 25px;
 }
 
 .modifyButton
@@ -768,9 +786,27 @@ textarea:hover,
 
 .paginationBox
 {
+	right: 0px;
+}
+
+.paginationBoxTop
+{
+	position: absolute;
+	top: 10px;
+}
+
+.paginationBoxBottom
+{
 	text-align: right;
 }
 
 
 
+/* LIST FILTERS */
 
+.filterAllOrMine
+{
+	position: absolute;
+	top: 20px;
+	left: 200px;
+}

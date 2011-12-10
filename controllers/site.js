@@ -46,14 +46,24 @@ function defineRoutes(app) {
 		{
 			//leggo gli site dal db, e assegno il result al tpl
 			//se sono superadmin vedo anche i non share
-			var conditions = ( req.session.user_id == 'superadmin' ) 
-			? 
-			{} 
-			: 
-			{ $or: [
-					{ 'status': 'share' }, 
-					{'author': req.session.user_id }
-			]};
+			if ( req.session.filterAllOrMine == 'mine' )
+			{
+				//il superuser e gli utenti non loggati non possono filtrare per 'mine' o 'all', quindi se sto filtrando so che non sono superuser e so che sono loggato
+				var conditions = {'author': req.session.user_id };
+			}
+			else
+			{
+				var conditions = ( req.session.user_id == 'superadmin' ) 
+				? 
+				{} 
+				: 
+				{ $or: [
+						{ 'status': 'share' }, 
+						{'author': req.session.user_id }
+				]};
+			}
+			
+			
 			//per via della paginazione, ogni query di list va preceduta da una query di count
 			app.jsl.site.count(
 				conditions,
@@ -71,7 +81,8 @@ function defineRoutes(app) {
 							},
 							function(err, sites) {
 								res.render('sites/list', { 
-									sites: sites,
+									elementName: 'site',
+									elements: sites,
 									pagination: app.jsl.paginationDo(req, total, '/sites/')
 								});	
 							}
@@ -115,7 +126,8 @@ function defineRoutes(app) {
 					if ( site )
 					{
 						res.render('sites/detail', { 
-							site: site
+							elementName: 'site',
+							element: site
 						});	
 					}
 					else
@@ -137,7 +149,8 @@ function defineRoutes(app) {
 		//è un NEW, renderizzo il form, ma senza popolarlo
 		res.render('sites/form', { 
 			title: app.i18n.t(req,'create new site'),
-			site: ""
+			elementName: 'site',
+			element: ''
 		});	
 	});
 	//POST: site form (new)
@@ -194,7 +207,8 @@ function defineRoutes(app) {
 				{
 					res.render('sites/form', { 
 						title: app.i18n.t(req,'modify site'),
-						site: site,
+						elementName: 'site',
+						element: site,
 						msg: req.params.msg
 					});	
 				}

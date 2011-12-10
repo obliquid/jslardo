@@ -236,80 +236,91 @@ function paginationInit(req, res, next) {
 function paginationDo(req, total, url) {
 	//actual range
 	var recordsPerPage = req.app.jsl.config.elementsPerPage;
-	var endToRecord = req.session.pageNum * recordsPerPage;
-	if( endToRecord > total )
+	var usePagination = ( total > recordsPerPage ) ? true : false;
+	if ( usePagination )
 	{
-		endToRecord = total;
-	}
-	var endFromRecord = ((req.session.pageNum-1) * recordsPerPage) +1;
-	if ( total > recordsPerPage )
-	{
-		var currentRangeString = endFromRecord+" - "+endToRecord+" ( tot. "+total+" )";
-	}
-	//first range - first page link
-	if (req.session.pageNum > 1)
-	{
-		var firstRangeString = "1 - "+recordsPerPage+" ( tot. "+total+" )";
-	}
-	// prev 10 pages link
-	if (req.session.pageNum > 10)
-	{
-		var prev10LinkPage = req.session.pageNum - 10;
-		var prev10RangeFromRecord = ((req.session.pageNum-11) * recordsPerPage) +1;
-		var prev10RangeToRecord = ((req.session.pageNum-10) * recordsPerPage);
-		var prev10RangeString = prev10RangeFromRecord+" - "+prev10RangeToRecord+" ( tot. "+total+" )";
-	}
-	//prev page link
-	if (req.session.pageNum > 1)
-	{
-		var prevLinkPage = req.session.pageNum - 1;
-		var prevRangeFromRecord = ((req.session.pageNum-2) * recordsPerPage) +1;
-		var prevRangeToRecord = ((req.session.pageNum-1) * recordsPerPage);
-		var prevRangeString = prevRangeFromRecord+" - "+prevRangeToRecord+" ( tot. "+total+" )";
-	}
-	//next page link
-	var nextTempVar = (recordsPerPage * req.session.pageNum)+1;
-	if (nextTempVar <= total)
-	{
-		var nextLinkPage = req.session.pageNum + 1;
-		var nextRangeFromRecord = (req.session.pageNum * recordsPerPage) +1;
-		var nextRangeToRecord = ((req.session.pageNum+1) * recordsPerPage);
-		if ( nextRangeToRecord > total)
+		var endToRecord = req.session.pageNum * recordsPerPage;
+		if( endToRecord > total )
 		{
-			 nextRangeToRecord = total;
+			endToRecord = total;
 		}
-		var nextRangeString = nextRangeFromRecord+" - "+nextRangeToRecord+" ( tot. "+total+" )";
-	}
-	//next 10 pages link
-	var next10TempVar = (recordsPerPage * (req.session.pageNum + 9)) + 1;
-	if (next10TempVar <= total)
-	{
-		var next10LinkPage = req.session.pageNum + 10;
-		var next10RangeFromRecord = (( req.session.pageNum + 9 ) * recordsPerPage) + 1;
-		var next10RangeToRecord = ((req.session.pageNum + 10) * recordsPerPage);
-		if ( next10RangeToRecord > total)
+		var endFromRecord = ((req.session.pageNum-1) * recordsPerPage) +1;
+		if ( total > recordsPerPage )
 		{
-			 next10RangeToRecord = total;
+			var currentRangeString = endFromRecord+" - "+endToRecord+" ( tot. "+total+" )";
 		}
-		var next10RangeString = next10RangeFromRecord+" - "+next10RangeToRecord+" ( tot. "+total+" )";
+		//first range - first page link
+		if (req.session.pageNum > 1)
+		{
+			var firstRangeString = "1 - "+recordsPerPage+" ( tot. "+total+" )";
+		}
+		// prev 10 pages link
+		if (req.session.pageNum > 10)
+		{
+			var prev10LinkPage = req.session.pageNum - 10;
+			var prev10RangeFromRecord = ((req.session.pageNum-11) * recordsPerPage) +1;
+			var prev10RangeToRecord = ((req.session.pageNum-10) * recordsPerPage);
+			var prev10RangeString = prev10RangeFromRecord+" - "+prev10RangeToRecord+" ( tot. "+total+" )";
+		}
+		//prev page link
+		if (req.session.pageNum > 1)
+		{
+			var prevLinkPage = req.session.pageNum - 1;
+			var prevRangeFromRecord = ((req.session.pageNum-2) * recordsPerPage) +1;
+			var prevRangeToRecord = ((req.session.pageNum-1) * recordsPerPage);
+			var prevRangeString = prevRangeFromRecord+" - "+prevRangeToRecord+" ( tot. "+total+" )";
+		}
+		//next page link
+		var nextTempVar = (recordsPerPage * req.session.pageNum)+1;
+		if (nextTempVar <= total)
+		{
+			var nextLinkPage = req.session.pageNum + 1;
+			var nextRangeFromRecord = (req.session.pageNum * recordsPerPage) +1;
+			var nextRangeToRecord = ((req.session.pageNum+1) * recordsPerPage);
+			if ( nextRangeToRecord > total)
+			{
+				 nextRangeToRecord = total;
+			}
+			var nextRangeString = nextRangeFromRecord+" - "+nextRangeToRecord+" ( tot. "+total+" )";
+		}
+		//next 10 pages link
+		var next10TempVar = (recordsPerPage * (req.session.pageNum + 9)) + 1;
+		if (next10TempVar <= total)
+		{
+			var next10LinkPage = req.session.pageNum + 10;
+			var next10RangeFromRecord = (( req.session.pageNum + 9 ) * recordsPerPage) + 1;
+			var next10RangeToRecord = ((req.session.pageNum + 10) * recordsPerPage);
+			if ( next10RangeToRecord > total)
+			{
+				 next10RangeToRecord = total;
+			}
+			var next10RangeString = next10RangeFromRecord+" - "+next10RangeToRecord+" ( tot. "+total+" )";
+		}
+		//last page link
+		if (req.session.pageNum < Math.floor(( total - 1 )/recordsPerPage)+1)
+		{
+			var lastLinkPage = Math.floor(( total - 1 )/recordsPerPage)+1;
+			var lastRangeFromRecord = Math.floor(( total-1 ) / recordsPerPage);
+			var lastRangeFromRecord = (lastRangeFromRecord * recordsPerPage) +1;
+			var lastRangeToRecord = total;
+			var lastRangeString = lastRangeFromRecord+" - "+lastRangeToRecord+" ( tot. "+total+" )";
+		}
+		return {
+			firstBtn: { link:url+'1', tooltip:firstRangeString},
+			prev10Btn: { link:url+prev10LinkPage, tooltip:prev10RangeString},
+			prevBtn: { link:url+prevLinkPage, tooltip:prevRangeString},
+			currentLabel: { link:url+req.session.pageNum, tooltip:currentRangeString},
+			nextBtn: { link:url+nextLinkPage, tooltip:nextRangeString},
+			next10Btn: { link:url+next10LinkPage, tooltip:next10RangeString},
+			lastBtn: { link:url+lastLinkPage, tooltip:lastRangeString},
+			usePagination: usePagination
+		}
 	}
-	//last page link
-	if (req.session.pageNum < Math.floor(( total - 1 )/recordsPerPage)+1)
+	else
 	{
-		var lastLinkPage = Math.floor(( total - 1 )/recordsPerPage)+1;
-		var lastRangeFromRecord = Math.floor(( total-1 ) / recordsPerPage);
-		var lastRangeFromRecord = (lastRangeFromRecord * recordsPerPage) +1;
-		var lastRangeToRecord = total;
-		var lastRangeString = lastRangeFromRecord+" - "+lastRangeToRecord+" ( tot. "+total+" )";
-	}
-	return {
-		firstBtn: { link:url+'1', tooltip:firstRangeString},
-		prev10Btn: { link:url+prev10LinkPage, tooltip:prev10RangeString},
-		prevBtn: { link:url+prevLinkPage, tooltip:prevRangeString},
-		currentLabel: { link:url+req.session.pageNum, tooltip:currentRangeString},
-		nextBtn: { link:url+nextLinkPage, tooltip:nextRangeString},
-		next10Btn: { link:url+next10LinkPage, tooltip:next10RangeString},
-		lastBtn: { link:url+lastLinkPage, tooltip:lastRangeString}
+		return {
+			usePagination: usePagination
+		}
 	}
 }
 
@@ -366,9 +377,20 @@ function defineRoutes(app) {
 	app.get('/lan/:locale?', function(req, res) {
 		app.jsl.routeInit(req);
 		//cambio la lingua
-		req.session.currentLocale = req.params.locale;
-		//console.log("cambierei con: "+req.params.locale);
-		//req.app.i18n.setLocale(req.params.locale);
+		//req.session.currentLocale = req.params.locale;
+		//console.log("prima nei cookie ho:");
+		//console.log(req.cookies);
+		res.cookie('currentlocale', req.params.locale, { expires: new Date(Date.now() + app.jsl.config.cookiesDurationMs), path: '/' });
+		//console.log('dopo nei cookies ho: ');
+		//console.log(req.cookies);
+		//alla fine ricarico la pagina da cui arrivavo
+		res.redirect('back');
+	});
+	
+	//GET: list filter All or Mine
+	app.get('/listFilter/:filterOn', function(req, res) {
+		app.jsl.routeInit(req);
+		req.session.filterAllOrMine = req.params.filterOn;
 		//alla fine ricarico la pagina da cui arrivavo
 		res.redirect('back');
 	});
@@ -425,7 +447,8 @@ function populateModel(model, modelData) {
 	
 }
 
-/* questa va richiamata da ogni route, e compie operazioni utili e comuni a tutte le route */
+/* questa va richiamata da ogni route, e compie operazioni utili e comuni a tutte le route.
+nota che i controlli sui permessi vengono fatti dal middleware, questa servirà ad altro */
 function routeInit(req)
 {
 	//prima loggo la route in cui sono entrato

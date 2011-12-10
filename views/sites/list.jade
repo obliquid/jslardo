@@ -1,22 +1,18 @@
-h3(style='float:left;') #{__i('all sites')}
-include ../includes/pagination
-div.clear
-hr
-each site,i in sites
+h3 #{__i('sites')}
+include ../includes/paginationTop
+include ../includes/filterAllOrMine
+
+each element,i in elements
 	div.floatLeft.size1
-		a(href='/sites/#{site._id}').elemGrid.outerCont
-			h5 #{site.title} 
+		a(href='/#{elementName}s/#{element._id}').elemGrid.outerCont
+			h5 #{element.title} 
 			div.innerCont
-				span.textMini domain: 
-					h6 #{site.domain}
+				span.textMini #{__i('domain')}: 
+					h6 #{element.domain}
 			div.elemGridAdminCont
-				if site.status == 'private'
+				if element.status == 'private'
 					div(title='#{__i('private')}').adminIcon.privateButton
 	if (i+1)%6==0
 		div.clear
-div.clear
-hr
-include ../includes/pagination
-if session.canCreate
-	hr
-	a(href='/sites/edit/new', title='#{__i('new site')}').adminButton.addButton
+include ../includes/paginationBottom
+include ../includes/listCrudbox
