@@ -1,0 +1,18 @@
+script
+	function changeSite()
+	{
+		//- alert($('#filterBySite').val());
+		window.location.href = '/filterBySite/'+$('#filterBySite').val();
+	}
+
+div.filterBySite
+	span #{__i('from site')}:
+	select(id='filterBySite', onChange='changeSite()')
+		option(value='') #{__i('all')}
+		each combo_site in combo_sites
+			if combo_site._id == session.filterBySite
+				option(value='#{combo_site._id}',selected='true') #{combo_site.title}
+			else
+				option(value='#{combo_site._id}') #{combo_site.title}
+	
+	

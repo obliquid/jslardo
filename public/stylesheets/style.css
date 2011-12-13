@@ -39,7 +39,7 @@
   /* src: url('../fonts/HelveticaNeue-LightExt.ttf'); */
 }
 
-h1, h2, h3, h4, h5, h6, a, input, textarea
+h1, h2, h3, h4, h5, h6, a, input, select, textarea
 {
 	font-family: Arial, Helvetica, sans-serif;
 	font-family: TitlesFont, Arial, Helvetica, sans-serif;
@@ -65,7 +65,7 @@ html
 	margin: 0px;
 }
 
-body, input, textarea
+body, input, select, textarea
 {
 	font-weight:normal;
 	font-size:16px;
@@ -170,7 +170,7 @@ a:hover
 
 /* forms */
 
-input
+input, select
 {
 }
 textarea
@@ -275,12 +275,15 @@ hr
 	width: 960px;
 }
 
-/* corporate color A */
+/* corporate color A (green) */
 a:hover,
 input:hover,
+select:hover,
 textarea:hover,
 .formSuccess,
-.linkSelected
+.linkSelected,
+.elementButton:hover,
+.elementButtonSelected
 {
 	background-color: #66aa66;
 }
@@ -290,11 +293,32 @@ a.outerCont:hover
 }
 
 
-/* corporate color B */
+/* corporate color B (orange) */
 .formError
 {
 	color: #E57200;
 }
+.adminButton,
+.adminIcon
+{
+	background-color: #E57200;
+}
+
+/* corporate color B (dark orange) */
+.adminButton:hover
+{
+	background-color: #874300;
+}
+
+
+/* light grey for backgrounds */
+.paginationButton,
+.elementButton
+{
+	background-color: #9C9C9C;
+}
+
+
 
 
 /* commont texts formatting */
@@ -308,7 +332,7 @@ a.outerCont:hover
 
 /* links and buttons */
 a,
-input,
+input, select,
 textarea
 {
 	color:#000000;
@@ -324,6 +348,7 @@ textarea
 /* (the bg is defined above) */
 a:hover,
 input:hover,
+select:hover,
 textarea:hover,
 .formSuccess,
 .linkSelected
@@ -342,7 +367,7 @@ textarea:hover,
 
 /* minimum padding */
 a,
-input,
+input, select,
 textarea,
 .minimum_padding,
 .linkSelected
@@ -353,7 +378,7 @@ textarea,
 /* minimum margin */
 a,
 span,
-input,
+input, select,
 textarea,
 .minimum_margin
 {
@@ -389,9 +414,10 @@ form
 
 /* rounded corners */
 a,
-input,
+input, select,
 textarea,
 .outerCont,
+.outerContMinimal,
 .innerCont,
 .adminIcon,
 .formSuccess,
@@ -429,7 +455,7 @@ textarea,
 }
 
 /* text shadow */
-h1, h2, h3, h4, h5, h6, p, html, body, a, input, textarea
+h1, h2, h3, h4, h5, h6, p, html, body, a, input, select, textarea
 {
 	text-shadow: rgba(255,255,255, 0.9) 0px 1px 0px;
 }
@@ -444,6 +470,7 @@ a:hover h4,
 a:hover h5,
 a:hover h6,
 input:hover,
+select:hover,
 textarea:hover,
 .formSuccess,
 .linkSelected
@@ -508,11 +535,9 @@ textarea:hover,
 /* CUSTOM CLASSES */
 /* styles dedicated to specific elements */
 
-.outerCont
+.outerCont,
+.outerContMinimal
 {
-	/*border: 2px solid #e8e8e8;*/
-	background-image:url('../images/bg/bianco66perc.png');
-	background-repeat:repeat;
 	padding:5px;
 	margin:2px;
 	/*
@@ -522,9 +547,18 @@ textarea:hover,
 	display:inline-block;
 	overflow: hidden;
 }
+.outerCont
+{
+	background-image:url('../images/bg/bianco66perc.png');
+	background-repeat:repeat;
+}
 .elemGrid.outerCont
 {
 	display: block;
+}
+.outerContMinimal
+{
+	border: 2px solid #e8e8e8;
 }
 
 .innerCont
@@ -639,25 +673,20 @@ textarea:hover,
 }
 
 .adminButton,
-.adminIcon
+.adminIcon,
+.paginationButton
 {
 	display: inline-block;
 	width: 24px;
 	height: 24px;
 	background-repeat:no-repeat;
 	background-position:center;
-	background-color: #E57200;
 	margin: 2px;
 	padding: 0px;
 	font-size: 11px;
 	font-family: TitlesFont;
 	cursor: pointer;
 	vertical-align:middle;
-}
-
-.adminButton:hover
-{
-	background-color: #874300;
 }
 
 .adminIcon
@@ -743,6 +772,45 @@ textarea:hover,
 */
 
 
+/* MAIN ELEMENTS BUTTONS */
+
+.elementButton,
+.elementButtonSelected
+{
+	display: inline-block;
+	height: 30px;
+	background-repeat:no-repeat;
+	background-position: 3px 4px;
+	margin: 2px;
+	padding: 0px;
+	padding-top: 3px;
+	padding-left: 35px;
+	padding-right: 10px;
+	font-size: 18px;
+	font-family: TitlesFont;
+	cursor: pointer;
+}
+
+.buttonUsers
+{
+	background-image:url('../images/pov/icon_core_role_30x23.png');
+}
+
+.buttonSites
+{
+	background-image:url('../images/pov/icon_core_site_30x23.png');
+}
+
+.buttonPages
+{
+	background-image:url('../images/pov/icon_core_page_30x23.png');
+}
+
+.buttonRoles
+{
+	background-image:url('../images/pov/icon_core_role_30x23.png');
+}
+
 
 
 /* PAGINATION RELATED */
@@ -752,6 +820,10 @@ textarea:hover,
 	display: inline-block;
 	margin-top: 3px;
 	margin-right: 4px;
+}
+
+.paginationButton
+{
 }
 
 .paginationLinkFirst
@@ -802,11 +874,18 @@ textarea:hover,
 
 
 
-/* LIST FILTERS */
+/* FILTERS */
 
 .filterAllOrMine
 {
 	position: absolute;
 	top: 20px;
-	left: 200px;
+	left: 300px;
+}
+
+.filterBySite
+{
+	position: absolute;
+	top: 20px;
+	left: 500px;
 }

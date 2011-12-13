@@ -1,6 +1,6 @@
 hr
 if element.author
-	.outerCont
+	.outerContMinimal
 		h6  #{__i('author')}: 
 		.innerCont
 			h5 
@@ -9,20 +9,20 @@ if element.author
 				else
 					| private
 	
-.outerCont
+.outerContMinimal
 	h6  #{__i('status')}: 
 	.innerCont
-		h5 #{element.status}
+		h5 #{__i(element.status)}
 	
 	
 if element.created
-	.outerCont
+	.outerContMinimal
 		h6 #{__i('created')}: 
 		.innerCont
 			h5 #{element.created}
 		
 		
-.outerCont
+.outerContMinimal
 	h6 id: 
 	.innerCont
 		h5 #{element._id}

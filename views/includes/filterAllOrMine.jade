@@ -1,9 +1,32 @@
-if session.user_id != 'superadmin' && session.user_id != undefined 
+if session.loggedIn && session.user_id != 'superadmin'
+	script
+		function changeAllOrMine()
+		{
+			//- alert($('#filterBySite').val());
+			window.location.href = '/filterAllOrMine/'+$('#filterAllOrMine').val();
+		}
+		
 	div.filterAllOrMine
-		span #{__i('view')}:
-		if session.filterAllOrMine == 'mine'
-			a(href='/listFilter/all') #{__i('all')}
-			span.linkSelected #{__i('mine only')}			
-		else
-			span.linkSelected #{__i('all')}
-			a(href='/listFilter/mine') #{__i('mine only')}
+		span #{__i('show')}:
+		select(id='filterAllOrMine', onChange='changeAllOrMine()')
+			if session.filterAllOrMine == 'mine'
+				option(value='all') #{__i('all')}
+				option(value='mine', selected='true') #{__i('mine')}
+			else
+				option(value='all', selected='true') #{__i('all')}
+				option(value='mine') #{__i('mine')}
+
+	
+
+
+
+//- questo va ma ha i link e non il combo
+	if session.loggedIn && session.user_id != 'superadmin'
+		div.filterAllOrMine
+			span #{__i('view')}:
+			if session.filterAllOrMine == 'mine'
+				a(href='/listFilter/all') #{__i('all')}
+				span.linkSelected #{__i('mine only')}			
+			else
+				span.linkSelected #{__i('all')}
+				a(href='/listFilter/mine') #{__i('mine only')}

@@ -1,15 +1,17 @@
-h2 #{__i('sites')}
-	img(src='/images/pov/icon_core_site_60x45.png').floatLeft
+h2 #{__i('pages')}
+	img(src='/images/pov/icon_core_page_60x45.png').floatLeft
 include ../includes/paginationTop
 include ../includes/filterAllOrMine
+include ../includes/filterBySite
 
 each element,i in elements
 	div.floatLeft.size1
 		a(href='/#{elementName}s/#{element._id}').elemGrid.outerCont
-			h5 #{element.title} 
-			div.innerCont
-				span.textMini #{__i('domain')}: 
-					h6 #{element.domain}
+			h5 #{element.route} 
+			//-
+				div.innerCont
+					span.textMini #{__i('domain')}: 
+						h6 #{element.domain}
 			div.elemGridAdminCont
 				if element.status == 'private'
 					div(title='#{__i('private')}').adminIcon.privateButton

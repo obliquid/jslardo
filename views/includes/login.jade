@@ -2,7 +2,7 @@ div.outerCont
 	h4 #{__i('access')}
 	div.innerCont
 		form(method='post', action='/signin')
-			- if ( session.user_id )
+			- if ( session.loggedIn )
 				h4 #{ session.email }
 				hr
 				a(href='/signout') #{__i('sign out')}

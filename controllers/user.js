@@ -288,7 +288,7 @@ function defineRoutes(app) {
 				if ( err ) app.jsl.errorPage(res, err, 'GET: user delete: failed query on db');
 			}
 		);
-		//QUI!!!: oltre all'utente, vanno cancellati anche tutti i suoi contenuti. aggiornare la lista dei delete man mano che si creano nuovi elementi della struttura o dei contenuti
+		//QUI!!!: oltre a user, vanno cancellati anche tutti i suoi elementi dipendenti
 		//faccio un redirect sulla lista
 		res.redirect('/users');
 	});

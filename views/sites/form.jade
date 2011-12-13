@@ -25,6 +25,12 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 		span.formError *
 	span http://&nbsp;
 	input(id='domain', name='domain', value='#{element.domain || ""}').size3
+	br
+	h5.formLabel  #{__i('description')}
+	input(id='description', name='description', value='#{element.description || ""}').size3
+	br
+	h5.formLabel  #{__i('keywords')}
+	input(id='keywords', name='keywords', value='#{element.keywords || ""}').size3
 	
 	
 	include ../includes/formStatus

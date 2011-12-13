@@ -81,5 +81,12 @@
 	"new": "new",
 	"modify": "modify",
 	"delete": "delete",
-	"mine only": "mine only"
+	"mine only": "mine only",
+	"roles": "roles",
+	"role": "role",
+	"pages": "pages",
+	"from site": "from site",
+	"show": "show",
+	"mine": "mine",
+	"page": "page"
 }

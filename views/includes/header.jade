@@ -7,7 +7,20 @@ div.headerCont
 				h3.floatLeft.logoLabel jslardo
 		//menu
 		div.size5.floatLeft
-			a(href='/users').floatLeft #{__i('users')}
-			a(href='/sites').floatLeft #{__i('sites')}
-			//a(href='/linkedservers').floatLeft #{__i('linked servers')}
+			if session.currentPage == 'users'
+				a(href='/users').floatLeft.elementButtonSelected.buttonUsers #{__i('users')}
+			else
+				a(href='/users').floatLeft.elementButton.buttonUsers #{__i('users')}
+			if session.currentPage == 'sites'
+				a(href='/sites').floatLeft.elementButtonSelected.buttonSites #{__i('sites')}
+			else
+				a(href='/sites').floatLeft.elementButton.buttonSites #{__i('sites')}
+			if session.currentPage == 'pages'
+				a(href='/pages').floatLeft.elementButtonSelected.buttonPages #{__i('pages')}
+			else
+				a(href='/pages').floatLeft.elementButton.buttonPages #{__i('pages')}
+			if session.currentPage == 'roles'
+				a(href='/roles').floatLeft.elementButtonSelected.buttonRoles #{__i('roles')}
+			else
+				a(href='/roles').floatLeft.elementButton.buttonRoles #{__i('roles')}
 		div.clear

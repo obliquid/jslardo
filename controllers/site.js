@@ -40,7 +40,7 @@ site
 function defineRoutes(app) {
 
 	//GET: site list
-	app.get('/sites/:page?', app.jsl.readStrucPermOn_sites, app.jsl.paginationInit, function(req, res, next){
+	app.get('/sites/:page?', app.jsl.readStrucPermDefault, app.jsl.paginationInit, function(req, res, next){
 		app.jsl.routeInit(req);
 		if ( req.params.page == undefined || !isNaN(req.params.page) )
 		{
@@ -75,7 +75,7 @@ function defineRoutes(app) {
 							conditions,
 							[], 
 							{ 
-								sort: ['title', 'descending'],
+								sort: ['title', 'ascending'],
 								skip: req.session.skip, 
 								limit: req.session.limit 
 							},
@@ -102,7 +102,7 @@ function defineRoutes(app) {
 	});
 	
 	//GET: site detail 
-	app.get('/sites/:id', app.jsl.readStrucPermOn_sites, function(req, res, next){
+	app.get('/sites/:id', app.jsl.readStrucPermDefault, function(req, res, next){
 		app.jsl.routeInit(req);
 		//leggo il mio site dal db, e assegno il result al tpl
 		//se sono superadmin vedo anche i non share
@@ -144,7 +144,7 @@ function defineRoutes(app) {
 	});
 	
 	//GET: site form (new)
-	app.get('/sites/edit/new', app.jsl.readStrucPermOn_sites, app.jsl.needStrucPermCreate, function(req, res, next){
+	app.get('/sites/edit/new', app.jsl.readStrucPermDefault, app.jsl.needStrucPermCreate, function(req, res, next){
 		app.jsl.routeInit(req);
 		//è un NEW, renderizzo il form, ma senza popolarlo
 		res.render('sites/form', { 
@@ -155,7 +155,7 @@ function defineRoutes(app) {
 	});
 	//POST: site form (new)
 	//qui ci entro quando dal form faccio un submit ma non è definito l'id, altrimenti andrei nella route POST di modify
-	app.post('/sites/edit', app.jsl.readStrucPermOn_sites, app.jsl.needStrucPermCreate, function(req, res, next){
+	app.post('/sites/edit', app.jsl.readStrucPermDefault, app.jsl.needStrucPermCreate, function(req, res, next){
 		app.jsl.routeInit(req);
 		//prima verifico se il dominio non è già stato usato
 		app.jsl.site.findOne(
@@ -196,7 +196,7 @@ function defineRoutes(app) {
 	});	
 	
 	//GET: site form (modify) //quando entro in un form da un link (GET) e non ci arrivo dal suo stesso submit (caso POST)
-	app.get('/sites/edit/:id/:msg?', app.jsl.readStrucPermOn_sites, app.jsl.needStrucPermModify, function(req, res, next){
+	app.get('/sites/edit/:id/:msg?', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModify, function(req, res, next){
 		app.jsl.routeInit(req);
 		//mi hanno passato l'id obbligatoriamente
 		//leggo il mio site dal db, e assegno il result al tpl
@@ -221,7 +221,7 @@ function defineRoutes(app) {
 		);	
 	});
 	//POST: site form (modify)
-	app.post('/sites/edit/:id', app.jsl.readStrucPermOn_sites, app.jsl.needStrucPermModify, function(req, res, next){
+	app.post('/sites/edit/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModify, function(req, res, next){
 		app.jsl.routeInit(req);
 		//prima trovo il mio site da modificare nel db
 		app.jsl.site.findOne(
@@ -234,8 +234,8 @@ function defineRoutes(app) {
 					//(in patica cerco uno site che abbia la mia stessa domain, ma un id differente: se lo trovo, vuol dire che la domain è già stata usata)
 					app.jsl.site.findOne(
 						{ 'domain': req.body.domain, '_id': { $ne : req.body.id } },
-						function(err, siteSameMail) {
-							if ( siteSameMail ) 
+						function(err, siteSameDomain) {
+							if ( siteSameDomain ) 
 							{
 								//domain già usata
 								app.jsl.errorPage(res, err, "already exists site with domain: "+req.body.domain);
@@ -262,7 +262,7 @@ function defineRoutes(app) {
 	});
 	
 	//GET: site delete
-	app.get('/sites/delete/:id', app.jsl.readStrucPermOn_sites, app.jsl.needStrucPermModify, function(req, res, next){
+	app.get('/sites/delete/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModify, function(req, res, next){
 		app.jsl.routeInit(req);
 		//cancello l'site
 		app.jsl.site.remove(
@@ -271,12 +271,72 @@ function defineRoutes(app) {
 				if ( err ) app.jsl.errorPage(res, err, 'GET: site delete: failed query on db');
 			}
 		);
-		//QUI!!!: oltre all'site, vanno cancellati anche tutti i suoi contenuti. aggiornare la lista dei delete man mano che si creano nuovi elementi della struttura o dei contenuti
+		//QUI!!!: oltre a site, vanno cancellati anche tutti i suoi elementi dipendenti
 		//faccio un redirect sulla lista
 		res.redirect('/sites');
 	});
 		
 	
 }
+exports.defineRoutes = defineRoutes;
 
-exports.defineRoutes = defineRoutes; 
+//questo metodo ritorna una lista di tutti i siti visibili dall'utente corrente
+//in base al fatto che sia loggato o meno, e che sia superadmin o meno
+function getSites(req,res,closure)
+{
+	//prima di tutto distinguo se sono loggato o meno
+	if ( req.session.loggedIn )
+	{
+		//poi distinguo se sto filtrando solo sui miei elementi o su tutti (quelli visibili)
+		if ( req.session.filterAllOrMine == 'mine' )
+		{
+			//voglio vedere solo i miei siti (questa condizione non può avvenire se sono superadmin, quindi non sono sicuramente superadmin)
+			//e sono loggato, quindi vedrò solo i miei
+			var conditions = { 'author': req.session.user_id };
+		}
+		else
+		{
+			//voglio vedere tutti i siti
+			//e sono loggato, quindi devo distinguere se sono superadmin(vedo tutti i site) o no (vedo solo gli share o i miei)
+			var conditions = ( req.session.user_id == 'superadmin' ) 
+			? 
+			{} 
+			: 
+			{ $or: [
+				{ 'status': 'share' },
+				{ 'author': req.session.user_id }
+			]};
+		}
+	}
+	else
+	{
+		//se non sono loggato, vedo solo gli share
+		var conditions = { 'status': 'share' };
+	}
+	//poi eseguo la query
+	req.app.jsl.site
+		.find( conditions, [], { sort: ['title', 'ascending'] } )
+		//.populate('author')
+		.run(function(err, sites) {
+			if ( !err )
+			{
+				//la query può andare a buon fine anche se non esiste un site che rispetti le conditions
+				//in questo caso ritorna uno site null, quindi devo controllare se esiste lo site
+				if ( sites )
+				{
+					//ho trovato dei siti
+					closure(sites);
+				}
+				else
+				{
+					//non ho trovato nessun site, ritorno niente
+					closure();
+				}
+			}
+			else
+			{
+				req.app.jsl.errorPage(res, err, "site.getSites(): query error");
+			}
+		});	
+}
+exports.getSites = getSites;

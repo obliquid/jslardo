@@ -1,0 +1,25 @@
+h3 #{__i(elementName)} #{__i('detail')}
+	img(src='/images/pov/icon_core_role_40x30.png').floatLeft
+hr
+h1 #{element.name}
+//-
+	br
+	h4
+		span http://
+			a(href='http://#{element.domain}', target='_blank', title='#{__i('open')}') #{element.domain}
+br
+table
+	tr
+		td
+			h6 #{__i('description')}:
+		td 
+			span #{element.description}
+//-
+	hr
+	.outerCont
+		a(href='/pages').floatLeft.elementButton.buttonPages #{__i('pages')}
+
+include ../includes/detailCommon
+
+include ../includes/detailCrudbox
+

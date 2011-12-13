@@ -132,7 +132,9 @@ mongoose.connect('mongodb://localhost/jslardo');
 //carico i modelli del DB, e li salvo a livello di app
 app.jsl.models.defineModels(mongoose, app, function() {
 	app.jsl.user = mongoose.model('user');
+	app.jsl.role = mongoose.model('role');
 	app.jsl.site = mongoose.model('site');
+	app.jsl.page = mongoose.model('page');
 	app.jsl.debuggin = mongoose.model('debuggin');
 	//app.jsl.linkedserver = mongoose.model('linkedserver');
 	//console.log("finito coi modelli!");
@@ -150,12 +152,15 @@ app.jsl.models.defineModels(mongoose, app, function() {
 //route specifiche di jslardo
 app.jsl.defineRoutes(app);
 
-//route per gli oggetti del db
+//route per gli elementi della struttura
 require('./controllers/user').defineRoutes(app);
-require('./controllers/site').defineRoutes(app);
+require('./controllers/role').defineRoutes(app);
+require('./controllers/page').defineRoutes(app);
 require('./controllers/debuggin').defineRoutes(app);
-//require('./controllers/site').defineRoutes(app);
-//require('./controllers/linkedserver').defineRoutes(app);
+//per questi elementi oltre alle route, mi servono anche altri metodi esposti dal controller, quindi devo tenere tutto il controller
+app.jsl.siteController = require('./controllers/site');
+app.jsl.siteController.defineRoutes(app);
+
 
 /*queste non riesco a farle andare...
 //per ultime le route per le pagine di errore, se nessuna altra route è stata matchata

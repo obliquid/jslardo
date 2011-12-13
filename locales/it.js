@@ -79,6 +79,19 @@
 	"delete": "elimina",
 	"user": "utente",
 	"create new site": "crea nuovo sito",
-	"mine": "mine",
-	"mine only": "mine only"
+	"mine": "miei",
+	"mine only": "solo miei",
+	"pages": "pagine",
+	"keywords": "keywords",
+	"page": "pagina",
+	"create new page": "crea nuova pagina",
+	"route is required": "la route è obbligatoria",
+	"route": "route",
+	"modify page": "modifica pagina",
+	"roles": "roles",
+	"role": "role",
+	"create new role": "create new role",
+	"modify role": "modify role",
+	"show": "show",
+	"from site": "from site"
 }

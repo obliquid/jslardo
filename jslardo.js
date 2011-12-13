@@ -33,10 +33,10 @@ function readStrucPermOn_users(req, res, next) {
 	readStrucPerm('user', req, res, next);
 }
 exports.readStrucPermOn_users = readStrucPermOn_users; 
-function readStrucPermOn_sites(req, res, next) {
-	readStrucPerm('site', req, res, next);
+function readStrucPermDefault(req, res, next) {
+	readStrucPerm('default', req, res, next);
 }
-exports.readStrucPermOn_sites = readStrucPermOn_sites; 
+exports.readStrucPermDefault = readStrucPermDefault; 
 
 //quando si assegnano i middleware alle routes, prima bisogna sempre leggere i permessi (readStrucPermOn_XXX)
 //poi si possono imporre lecondizioni in base ai permessi (needStrucPermXXX)
@@ -55,6 +55,7 @@ function needStrucPermModifyMyself(req, res, next) {
 function readStrucPerm(on, req, res, next) {
 	//console.log('readStrucPerm: req.session.user_id = ' + req.session.user_id);
 	//azzero i permessi
+	req.session.loggedIn = false;
 	req.session.canCreate = false;
 	req.session.canModify = false;
 	req.session.canModifyMyself = false; //questo è un permesso che vale solo per l'elemento "users"
@@ -67,6 +68,7 @@ function readStrucPerm(on, req, res, next) {
 			if ( result )
 			{
 				//i dati di login sono validi
+				req.session.loggedIn = true;
 				if ( user_id == 'superadmin' )
 				{
 					//se sono super admin, ho sempre permesso di modify su tutti i contenuti, ma non ho il create
@@ -200,7 +202,12 @@ function setSignedIn(req, user_id)
 	//salvo nelle session che il mio utente è loggato
 	req.session.email = email;
 	req.session.password = password;
-	req.session.user_id = user_id;
+	req.session.user_id = user_id; //questo varrà 'superadmin' se mi sono loggato come superadmin
+	//by default quando un utente si logga, vedrà solo i suoi elementi, ma solo se non è superadmin
+	if ( user_id != 'superadmin' )
+	{
+		req.session.filterAllOrMine = 'mine';
+	}
 }
 
 /* slogga l'utente */
@@ -332,7 +339,7 @@ function paginationDo(req, total, url) {
 function defineRoutes(app) {
 	
 	//GET: home
-	app.get('/', function(req, res){ 
+	app.get('/', app.jsl.readStrucPermDefault, function(req, res){ 
 		app.jsl.routeInit(req);
 		res.render('home', {
 		});
@@ -345,7 +352,7 @@ function defineRoutes(app) {
 		checkValidUser(req, function(result, user_id) { 
 			if ( result )
 			{
-				//ho trovato lo user nel db
+				//ho trovato lo user nel db (oppure sono superadmin)
 				//il login è valido
 				setSignedIn(req, user_id);
 				console.log("POST: login signin: login succeded for user: "+req.body.login_email);
@@ -368,7 +375,7 @@ function defineRoutes(app) {
 		app.jsl.routeInit(req);
 		//resetto le session
 		console.log("POST: login signout: for user: "+req.session.email);
-		req.session.destroy(function() {});
+		setSignedOut(req);
 		//alla fine ricarico la pagina da cui arrivavo
 		res.redirect('back');
 	});
@@ -387,13 +394,78 @@ function defineRoutes(app) {
 		res.redirect('back');
 	});
 	
+	
+	/*
+	FILTERS
+	nota: ora li tengo qui, ma se aumentano sarà meglio metterli, ove possibile, nei rispettivi controllers js
+	*/
+	
 	//GET: list filter All or Mine
-	app.get('/listFilter/:filterOn', function(req, res) {
+	app.get('/filterAllOrMine/:filterOn', function(req, res) {
 		app.jsl.routeInit(req);
-		req.session.filterAllOrMine = req.params.filterOn;
+		//posso filtrare sui miei elementi solo se sono loggato, e se non sono superadmin
+		if ( req.session.loggedIn && req.session.user_id != 'superadmin' )
+		{
+			//sono loggato, non come superadmin, quindi posso filtrare
+			req.session.filterAllOrMine = req.params.filterOn;
+		}
+		else if ( req.session.loggedIn && req.session.user_id == 'superadmin' )
+		{
+			//sono loggato come superadmin, non posso filtrare sui miei elementi ma solo su tutti
+			req.session.filterAllOrMine = 'all';
+		}
+		else
+		{
+			//se invece sto cercando di attivare il filtering senza essere loggato, forzo un loagout che mi azzera tutte le sessions
+			setSignedOut(req);
+		}
 		//alla fine ricarico la pagina da cui arrivavo
 		res.redirect('back');
 	});
+	
+	//GET: filter by site
+	app.get('/filterBySite/:site?', function(req, res) {
+		app.jsl.routeInit(req);
+		//inizialmente azzero la session per il filtraggio
+		req.session.filterBySite = undefined;
+		//verifico se mi è arrivato un site su cui filtrare
+		if ( req.params.site != '' )
+		{
+			//leggo i siti su cui posso filtrare, per verificare che l'utente stia cercando di filtrare su un sito a lui consentito
+			app.jsl.siteController.getSites(req,res,function(sites) {
+				if (sites)
+				{
+					//posso filtrare su dei sites. verifico se quello richiesto è tra quelli papabili
+					//nota: non posso usare array.forEach perchè devo poter usare break;
+					for (var x=0;x<sites.length;x++)
+					{
+						if ( sites[x]._id == req.params.site )
+						{
+							//trovato il mio sito, posso usarlo per filtrare
+							//imposto le session ed esco dal ciclo
+							req.session.filterBySite = req.params.site;
+							break;
+						}
+					}
+					//ricarico la pagina da cui arrivavo
+					res.redirect('back');				
+				}
+				else
+				{
+					//se non mi sono arrivati sites, vuol dire che non posso filtrare su niente
+					//ricarico la pagina da cui arrivavo
+					res.redirect('back');				
+				}
+			});
+		}
+		else
+		{
+			//non mi è arrivato il site, che vuol dire che non devo filtrare su nessun site
+			//ricarico la pagina da cui arrivavo
+			res.redirect('back');
+		}
+	});
+	
 	
 }
 
@@ -453,6 +525,10 @@ function routeInit(req)
 {
 	//prima loggo la route in cui sono entrato
 	console.log('route matched: ('+req.route.method.toUpperCase()+') '+req.route.path);	
+	
+	//salvo nelle sessions la pagina in cui mi trovo (cioè il primo chunk del path)
+	var chunks = req.route.path.split("/");
+	req.session.currentPage = chunks[1];
 }
 
 

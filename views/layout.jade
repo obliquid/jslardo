@@ -6,7 +6,7 @@ html
 		script(language='JavaScript', type='text/javascript', src='/javascripts/jq/jquery-last.min.js')
 	body
 		include includes/header
-		- if ( session.user_id )
+		- if ( session.loggedIn )
 			include includes/headerAdmin
 		div.bodyCont
 			div.body.size6!= body //- la variabile body contiene il template principale della pagina (unescaped, altrimenti visualizza i tag html)

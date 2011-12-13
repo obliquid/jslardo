@@ -39,20 +39,56 @@ function defineModels(mongoose, app, next) {
 		'profile': { type: String },
 		'email': { type: String, validate: [validatePresenceOf, app.i18n.__('an email is required')], index: { unique: true } },
 		'password': { type: String, required: true },
+		//common fields
 		'status': { type: String, required: true, enum: ['public', 'private'] },
-		'created': { type: Date }
+		'created': { type: Date, required: true }
 	});
 	mongoose.model('user', User);
 	
+	//Schema permission
+	var Permission = new Schema({
+		'action': { type: String, required: true, enum: ['modify_all', 'modify_mine'], index: true },
+		'on_element_name': { type: String, required: true, enum: ['site', 'page'], index: true },
+		'on_element_id': { type: Schema.ObjectId, required: true, index: true }
+	});
+	mongoose.model('permission', Permission);
+	
+	//Schema role
+	var Role = new Schema({
+		'name': { type: String, index: true, required: true },
+		'description': { type: String },
+		'permissions':[Permission],
+		//common fields
+		'author': { type: Schema.ObjectId, ref: 'user', required: true, index: true },
+		'status': { type: String, required: true, enum: ['public', 'private', 'share'], index: true },
+		'created': { type: Date, required: true }
+	});
+	mongoose.model('role', Role);
+	
 	//Schema site
 	var Site = new Schema({
-		'title': { type: String, index: { unique: true }, required: true },
-		'domain': { type: String, index: { unique: true }, required: true },
-		'author': { type: Schema.ObjectId, ref: 'user' },
-		'status': { type: String, required: true, enum: ['public', 'private', 'share'] },
-		'created': { type: Date }
+		'title': { type: String, index: true, required: true },
+		'domain': { type: String, index: { unique: true }, required: true, trim: true },
+		'description': { type: String },
+		'keywords': { type: String },
+		//common fields
+		'author': { type: Schema.ObjectId, ref: 'user', required: true, index: true },
+		'status': { type: String, required: true, enum: ['public', 'private', 'share'], index: true },
+		'created': { type: Date, required: true }
 	});
 	mongoose.model('site', Site);
+	
+	//Schema page
+	var Page = new Schema({
+		'site': { type: Schema.ObjectId, ref: 'site', required: true },
+		//'site': { type: Schema.ObjectId, ref: 'site' },
+		'route': { type: String, index: true, required: true, trim: true },
+		//common fields
+		'author': { type: Schema.ObjectId, ref: 'user', required: true, index: true },
+		'status': { type: String, required: true, enum: ['public', 'private', 'share'], index: true },
+		'created': { type: Date, required: true }
+	});
+	mongoose.model('page', Page);
 	
 	//Schema debug
 	//usato per testing
@@ -181,7 +217,7 @@ function defineModels(mongoose, app, next) {
 
 	//embedded documents
 	//1:1
-	var CarSchema = new Schema({ driver: DriverSchema })	//questa va?
+	var CarSchema = new Schema({ driver: DriverSchema })	//questa va? dicono di no...
 	//1:N
 	var CarSchema = new Schema({ driver: [DriverSchema] })	
 	

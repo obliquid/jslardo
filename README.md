@@ -9,14 +9,14 @@ jslardo starts as a node.js express application, backed up by mongodb with mongo
 as a template engine jslardo uses jade.
 
 <h2>yet implemented functionalities</h2>
-<h4>users management:</h4>
-users can register, and modify their profile
-<br/>
 <h4>internationalization:</h4>
 via i18n
 <br/>
 <h4>pagination:</h4>
 defined as a middleware in express
+<br/>
+<h4>users management:</h4>
+users can register, and modify their profile
 <br/>
 
 <h2>installation</h2>

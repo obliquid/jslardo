@@ -1,0 +1,27 @@
+script
+	function validate_elementForm()
+	{
+		if( $('#name').val() == '' )
+		{
+			alert("#{__i('name is required')}");
+			return false;
+		}
+	}
+
+
+include ../includes/formHeader
+
+form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmit='return validate_elementForm()' ).size4
+	h5.formLabel #{__i('name')}
+		span.formError *
+	input(id='name', name='name', value='#{element.name || ""}').size3
+	br
+	h5.formLabel #{__i('description')}
+		span.formError &nbsp;
+	textarea(name='description').size3 #{element.description || ''}
+	
+	
+	include ../includes/formStatus
+
+	include ../includes/formFooter
+
