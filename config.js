@@ -1,9 +1,10 @@
 var jslardo_config = {
-	'superadminEmail':'federico@obliquid.it',
+	'superadminEmail':'admin',
 	'superadminPw':'admin',
-	'elementsPerPage':'18',
+	'elementsPerPage':18,
 	'locales':['en','it'],
 	'defaultLocale':'en',
+	'usersCanRegister':true,
 	'cookiesDurationMs':'64800000'
 }
 

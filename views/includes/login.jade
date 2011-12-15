@@ -2,7 +2,7 @@ div.outerCont
 	h4 #{__i('access')}
 	div.innerCont
 		form(method='post', action='/signin')
-			- if ( session.loggedIn )
+			if session.loggedIn
 				h4 #{ session.email }
 				hr
 				a(href='/signout') #{__i('sign out')}
@@ -10,7 +10,7 @@ div.outerCont
 					span #{__i('super admin mode')}!
 				- else
 					a(href='/users/edit/#{session.user_id}') #{__i('your profile')}
-			- else
+			else
 				span email
 				input(name='login_email').size1
 				br
@@ -18,5 +18,6 @@ div.outerCont
 				input(name='login_password',type='password').size1
 				br
 				input(type='submit',value='#{__i('sign in')}')
-				span or
-				a(href='/users/edit/new') #{__i('register')}
+				if app.jsl.config.usersCanRegister
+					span or
+					a(href='/users/edit/new') #{__i('register')}

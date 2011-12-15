@@ -122,7 +122,8 @@ function readStrucPerm(on, req, res, next) {
 	} else {
 		//console.log('readStrucPerm: utente non loggato');			
 		//non sono loggato. l'unica cosa che posso fare è di registrarmi, ovvero creare un nuovo user
-		if ( on == 'user' )
+		//ma solo se è stato previsto nel config
+		if ( on == 'user' && req.app.jsl.config.usersCanRegister )
 		{
 			req.session.canCreate = true;
 		}
