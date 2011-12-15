@@ -95,5 +95,6 @@
 	"show": "show",
 	"from site": "from site",
 	"note: a route cannot be empty, so for the entry page of your site, use 'home'": "note: a route cannot be empty, so for the entry page of your site, use 'home'",
-	"note: a route cannot be empty, so for the entry page of your site, use special route 'home': every direct entry on your site will be redirected on this route": "note: a route cannot be empty, so for the entry page of your site, use special route 'home': every direct entry on your site will be redirected on this route"
+	"note: a route cannot be empty, so for the entry page of your site, use special route 'home': every direct entry on your site will be redirected on this route": "note: a route cannot be empty, so for the entry page of your site, use special route 'home': every direct entry on your site will be redirected on this route",
+	"also used as metatag for this site": "also used as metatag for this site"
 }
