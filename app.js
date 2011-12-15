@@ -64,19 +64,16 @@ app.configure(function(){
 		defaultLocale: app.jsl.config.defaultLocale
 	});
     app.use(app.i18n.init);
-	// using 'accept-language' header to guess language settings
-    //non dovrebbe servire...: 
-	//app.use(app.i18n.init);
-	//register i18n helpers for use in jade templates
-	/*
-	app.helpers({
-		__i: app.i18n.__,
-		__n: app.i18n.__n
-	});
-	*/
 	
-	//Helpers
-	//questo serve per passare a jade le sessions
+	//Static Helpers
+	app.helpers({
+		encURI: function(content){ return encodeURIComponent(content) },
+		decURI: function(content){ return decodeURIComponent(content) },
+		esc: function(content){ return escape(content) },
+		uesc: function(content){ return unescape(content) }
+	});
+	
+	//Dynamic Helpers
 	app.dynamicHelpers({
 		session: function (req, res) {
 			return req.session;

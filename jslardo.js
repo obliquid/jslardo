@@ -424,12 +424,15 @@ function defineRoutes(app) {
 	});
 	
 	//GET: filter by site
-	app.get('/filterBySite/:site?', function(req, res) {
+	//nota: se si passa anche il parametro andGotoUrl, questo deve essere URIencodato: in jade usare #{encURI('url')}
+	app.get('/filterBySite/:site?/:andGotoUrl?', function(req, res) {
 		app.jsl.routeInit(req);
+		//prima definisco su che url fare il redirect
+		var redirectTo = ( req.params.andGotoUrl != '' && req.params.andGotoUrl != undefined ) ? decodeURIComponent(req.params.andGotoUrl) : 'back';
 		//inizialmente azzero la session per il filtraggio
 		req.session.filterBySite = undefined;
 		//verifico se mi è arrivato un site su cui filtrare
-		if ( req.params.site != '' )
+		if ( req.params.site != '' && req.params.site != undefined )
 		{
 			//leggo i siti su cui posso filtrare, per verificare che l'utente stia cercando di filtrare su un sito a lui consentito
 			app.jsl.siteController.getSites(req,res,function(sites) {
@@ -448,13 +451,13 @@ function defineRoutes(app) {
 						}
 					}
 					//ricarico la pagina da cui arrivavo
-					res.redirect('back');				
+					res.redirect(redirectTo);				
 				}
 				else
 				{
 					//se non mi sono arrivati sites, vuol dire che non posso filtrare su niente
 					//ricarico la pagina da cui arrivavo
-					res.redirect('back');				
+					res.redirect(redirectTo);				
 				}
 			});
 		}
@@ -462,9 +465,11 @@ function defineRoutes(app) {
 		{
 			//non mi è arrivato il site, che vuol dire che non devo filtrare su nessun site
 			//ricarico la pagina da cui arrivavo
-			res.redirect('back');
+			res.redirect(redirectTo);
 		}
 	});
+	
+
 	
 	
 }
