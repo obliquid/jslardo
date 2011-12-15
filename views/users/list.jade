@@ -17,3 +17,6 @@ each element,i in elements
 	if (i+1)%6==0
 		div.clear
 include ../includes/paginationBottom
+if session.user_id == 'superadmin'
+	include ../includes/listCrudbox
+	

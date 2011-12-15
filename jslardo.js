@@ -71,11 +71,16 @@ function readStrucPerm(on, req, res, next) {
 				req.session.loggedIn = true;
 				if ( user_id == 'superadmin' )
 				{
-					//se sono super admin, ho sempre permesso di modify su tutti i contenuti, ma non ho il create
+					//se sono super admin, ho sempre permesso di modify su tutti i contenuti, ma non ho il create (a parte sugli users)
 					//questo perchè quando si crea un contenuto, questo è strettamente legato all'utente che lo crea, e il superadmin
 					//non è un utente vero è proprio (non è presente nel db, non ha id). il super admin serve solo per poter vedere e modificare tutto, ma non può creare nulla
 					req.session.canModify = true;
 					req.session.canModifyMyself = true; //questo serve per permettere al super admin di modificare gli utenti (il form di modifica lo richiede)
+					//solo nel caso degli users, il superadmin ha il create, anche se usersCanRegister = false
+					if ( on == 'user' )
+					{
+						req.session.canCreate = true;
+					}
 					//la request puo essere processata
 					next();
 				}
@@ -84,7 +89,10 @@ function readStrucPerm(on, req, res, next) {
 					//non sono superadmin
 					//siccome si tratta di permessi su elementi della struttura, chiunque (loggato) ha sempre il permesso di create nuovi elementi
 					//(tranne per il caso degli "user" in cui si creano altri utenti con il bottone "registrati", che però non prevede di essere loggati)
-					req.session.canCreate = true;
+					if ( on != 'user' )
+					{
+						req.session.canCreate = true;
+					}
 					//differenzio i permessi di modify in base all'oggetto trattato
 					switch (on)
 					{

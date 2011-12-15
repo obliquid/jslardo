@@ -6,9 +6,9 @@ div.outerCont
 				h4 #{ session.email }
 				hr
 				a(href='/signout') #{__i('sign out')}
-				- if ( session.user_id == 'superadmin' )
+				if session.user_id == 'superadmin'
 					span #{__i('super admin mode')}!
-				- else
+				else
 					a(href='/users/edit/#{session.user_id}') #{__i('your profile')}
 			else
 				span email
