@@ -22,7 +22,10 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 	br
 	h5.formLabel #{__i('route')}
 		span.formError *
+		span /
 	input(id='route', name='route', value='#{element.route || ""}').size3
+	br
+	span #{__i('note: a route cannot be empty, so for the entry page of your site, use special route \'home\': every direct entry on your site will be redirected on this route')}
 	//-
 		br
 		h5.formLabel  #{__i('domain')}

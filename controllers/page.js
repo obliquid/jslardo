@@ -165,11 +165,19 @@ function defineRoutes(app) {
 		//(devo ovviamente popolare solo il combo con i miei sites)
 		app.jsl.siteController.getSites(req,res,function(sites) {
 			//ho trovato anche i sites per popolare il combo
+			
+			//se il mio user sta filtrando su un sito (session.filterBySite è definito) allora preimposto il site della nuova page
+			var element = {};
+			if ( req.session.filterBySite != '' && req.session.filterBySite != undefined )
+			{
+				element.site = req.session.filterBySite;
+			}
+			
 			//posso finalmente procedere a visualizzare il form
 			res.render('pages/form', { 
 				title: app.i18n.t(req,'create new page'),
 				elementName: 'page',
-				element: '',
+				element: element,
 				combo_sites: sites
 				
 			});	

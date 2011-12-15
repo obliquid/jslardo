@@ -41,7 +41,7 @@ function defineRoutes(app) {
 
 	//GET: user list
 	//nota: per ora non richiede permessi, tutti possono visualizzare la lista utenti, in cui però compariranno solo gli utenti "public"
-	app.get('/users/:page?', app.jsl.paginationInit, function(req, res, next){
+	app.get('/users/:page?', app.jsl.readStrucPermOn_users, app.jsl.paginationInit, function(req, res, next){
 		app.jsl.routeInit(req);
 		if ( req.params.page == undefined || !isNaN(req.params.page) )
 		{
@@ -96,7 +96,7 @@ function defineRoutes(app) {
 	});
 	
 	//GET: user detail 
-	app.get('/users/:id', function(req, res, next){
+	app.get('/users/:id', app.jsl.readStrucPermOn_users, function(req, res, next){
 		app.jsl.routeInit(req);
 		//leggo il mio user dal db, e assegno il result al tpl
 		//se sono superadmin vedo anche i non public
@@ -104,10 +104,6 @@ function defineRoutes(app) {
 		
 		//solo per gli utenti, posso sempre vedere il dettaglio del mio user, oppure posso vedere quelli public
 		var conditions = ( req.params.id == req.session.user_id || req.session.user_id == 'superadmin' ) ? { '_id': req.params.id } : { '_id': req.params.id,  'status': 'public' };
-		
-		
-		
-		
 		app.jsl.user.findOne(
 			conditions,
 			[], 
