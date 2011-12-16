@@ -170,7 +170,7 @@ app.error(function(err, req, res){
 
 
 //attivo l'applicazione Express
-app.listen(8222);
+app.listen(app.jsl.config.port);
 console.log("jslardo server listening on port %d in %s mode", app.address().port, app.settings.env);
 
 
