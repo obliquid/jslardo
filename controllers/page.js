@@ -65,9 +65,9 @@ function defineRoutes(app) {
 			//alle conditions devo appendere anche la condizione sul filtraggio per sito, se definita
 			if ( req.session.filterBySite )
 			{
-				console.log('dovrei filtrare per sito: '+req.session.filterBySite+' con queste conditions:');
+				//console.log('dovrei filtrare per sito: '+req.session.filterBySite+' con queste conditions:');
 				conditions.site = req.session.filterBySite;
-				console.log(conditions);
+				//console.log(conditions);
 			}
 			
 			

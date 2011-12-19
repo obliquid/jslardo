@@ -146,7 +146,7 @@ app.jsl.models.defineModels(mongoose, app, function() {
 // Routes
 //nota: le route sono importate, prima quelle di jslardo, poi quelle per ciascuno degli oggetti persistenti nel db
 
-//route specifiche di jslardo
+//route miscellanee di jslardo
 app.jsl.defineRoutes(app);
 
 //route per gli elementi della struttura

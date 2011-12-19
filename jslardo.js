@@ -347,6 +347,96 @@ function paginationDo(req, total, url) {
 /* carica le routes interne di jslardo */
 function defineRoutes(app) {
 	
+	
+	//controllo che sito è richiesto, se il sito di admin, o se un sito pubblico degli utenti
+	app.get('*', function(req, res, next){
+		console.log(req.headers.host);
+		console.log(req.url);
+		//il sito di admin può anche girare su un ip, mentre i siti degli utenti (v.sotto) possono girare solo su un dominio
+		//il dell'admin deve essere in una delle forme:
+		//admindomain
+		//admindomain:adminport
+		//adminip
+		//adminip:adminport
+		if
+		(
+			req.headers.host == app.jsl.config.domain ||
+			req.headers.host == app.jsl.config.domain+":"+app.jsl.config.port ||
+			req.headers.host == app.jsl.config.ip ||
+			req.headers.host == app.jsl.config.ip+":"+app.jsl.config.port
+		)
+		{
+			//è stato richiesto il sito di admin, posso procedere nel processare le route
+			next();
+		}
+		else
+		{
+			//non è stato richiesto il sito di admin, controllo se è stato richiesto un sito pubblico
+			
+			//prima leggo tutti i domini dei siti pubblici o share
+			var conditions = 
+				{ $or: [
+						{ 'status': 'public' }, 
+						{ 'status': 'share' }
+				]};
+			app.jsl.site.find(
+				conditions,
+				function(err, sites) {
+					//il dominio richiesto, per appartenere ad un sito di un'utente, deve essere in una delle forme:
+					//sitedomain
+					//sitedomain:adminport
+					//sitedomain.admindomain
+					//sitedomain.admindomain:adminport
+					for (var x=0;x<sites.length;x++)
+					{
+						if
+						(
+							req.headers.host == sites[x].domain ||
+							req.headers.host == sites[x].domain+":"+app.jsl.config.port ||
+							req.headers.host == sites[x].domain+"."+app.jsl.config.domain ||
+							req.headers.host == sites[x].domain+"."+app.jsl.config.domain+":"+app.jsl.config.port
+						)
+						{
+							//trovato il mio sito
+							//QUI!!!
+							res.render('debug', { 
+								variable: 'my content!'
+							});								
+							
+							
+							
+							
+							
+							
+							
+							
+							break;
+						}
+					}
+					
+					
+					
+					
+				}
+			);				
+			
+			
+		}
+		
+		/*
+		if(req.headers.host == 'some.sub.domain.com')  //if it's a sub-domain
+			req.url = '/mysubdomain' + req.url;  //append some text yourself
+		*/
+	}); 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	//GET: home
 	app.get('/', app.jsl.readStrucPermDefault, function(req, res){ 
 		app.jsl.routeInit(req);

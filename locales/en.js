@@ -88,5 +88,13 @@
 	"from site": "from site",
 	"show": "show",
 	"mine": "mine",
-	"page": "page"
+	"page": "page",
+	"keywords": "keywords",
+	"if you do not have a domain yet for your site, use a subdomain of": "if you do not have a domain yet for your site, use a subdomain of",
+	"for example: yourdomain": "for example: yourdomain",
+	"also used as metatag for this site": "also used as metatag for this site",
+	"comma separated": "comma separated",
+	"for example": "for example",
+	"yourdomain": "yourdomain",
+	"if do not have a domain yet for your site, use a subdomain of": "if do not have a domain yet for your site, use a subdomain of"
 }

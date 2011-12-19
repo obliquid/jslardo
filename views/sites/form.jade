@@ -26,6 +26,11 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 	span http://&nbsp;
 	input(id='domain', name='domain', value='#{element.domain || ""}').size3
 	br
+	span  #{__i('if do not have a domain yet for your site, use a subdomain of')} #{ app.jsl.config.domain }
+	br
+	span  #{__i('for example')}: #{__i('yourdomain')}.#{ app.jsl.config.domain }
+	
+	br
 	h5.formLabel  #{__i('description')}
 	input(id='description', name='description', value='#{element.description || ""}').size3
 	br
