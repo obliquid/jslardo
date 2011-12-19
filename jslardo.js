@@ -400,7 +400,8 @@ function defineRoutes(app) {
 						{
 							//trovato il mio sito
 							//QUI!!!
-							res.render('debug', { 
+							res.render('debug', {
+								layout: false, 
 								variable: 'my content!'
 							});								
 							
