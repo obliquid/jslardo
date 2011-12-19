@@ -350,7 +350,7 @@ function defineRoutes(app) {
 	
 	//controllo che sito è richiesto, se il sito di admin, o se un sito pubblico degli utenti
 	app.get('*', function(req, res, next){
-		app.jsl.routeInit(req);
+		//app.jsl.routeInit(req);
 		//console.log(req.headers.host);
 		//console.log(req.url);
 		//il sito di admin può anche girare su un ip, mentre i siti degli utenti (v.sotto) possono girare solo su un dominio
