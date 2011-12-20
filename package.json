@@ -1,6 +1,6 @@
 {
     "name": "jslardo", 
-	"description" : "a social CMS. will be... (the project has just started. come back in a few weeks!)", 
+	"description" : "a social CMS. (the project has just started. come back in a few months!)", 
 	"author": "federico carrara <federico@obliquid.it>", 
 	"homepage" : "http://obliquid.org/", 
 	"keywords" : [ "cms", "express", "mongodb" ], 
@@ -9,7 +9,7 @@
 		"type" : "git", 
 		"url" : "https://github.com/obliquid/jslardo"
 	}, 
-	"main" : "./app.js", 
+	"main" : "./jslardo.js", 
 	"version": "0.0.1", 
 	"dependencies": 
 	{
