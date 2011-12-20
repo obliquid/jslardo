@@ -22,558 +22,148 @@
 
 
 
+/**
+ * Module dependencies.
+ */
+
+var express = require('express'); //non devo mettere il './' perchè si tratta di un modulo, e non di un file da importare
+var mongoose = require('mongoose');
+var connectTimeout = require('connect-timeout');
 
 
 
-
-//PERMISSIONS
-
-//questi sono wrapper che mi servono per differenziare i permessi in base all'oggetto trattato
-function readStrucPermOn_users(req, res, next) {
-	readStrucPerm('user', req, res, next);
-}
-exports.readStrucPermOn_users = readStrucPermOn_users; 
-function readStrucPermDefault(req, res, next) {
-	readStrucPerm('default', req, res, next);
-}
-exports.readStrucPermDefault = readStrucPermDefault; 
-
-//quando si assegnano i middleware alle routes, prima bisogna sempre leggere i permessi (readStrucPermOn_XXX)
-//poi si possono imporre lecondizioni in base ai permessi (needStrucPermXXX)
-function needStrucPermCreate(req, res, next) {
-	( req.session.canCreate ) ? next() : res.redirect('/');
-}
-function needStrucPermModify(req, res, next) {
-	( req.session.canModify ) ? next() : res.redirect('/');
-}
-function needStrucPermModifyMyself(req, res, next) {
-	( req.session.canModifyMyself ) ? next() : res.redirect('/');
-}
-
-//questo metodo viene richiamato prima di eseguire ogni request che lo richiede
-//in qualunque controller di qualunque oggetto
-function readStrucPerm(on, req, res, next) {
-	//console.log('readStrucPerm: req.session.user_id = ' + req.session.user_id);
-	//azzero i permessi
-	req.session.loggedIn = false;
-	req.session.canCreate = false;
-	req.session.canModify = false;
-	req.session.canModifyMyself = false; //questo è un permesso che vale solo per l'elemento "users"
-	//controllo se sono loggato
-	if (req.session.user_id) {
-		//l'utente risulta loggato
-		//controllo se i suoi dati di login sono validi
-		//(questo controllo va fatto ogni volta, perchè se dall'ultimo conrollo l'utente fosse stato cancellato, non me ne accorgerei senza controllo
-		checkValidUser(req, function(result, user_id) { 
-			if ( result )
-			{
-				//i dati di login sono validi
-				req.session.loggedIn = true;
-				if ( user_id == 'superadmin' )
-				{
-					//se sono super admin, ho sempre permesso di modify su tutti i contenuti, ma non ho il create (a parte sugli users)
-					//questo perchè quando si crea un contenuto, questo è strettamente legato all'utente che lo crea, e il superadmin
-					//non è un utente vero è proprio (non è presente nel db, non ha id). il super admin serve solo per poter vedere e modificare tutto, ma non può creare nulla
-					req.session.canModify = true;
-					req.session.canModifyMyself = true; //questo serve per permettere al super admin di modificare gli utenti (il form di modifica lo richiede)
-					//solo nel caso degli users, il superadmin ha il create, anche se usersCanRegister = false
-					if ( on == 'user' )
-					{
-						req.session.canCreate = true;
-					}
-					//la request puo essere processata
-					next();
-				}
-				else
-				{
-					//non sono superadmin
-					//siccome si tratta di permessi su elementi della struttura, chiunque (loggato) ha sempre il permesso di create nuovi elementi
-					//(tranne per il caso degli "user" in cui si creano altri utenti con il bottone "registrati", che però non prevede di essere loggati)
-					if ( on != 'user' )
-					{
-						req.session.canCreate = true;
-					}
-					//differenzio i permessi di modify in base all'oggetto trattato
-					switch (on)
-					{
-						case 'user':
-							//user è un elemento della struttura particolare, perchè, a differenza di tutti gli altri elementi di struttura, ogni utente può solo modificare
-							//se stesso. inoltre user non ha un "author" poichè un utente è creato da se stesso tramite il bottone "register"
-							//nel caso di modifica di users, ho modify solo per modificare me stesso
-							if ( req.params.id == req.session.user_id ) //controllo se l'id dell'utente da modificare è quello dell'utente loggato, cioè se modifico me stesso
-							{
-								//lo user id nella route richiesta corrisponde al mio, quindi posso modificare me stesso (il mio profilo)
-								req.session.canModifyMyself = true; 
-							}
-							break;
-						default:
-							//ora come ora per tutti gli altri elementi della struttura chiunque ha permesso di modify, ma solo sui propri elementi
-							req.session.canModify = true; 
-							break;
-					}
-					//continuo
-					next();
-					
-				}
-			}
-			else
-			{
-				//i dati di login non sono validi
-				//console.log('readStrucPerm: login NON valido');
-				//forzo un logout (potrebbe verificarsi il caso in cui un utente è loggato, e viene cancellato dal db. in quel caso deve avvenire anche il suo logout)
-				setSignedOut(req);
-				//vengo mandato in home
-				res.redirect('/');
-			}
-		});
-		
-	} else {
-		//console.log('readStrucPerm: utente non loggato');			
-		//non sono loggato. l'unica cosa che posso fare è di registrarmi, ovvero creare un nuovo user
-		//ma solo se è stato previsto nel config
-		if ( on == 'user' && req.app.jsl.config.usersCanRegister )
-		{
-			req.session.canCreate = true;
-		}
-		//non ho nessun permesso, continuo
-		next();
-	}
-}
+//create express server
+//var app = module.exports = express.createServer();
+var app = express.createServer();
 
 
-
-
-
-//SESSIONS
-/* controllo nel db se lo user (che sia in POST o dalle sessions) esiste */
-function checkValidUser(req, closure)
-{
-	//console.log('checkValidUser: req.body.login_email='+req.body.login_email);
-	//controllo se ho le credenziali in POST (cioè se sto facendo un login dal form), oppure se le ho nelle session (sono già loggato)
-	var email = ( req.body && req.body.login_email && req.body.login_email != "" ) ? req.body.login_email : req.session.email;
-	var password = ( req.body && req.body.login_password && req.body.login_password != "" ) ? req.body.login_password : req.session.password;
-	//prima controllo se si tratta del super admin
-	if ( req.app.jsl.config.superadminEmail == email && req.app.jsl.config.superadminPw == password )
-	{
-		closure(true, 'superadmin'); //se sono super user, salvo come id la parola "superadmin"
-	}
-	else
-	{
-		//verifico se effettivamente esiste nel db il mio utente
-		var hashedPw = hashPw(req, password);
-		//console.log("checkValidUser: hashedPw="+hashedPw);
-		req.app.jsl.user.findOne(
-			{ 'email': email, 'password': hashedPw },
-			function(err, user) {
-				if (!err)
-				{
-					if ( user && user.email == email && user.password == hashedPw )
-					{
-						//return true;
-						closure(true, user._id);
-					}
-					else
-					{
-						//return false;
-						closure(false, 0);
-					}
-				}
-				else
-				{
-					//qualcosa è andato storto nella query
-					errorPage(res, err, 'jslardo.checkValidUser: ');
-				}
-			}
-		);		
-	}
-}
-
-/* dopo che è stato effettuato il controllo, questo metodo salva effettivamente le variabili che dicono che l'utente è loggato */
-function setSignedIn(req, user_id)
-{
-	//devo considerare i casi in cui i dati arrivano dal form di login, e il caso in cui arrivano dal form di modifica dell'utente
-	if ( req.body && req.body.login_email && req.body.login_email != "" ) 
-	{
-		var email = req.body.login_email;
-	}
-	else if ( req.body && req.body.email && req.body.email != "" ) 
-	{
-		var email = req.body.email;
-	}
-	if ( req.body && req.body.login_password && req.body.login_password != "" ) 
-	{
-		var password = req.body.login_password;
-	}
-	else if ( req.body && req.body.password && req.body.password != "" ) 
-	{
-		var password = req.body.password;
-	}
-	//salvo nelle session che il mio utente è loggato
-	req.session.email = email;
-	req.session.password = password;
-	req.session.user_id = user_id; //questo varrà 'superadmin' se mi sono loggato come superadmin
-	//by default quando un utente si logga, vedrà solo i suoi elementi, ma solo se non è superadmin
-	if ( user_id != 'superadmin' )
-	{
-		req.session.filterAllOrMine = 'mine';
-	}
-}
-
-/* slogga l'utente */
-function setSignedOut(req)
-{
-	//resetto le session
-	req.session.destroy(function() {});
-}
-
-/* hashing delle password */
-function hashPw(req, password)
-{
-	return req.app.jsl.crypto.createHash('sha1').update(password).digest('hex');
-}
-
-
-
-
-
-
-//PAGINATION
-function paginationInit(req, res, next) {
-	//numero di pagina corrente
-	req.session.pageNum = parseInt(req.params.page) || 1;
-	//skip
-	req.session.skip = req.app.jsl.config.elementsPerPage * ( req.session.pageNum - 1 );
-	//limit
-	req.session.limit = req.app.jsl.config.elementsPerPage;
-	//la request puo essere processata
-	next();
-
-}
-function paginationDo(req, total, url) {
-	//actual range
-	var recordsPerPage = req.app.jsl.config.elementsPerPage;
-	var usePagination = ( total > recordsPerPage ) ? true : false;
-	if ( usePagination )
-	{
-		var endToRecord = req.session.pageNum * recordsPerPage;
-		if( endToRecord > total )
-		{
-			endToRecord = total;
-		}
-		var endFromRecord = ((req.session.pageNum-1) * recordsPerPage) +1;
-		if ( total > recordsPerPage )
-		{
-			var currentRangeString = endFromRecord+" - "+endToRecord+" ( tot. "+total+" )";
-		}
-		//first range - first page link
-		if (req.session.pageNum > 1)
-		{
-			var firstRangeString = "1 - "+recordsPerPage+" ( tot. "+total+" )";
-		}
-		// prev 10 pages link
-		if (req.session.pageNum > 10)
-		{
-			var prev10LinkPage = req.session.pageNum - 10;
-			var prev10RangeFromRecord = ((req.session.pageNum-11) * recordsPerPage) +1;
-			var prev10RangeToRecord = ((req.session.pageNum-10) * recordsPerPage);
-			var prev10RangeString = prev10RangeFromRecord+" - "+prev10RangeToRecord+" ( tot. "+total+" )";
-		}
-		//prev page link
-		if (req.session.pageNum > 1)
-		{
-			var prevLinkPage = req.session.pageNum - 1;
-			var prevRangeFromRecord = ((req.session.pageNum-2) * recordsPerPage) +1;
-			var prevRangeToRecord = ((req.session.pageNum-1) * recordsPerPage);
-			var prevRangeString = prevRangeFromRecord+" - "+prevRangeToRecord+" ( tot. "+total+" )";
-		}
-		//next page link
-		var nextTempVar = (recordsPerPage * req.session.pageNum)+1;
-		if (nextTempVar <= total)
-		{
-			var nextLinkPage = req.session.pageNum + 1;
-			var nextRangeFromRecord = (req.session.pageNum * recordsPerPage) +1;
-			var nextRangeToRecord = ((req.session.pageNum+1) * recordsPerPage);
-			if ( nextRangeToRecord > total)
-			{
-				 nextRangeToRecord = total;
-			}
-			var nextRangeString = nextRangeFromRecord+" - "+nextRangeToRecord+" ( tot. "+total+" )";
-		}
-		//next 10 pages link
-		var next10TempVar = (recordsPerPage * (req.session.pageNum + 9)) + 1;
-		if (next10TempVar <= total)
-		{
-			var next10LinkPage = req.session.pageNum + 10;
-			var next10RangeFromRecord = (( req.session.pageNum + 9 ) * recordsPerPage) + 1;
-			var next10RangeToRecord = ((req.session.pageNum + 10) * recordsPerPage);
-			if ( next10RangeToRecord > total)
-			{
-				 next10RangeToRecord = total;
-			}
-			var next10RangeString = next10RangeFromRecord+" - "+next10RangeToRecord+" ( tot. "+total+" )";
-		}
-		//last page link
-		if (req.session.pageNum < Math.floor(( total - 1 )/recordsPerPage)+1)
-		{
-			var lastLinkPage = Math.floor(( total - 1 )/recordsPerPage)+1;
-			var lastRangeFromRecord = Math.floor(( total-1 ) / recordsPerPage);
-			var lastRangeFromRecord = (lastRangeFromRecord * recordsPerPage) +1;
-			var lastRangeToRecord = total;
-			var lastRangeString = lastRangeFromRecord+" - "+lastRangeToRecord+" ( tot. "+total+" )";
-		}
-		return {
-			firstBtn: { link:url+'1', tooltip:firstRangeString},
-			prev10Btn: { link:url+prev10LinkPage, tooltip:prev10RangeString},
-			prevBtn: { link:url+prevLinkPage, tooltip:prevRangeString},
-			currentLabel: { link:url+req.session.pageNum, tooltip:currentRangeString},
-			nextBtn: { link:url+nextLinkPage, tooltip:nextRangeString},
-			next10Btn: { link:url+next10LinkPage, tooltip:next10RangeString},
-			lastBtn: { link:url+lastLinkPage, tooltip:lastRangeString},
-			usePagination: usePagination
-		}
-	}
-	else
-	{
-		return {
-			usePagination: usePagination
-		}
-	}
-}
-
+//configurazioni comuni dell'app 
+app.configure(function(){
+	app.set('views', __dirname + '/views');
+	app.set('view engine', 'jade');
+	app.use(express.logger({ format: '\x1b[1m:method\x1b[0m \x1b[33m:url\x1b[0m :response-time ms' })); //attivo il logger di Express
+	app.use(express.bodyParser()); //serve a popolare la variabile req.body (per esempio con tutto ciò che gli arriva in POST dai form)
+	app.use(express.cookieParser());
+	app.use(express.session({ secret: 'topsecret' }));
+	app.use(connectTimeout({ time: 120000 })); //2 minuti
+	//non lo uso... app.use(express.methodOverride()); //serve per poter usare nei form: <input type="hidden" name="_method" value="put" />, e quindi app.put('/', function(){ console.log(req.body.user); res.redirect('back');});
 	
-// ROUTES
-
-
-/* carica le routes interne di jslardo */
-function defineRoutes(app) {
-	
-	
-	//controllo che sito è richiesto, se il sito di admin, o se un sito pubblico degli utenti
-	app.get('*', function(req, res, next){
-		//app.jsl.routeInit(req);
-		//console.log(req.headers.host);
-		//console.log(req.url);
-		//il sito di admin può anche girare su un ip, mentre i siti degli utenti (v.sotto) possono girare solo su un dominio
-		//il dell'admin deve essere in una delle forme:
-		//admindomain
-		//admindomain:adminport
-		//adminip
-		//adminip:adminport
-		if
-		(
-			req.headers.host == app.jsl.config.domain ||
-			req.headers.host == app.jsl.config.domain+":"+app.jsl.config.port ||
-			req.headers.host == app.jsl.config.ip ||
-			req.headers.host == app.jsl.config.ip+":"+app.jsl.config.port
-		)
-		{
-			//è stato richiesto il sito di admin, posso procedere nel processare le route
-			next();
-		}
-		else
-		{
-			//non è stato richiesto il sito di admin, controllo se è stato richiesto un sito pubblico
-			
-			//prima leggo tutti i domini dei siti pubblici o share
-			var conditions = 
-				{ $or: [
-						{ 'status': 'public' }, 
-						{ 'status': 'share' }
-				]};
-			app.jsl.site.find(
-				conditions,
-				function(err, sites) {
-					//il dominio richiesto, per appartenere ad un sito di un'utente, deve essere in una delle forme:
-					//sitedomain
-					//sitedomain:adminport
-					//sitedomain.admindomain
-					//sitedomain.admindomain:adminport
-					for (var x=0;x<sites.length;x++)
-					{
-						if
-						(
-							req.headers.host == sites[x].domain ||
-							req.headers.host == sites[x].domain+":"+app.jsl.config.port ||
-							req.headers.host == sites[x].domain+"."+app.jsl.config.domain ||
-							req.headers.host == sites[x].domain+"."+app.jsl.config.domain+":"+app.jsl.config.port
-						)
-						{
-							//trovato il mio sito
-							//QUI!!!
-							res.render('debug', {
-								layout: false, 
-								variable: 'my content!'
-							});								
-							
-							
-							
-							
-							
-							
-							
-							
-							break;
-						}
-					}
-					
-					
-					
-					
-				}
-			);				
-			
-			
-		}
-		
-		/*
-		if(req.headers.host == 'some.sub.domain.com')  //if it's a sub-domain
-			req.url = '/mysubdomain' + req.url;  //append some text yourself
-		*/
-	}); 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	//GET: home
-	app.get('/', app.jsl.readStrucPermDefault, function(req, res){ 
-		app.jsl.routeInit(req);
-		res.render('home', {
-		});
+	//appendo jslardo all'app express
+	//app.jsl = require('./jslardo'); //non più usato, ora jslardo è l'app
+	app.jsl = {};
+	//importo il necessario per jslardo
+	app.jsl.config = require('./config').jslardo_config;
+	app.jsl.models = require('./models/models');
+	app.jsl.crypto = require('crypto');
+	//console.log(app.jsl);
+	//console.log(app.jsl.config);
+	//configuro i18n
+	app.i18n = require("./core/i18n");
+	app.i18n.configure({
+		// setup some locales - other locales default to en silently
+		locales: app.jsl.config.locales,
+		defaultLocale: app.jsl.config.defaultLocale
 	});
+    app.use(app.i18n.init);
+	//permissions
+	var permissions = require('./core/permissions');
+	app.jsl.readStrucPermDefault = permissions.readStrucPermDefault;
+	app.jsl.readStrucPermOn_users = permissions.readStrucPermOn_users;
+	app.jsl.needStrucPermCreate = permissions.needStrucPermCreate;
+	app.jsl.needStrucPermModify = permissions.needStrucPermModify;
+	app.jsl.needStrucPermModifyMyself = permissions.needStrucPermModifyMyself;
+	//permissions
+	var sessions = require('./core/sessions');
+	app.jsl.checkValidUser = sessions.checkValidUser;
+	app.jsl.setSignedIn = sessions.setSignedIn;
+	app.jsl.hashPw = sessions.hashPw;
+	//pagination
+	var pagination = require('./core/pagination');
+	app.jsl.paginationInit = pagination.paginationInit;
+	app.jsl.paginationDo = pagination.paginationDo;
+	//utils
+	var utils = require('./core/utils');
+	app.jsl.defineRoute404 = utils.defineRoute404;
+	app.jsl.errorPage = utils.errorPage;
+	app.jsl.populateModel = utils.populateModel;
+	//utils
+	var routes = require('./core/routes');
+	app.jsl.defineRoutes = routes.defineRoutes;
+	app.jsl.routeInit = routes.routeInit;
 
-	//POST: login signin
-	app.post('/signin', function(req, res) {
-		app.jsl.routeInit(req);
-		//controllo se esiste il mio utente nel db
-		checkValidUser(req, function(result, user_id) { 
-			if ( result )
-			{
-				//ho trovato lo user nel db (oppure sono superadmin)
-				//il login è valido
-				setSignedIn(req, user_id);
-				console.log("POST: login signin: login succeded for user: "+req.body.login_email);
-				//alla fine ricarico la pagina da cui arrivavo
-				res.redirect('back');
-			}
-			else
-			{
-				//il mio utente non c'è nel db
-				setSignedOut(req);
-				console.log("POST: login signin: login failed for user: "+req.body.login_email);
-				//alla fine ricarico la pagina da cui arrivavo
-				res.redirect('back');
-			}
-		});	
+	
+	
+	//Static Helpers
+	app.helpers({
+		encURI: function(content){ return encodeURIComponent(content) },
+		decURI: function(content){ return decodeURIComponent(content) },
+		esc: function(content){ return escape(content) },
+		uesc: function(content){ return unescape(content) }
 	});
 	
-	//GET: login signout
-	app.get('/signout', function(req, res) {
-		app.jsl.routeInit(req);
-		//resetto le session
-		console.log("POST: login signout: for user: "+req.session.email);
-		setSignedOut(req);
-		//alla fine ricarico la pagina da cui arrivavo
-		res.redirect('back');
-	});
-	
-	//GET: change language
-	app.get('/lan/:locale?', function(req, res) {
-		app.jsl.routeInit(req);
-		//cambio la lingua
-		//req.session.currentLocale = req.params.locale;
-		//console.log("prima nei cookie ho:");
-		//console.log(req.cookies);
-		res.cookie('currentlocale', req.params.locale, { expires: new Date(Date.now() + app.jsl.config.cookiesDurationMs), path: '/' });
-		//console.log('dopo nei cookies ho: ');
-		//console.log(req.cookies);
-		//alla fine ricarico la pagina da cui arrivavo
-		res.redirect('back');
+	//Dynamic Helpers
+	app.dynamicHelpers({
+		session: function (req, res) {
+			return req.session;
+		},
+		app: function (req, res) {
+			return req.app;
+		},
+		req: function (req, res) {
+			return req;
+		},
+		res: function (req, res) {
+			return res;
+		},
+		__i: function (req, res) {
+			if ( req.cookies && req.cookies.currentlocale ) app.i18n.setLocale(req.cookies.currentlocale);
+			return app.i18n.__;
+		},
+		__n: function (req, res) {
+			if ( req.cookies && req.cookies.currentlocale ) app.i18n.setLocale(req.cookies.currentlocale);
+			return app.i18n.__n;
+		}
 	});
 	
 	
-	/*
-	FILTERS
-	nota: ora li tengo qui, ma se aumentano sarà meglio metterli, ove possibile, nei rispettivi controllers js
-	*/
-	
-	//GET: list filter All or Mine
-	app.get('/filterAllOrMine/:filterOn', function(req, res) {
-		app.jsl.routeInit(req);
-		//posso filtrare sui miei elementi solo se sono loggato, e se non sono superadmin
-		if ( req.session.loggedIn && req.session.user_id != 'superadmin' )
-		{
-			//sono loggato, non come superadmin, quindi posso filtrare
-			req.session.filterAllOrMine = req.params.filterOn;
-		}
-		else if ( req.session.loggedIn && req.session.user_id == 'superadmin' )
-		{
-			//sono loggato come superadmin, non posso filtrare sui miei elementi ma solo su tutti
-			req.session.filterAllOrMine = 'all';
-		}
-		else
-		{
-			//se invece sto cercando di attivare il filtering senza essere loggato, forzo un loagout che mi azzera tutte le sessions
-			setSignedOut(req);
-		}
-		//alla fine ricarico la pagina da cui arrivavo
-		res.redirect('back');
-	});
-	
-	//GET: filter by site
-	//nota: se si passa anche il parametro andGotoUrl, questo deve essere URIencodato: in jade usare #{encURI('url')}
-	app.get('/filterBySite/:site?/:andGotoUrl?', function(req, res) {
-		app.jsl.routeInit(req);
-		//prima definisco su che url fare il redirect
-		var redirectTo = ( req.params.andGotoUrl != '' && req.params.andGotoUrl != undefined ) ? decodeURIComponent(req.params.andGotoUrl) : 'back';
-		//inizialmente azzero la session per il filtraggio
-		req.session.filterBySite = undefined;
-		//verifico se mi è arrivato un site su cui filtrare
-		if ( req.params.site != '' && req.params.site != undefined )
-		{
-			//leggo i siti su cui posso filtrare, per verificare che l'utente stia cercando di filtrare su un sito a lui consentito
-			app.jsl.siteController.getSites(req,res,function(sites) {
-				if (sites)
-				{
-					//posso filtrare su dei sites. verifico se quello richiesto è tra quelli papabili
-					//nota: non posso usare array.forEach perchè devo poter usare break;
-					for (var x=0;x<sites.length;x++)
-					{
-						if ( sites[x]._id == req.params.site )
-						{
-							//trovato il mio sito, posso usarlo per filtrare
-							//imposto le session ed esco dal ciclo
-							req.session.filterBySite = req.params.site;
-							break;
-						}
-					}
-					//ricarico la pagina da cui arrivavo
-					res.redirect(redirectTo);				
-				}
-				else
-				{
-					//se non mi sono arrivati sites, vuol dire che non posso filtrare su niente
-					//ricarico la pagina da cui arrivavo
-					res.redirect(redirectTo);				
-				}
-			});
-		}
-		else
-		{
-			//non mi è arrivato il site, che vuol dire che non devo filtrare su nessun site
-			//ricarico la pagina da cui arrivavo
-			res.redirect(redirectTo);
-		}
-	});
-	
-
 	
 	
-}
+	//init router
+	app.use(app.router);
+	//declare public dir
+	app.use(express.static(__dirname + '/public'));
+	
+
+});
+
+//configurazioni dell'app differenziate in base alla modalità del server (sviluppo/produzione)
+app.configure('development', function(){
+	//aumento il livello di debug
+	app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
+});
+
+app.configure('production', function(){
+	//livello di debug al minimo
+	app.use(express.errorHandler()); 
+});
+
+
+
+
+
+//DB connection
+mongoose.connect('mongodb://localhost/jslardo');
+
+//carico i modelli del DB, e li salvo a livello di app
+app.jsl.models.defineModels(mongoose, app, function() {
+	app.jsl.user = mongoose.model('user');
+	app.jsl.role = mongoose.model('role');
+	app.jsl.site = mongoose.model('site');
+	app.jsl.page = mongoose.model('page');
+	app.jsl.debuggin = mongoose.model('debuggin');
+	//app.jsl.linkedserver = mongoose.model('linkedserver');
+	//console.log("finito coi modelli!");
+})
 
 
 
@@ -581,76 +171,35 @@ function defineRoutes(app) {
 
 
 
+// Routes
+//nota: le route sono importate, prima quelle di jslardo, poi quelle per ciascuno degli oggetti persistenti nel db
+
+//route miscellanee di jslardo
+app.jsl.defineRoutes(app);
+
+//route per gli elementi della struttura
+require('./controllers/user').defineRoutes(app);
+require('./controllers/role').defineRoutes(app);
+require('./controllers/page').defineRoutes(app);
+require('./controllers/debuggin').defineRoutes(app);
+//per questi elementi oltre alle route, mi servono anche altri metodi esposti dal controller, quindi devo tenere tutto il controller
+app.jsl.siteController = require('./controllers/site');
+app.jsl.siteController.defineRoutes(app);
 
 
-// VARIE
-
-/* visualizza una pagina di errore e logga sulla console */
-function errorPage(res, errMsg, publicMsg) {
-	console.log(errMsg);
-	res.render('error', { 
-		errMsg: errMsg,
-		publicMsg: publicMsg
-	});			
-}
-
-/* carica la route di default da usare quando nessuna altra route è stata matchata */
-//non va
-function defineRoute404(app) {
-	/*
-	app.get('*', function(req, res){
-		app.jsl.routeInit(req);
-		errorPage(res, "404 not found: "+req.path);	
-	});	
-	*/
-}
-
-/*
-questa serve quando mi arriva da un form l'oggetto req.body con tutti i campi del form, e devo salvarli nell'oggetto mongoose.
-per non dover scrivere condice embedded (un assegnamento per ogni campo del form), c'è questo metodo che loopa su tutti i campi che arrivano dal form
-e li salva pari pari nell'oggetto che andrà nel db.
+/*queste non riesco a farle andare...
+//per ultime le route per le pagine di errore, se nessuna altra route è stata matchata
+//app.jsl.defineRoute404(app);
+app.error(function(err, req, res){
+	app.jsl.errorPage(res, "404 not found: "+req.path);	
+	//res.send("fica");
+});
 */
-function populateModel(model, modelData) {
-	//ciclo su tutte le property che mi arrivano in modelData (le dovrò replicare in model)
-	for(var prop in modelData) {
-		if(modelData.hasOwnProperty(prop))
-		{
-			//assegno a model la mia property, ma solo se non si tratta dell'id
-			if( prop != "id" )
-			{
-				model[prop] = modelData[prop];
-			}
-		}
-	}		
-	
-}
-
-/* questa va richiamata da ogni route, e compie operazioni utili e comuni a tutte le route.
-nota che i controlli sui permessi vengono fatti dal middleware, questa servirà ad altro */
-function routeInit(req)
-{
-	//prima loggo la route in cui sono entrato
-	console.log('route matched: ('+req.route.method.toUpperCase()+') '+req.route.path);	
-	
-	//salvo nelle sessions la pagina in cui mi trovo (cioè il primo chunk del path)
-	var chunks = req.route.path.split("/");
-	req.session.currentPage = chunks[1];
-}
 
 
-exports.defineRoutes = defineRoutes; 
-exports.defineRoute404 = defineRoute404; 
-exports.errorPage = errorPage; 
-exports.setSignedIn = setSignedIn; 
-exports.populateModel = populateModel; 
-exports.needStrucPermCreate = needStrucPermCreate;
-exports.needStrucPermModify = needStrucPermModify;
-exports.needStrucPermModifyMyself = needStrucPermModifyMyself;
-exports.checkValidUser = checkValidUser; 
-exports.hashPw = hashPw; 
-exports.paginationInit = paginationInit; 
-exports.paginationDo = paginationDo; 
-exports.routeInit = routeInit; 
+//attivo l'applicazione Express
+app.listen(app.jsl.config.port, app.jsl.config.ip);
+console.log("jslardo server listening on port %d in %s mode", app.address().port, app.settings.env);
 
 
 
