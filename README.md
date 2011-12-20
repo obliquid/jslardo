@@ -18,7 +18,9 @@ as a template engine jslardo uses jade.
 
 ## installation
 see the wiki page for some more info. but, if you have node and npm already working, installing jslardo is as easy as
-    npm install jslardo
+```
+npm install jslardo
+```
 
 ## license
 Copyright (C) 2011 Federico Carrara (federico@obliquid.it)
