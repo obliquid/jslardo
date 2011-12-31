@@ -1,6 +1,6 @@
 var jslardo_config = {
 	'domain':'localhost',
-	'ip':'127.0.0.1',
+	'ip':'192.168.0.14',
 	'port':'3000',
 	'superadminEmail':'admin',
 	'superadminPw':'admin',

@@ -78,15 +78,18 @@ function defineRoutes(app) {
 					if ( !err )
 					{
 						//procedo col find paginato
-						app.jsl.page.find(
-							conditions,
-							[], 
-							{ 
-								sort: ['route', 'ascending'],
-								skip: req.session.skip, 
-								limit: req.session.limit 
-							},
-							function(err, pages) {
+						app.jsl.page
+							.find(
+								conditions,
+								[], 
+								{ 
+									sort: ['route', 'ascending'],
+									skip: req.session.skip, 
+									limit: req.session.limit 
+								}
+							)
+							.populate('site')
+							.run(function(err, pages) {
 								//ho trovato le mie pagine
 								//devo popolare anche il combo con i siti
 								app.jsl.siteController.getSites(req,res,function(sites) {
@@ -99,8 +102,7 @@ function defineRoutes(app) {
 										combo_sites: sites
 									});	
 								});								
-							}
-						);	
+							});	
 					}
 					else
 					{
@@ -132,6 +134,7 @@ function defineRoutes(app) {
 			.findOne( conditions )
 			.populate('author')
 			.populate('site')
+			.populate('children')
 			.run(function(err, page) {
 				//console.log(page);
 				if ( !err )
@@ -194,7 +197,7 @@ function defineRoutes(app) {
 				if ( page ) 
 				{
 					//route già usato
-					app.jsl.errorPage(res, err, "already exists page with route: "+req.body.route);
+					app.jsl.errorPage(res, err, app.i18n.t(req, "already exists page with route")+": "+req.body.route);
 				}
 				else
 				{
@@ -230,9 +233,10 @@ function defineRoutes(app) {
 		app.jsl.routeInit(req);
 		//mi hanno passato l'id obbligatoriamente
 		//leggo il mio page dal db, e assegno il result al tpl
-		app.jsl.page.findOne(
-			{ '_id': req.params.id },
-			function(err, page) {
+		app.jsl.page
+			.findOne( { '_id': req.params.id } )
+			//.populate('divs')
+			.run(function(err, page) {
 				if (!err)
 				{
 					//devo ovviamente popolare anche il combo con i miei sites
@@ -252,9 +256,7 @@ function defineRoutes(app) {
 				{
 					app.jsl.errorPage(res, err, "GET: page form (modify): failed query on db");
 				}	
-					
-			}
-		);	
+			});	
 	});
 	//POST: page form (modify)
 	app.post('/pages/edit/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModify, function(req, res, next){
@@ -269,12 +271,12 @@ function defineRoutes(app) {
 					//prima di popolare lo page controllo che, se l'page sta cambiando route, non scelga una route già usata
 					//(in patica cerco uno page che abbia la mia stessa route, ma un id differente: se lo trovo, vuol dire che la route è già stata usata)
 					app.jsl.page.findOne(
-						{ 'route': req.body.route, '_id': { $ne : req.body.id } },
+						{ 'route': req.body.route, 'site': req.body.site, '_id': { $ne : req.body.id } },
 						function(err, pageSameRoute) {
 							if ( pageSameRoute ) 
 							{
 								//route già usata
-								app.jsl.errorPage(res, err, "already exists page with route: "+req.body.route);
+								app.jsl.errorPage(res, err, app.i18n.t(req, "already exists page with route")+": "+req.body.route);
 							}
 							else
 							{
@@ -313,6 +315,134 @@ function defineRoutes(app) {
 	});
 		
 	
-}
+	
+	
+	
+	
+	
+	
+	//JSON ROUTES
 
+	//POST: json page add div
+	//appendo un div ad una pagina 
+	app.post('/json/pages/appendDiv/:page/:div/:ord', app.jsl.readStrucPermDefault, app.jsl.needStrucPermCreate, function(req, res, next){
+		app.jsl.routeInit(req);
+		//console.log(req.params);
+		appendDiv(req, req.params.page, req.params.div, req.params.ord, function(){ res.json(); });
+	});	
+
+	
+	
+}
 exports.defineRoutes = defineRoutes; 
+
+function render(req, res, page) {
+	res.render('debug', {
+		layout: false, 
+		variable: 'pagina: '+page.route+" del sito: "+page.site.domain
+	});
+}
+exports.render = render;
+
+function appendDiv(req, page_id, div_id, ord, next) {
+	//trovo la pagina cui appendere il div
+	//la pagina deve essere la mia, per sicurezza la query non viene eseguita se non è una mia pagina
+	var conditions = ( req.session.user_id == 'superadmin' ) 
+	? 
+	{ '_id': page_id } 
+	: 
+	{ '_id': page_id, 'author': req.session.user_id };
+	req.app.jsl.page.findOne(
+		conditions,
+		function(err, page) {
+			if (!err)
+			{
+				//ho trovato lo page da modificare
+				//appendo il nuovo div alla pagina, nella posizione corretta
+				//console.log('### i miei fratelli di pagina prima di me: ');
+				//console.log(page.divs);
+				page.divs = req.app.jsl.divController.addDivOrdered(
+					{
+						father : page_id,
+						div : div_id,
+						order : ord
+					},
+					page.divs
+				);
+				//console.log('### i miei fratelli di pagina dopo di me: ');
+				//console.log(page.divs);
+				//salvo la page modificata
+				page.markModified('divs'); //forse non serve... sto già clonando
+				//page.commit('divs');
+				page.save(function(err) {
+					if (!err) 
+					{
+						//ho appeso con successo il mio div nuovo
+						next();
+					}
+					else
+					{
+						console.log('POST: json page add div: error saving page'+err);
+						//res.json({ 'error': 'POST: json page add div: error saving page'+err});
+					}
+				});
+			}
+			else
+			{
+				console.log('POST: json page add div: page not found on db');
+				//res.json({ 'error': 'POST: json page add div: page not found on db'});
+			}
+		}
+	);
+}
+exports.appendDiv = appendDiv; 
+
+function removeDiv(req, page_id, div, next) {
+	var conditions = ( req.session.user_id == 'superadmin' ) 
+	? 
+	{ '_id': page_id } 
+	: 
+	{ '_id': page_id, 'author': req.session.user_id };
+	req.app.jsl.page.findOne( conditions, [], {} )
+	.run(function(err, page) {
+		if ( !err ) {
+			if ( page ) {
+				//ho trovato la mia pagina
+				//tolgo me stesso dai suoi divs
+				for (var i = 0; i < page.divs.length; i++) {
+					if ( page.divs[i].div == div ) {
+						//trovato me stesso.
+						//mi elimino
+						//console.log('io e i miei fratelli:');
+						//console.log(page.divs);
+						page.divs.splice(i,1);
+						//console.log('solo i miei fratelli:');
+						//console.log(page.divs);
+						
+						//salvo la pagina con i figli modificati
+						page.save(function(err) {
+							if (!err) 
+							{
+								//ho salvato con successo
+								next();
+							}
+							else
+							{
+								res.json({ 'error': 'removeDiv(): error saving page'});
+							}
+						});
+						break;
+					}
+				}				
+			} else {
+				console.log('removeDiv(): page not found');
+			}
+		} else {
+			console.log('removeDiv(): error in page query');
+		}
+	});	
+}
+exports.removeDiv = removeDiv; 
+
+
+

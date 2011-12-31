@@ -175,7 +175,7 @@ function defineRoutes(app) {
 			}
 			else
 			{
-				app.jsl.errorPage(res, err, "POST: role form: saving role");
+				app.jsl.errorPage(res, err, "POST: role form: query error saving role");
 			}
 		});
 	});	

@@ -8,9 +8,7 @@ each element,i in elements
 			div.innerCont
 				span.textMini email: 
 					h6 #{element.email}
-			div.elemGridAdminCont
-				if element.status == 'private'
-					div(title='#{__i('private')}').adminIcon.privateButton
+			include ../includes/listInfoBox
 			//- non ancora implementato
 				if ( mode == 'select' )
 					a(title='#{__i('select')} #{__i(elementName)}', onclick='').adminButton.selectButton

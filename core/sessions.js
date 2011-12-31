@@ -60,7 +60,7 @@ function checkValidUser(req, closure)
 				else
 				{
 					//qualcosa è andato storto nella query
-					errorPage(res, err, 'jslardo.checkValidUser: ');
+					errorPage(res, err, 'jslardo.checkValidUser: error in query retrieving users');
 				}
 			}
 		);		
@@ -115,6 +115,7 @@ function hashPw(req, password)
 
 
 exports.setSignedIn = setSignedIn; 
+exports.setSignedOut = setSignedOut; 
 exports.checkValidUser = checkValidUser; 
 exports.hashPw = hashPw; 
 

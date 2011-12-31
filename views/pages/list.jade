@@ -7,14 +7,14 @@ include ../includes/filterBySite
 each element,i in elements
 	div.floatLeft.size1
 		a(href='/#{elementName}s/#{element._id}').elemGrid.outerCont
-			h5 #{element.route} 
-			//-
-				div.innerCont
-					span.textMini #{__i('domain')}: 
-						h6 #{element.domain}
-			div.elemGridAdminCont
-				if element.status == 'private'
-					div(title='#{__i('private')}').adminIcon.privateButton
+			if element.route != ''
+				h5 #{element.route}
+			else
+				h5 [root]
+			div.innerCont
+				span.textMini #{__i('site')}: 
+					h6 #{element.site.title}
+			include ../includes/listInfoBox
 	if (i+1)%6==0
 		div.clear
 include ../includes/paginationBottom

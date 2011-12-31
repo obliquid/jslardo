@@ -11,9 +11,7 @@ each element,i in elements
 				div.innerCont
 					span.textMini #{__i('domain')}: 
 						h6 #{element.domain}
-			div.elemGridAdminCont
-				if element.status == 'private'
-					div(title='#{__i('private')}').adminIcon.privateButton
+			include ../includes/listInfoBox
 	if (i+1)%6==0
 		div.clear
 include ../includes/paginationBottom

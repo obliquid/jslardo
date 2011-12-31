@@ -1,12 +1,12 @@
 div.headerCont
 	div.header.size6
 		//logo+name
-		div.size1.floatLeft
+		div.size1AndHalf.floatLeft
 			a(href='/').floatLeft
 				img(src='/images/logo/main_logo.png').floatLeft
 				h3.floatLeft.logoLabel jslardo
 		//menu
-		div.size5.floatLeft
+		div.floatLeft
 			if session.currentPage == 'users'
 				a(href='/users').floatLeft.elementButtonSelected.buttonUsers #{__i('users')}
 			else
@@ -19,6 +19,10 @@ div.headerCont
 				a(href='/pages').floatLeft.elementButtonSelected.buttonPages #{__i('pages')}
 			else
 				a(href='/pages').floatLeft.elementButton.buttonPages #{__i('pages')}
+			if session.currentPage == 'divs'
+				a(href='/divs').floatLeft.elementButtonSelected.buttonDivs #{__i('divs')}
+			else
+				a(href='/divs').floatLeft.elementButton.buttonDivs #{__i('divs')}
 			if session.currentPage == 'roles'
 				a(href='/roles').floatLeft.elementButtonSelected.buttonRoles #{__i('roles')}
 			else

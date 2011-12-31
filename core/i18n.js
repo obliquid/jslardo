@@ -46,7 +46,11 @@ i18n.configure = function(opt){
 }
 
 i18n.t = function(req,msg) {
-	i18n.setLocale( req.cookies.currentlocale );
+	//se ho il locale nei cookies ha la precedenza, altrimenti vale il currentLocale
+	if ( req.cookies != undefined )
+	{
+		i18n.setLocale( req.cookies.currentlocale );
+	}
     return translate(msg);
 }
 

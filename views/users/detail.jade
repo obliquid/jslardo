@@ -1,5 +1,5 @@
-h3 #{__i(elementName)} #{__i('detail')}
-	img(src='/images/pov/icon_core_role_40x30.png').floatLeft
+h3 #{__i(elementName)}:
+	img(src='/images/pov/icon_core_role_60x45.png').floatLeft
 hr
 h1 #{element.name}
 br
@@ -15,9 +15,10 @@ if element.profile
 include ../includes/detailCommon
 
 hr
-//- a(onclick='window.history.go(-1)', title='#{__i('back')}').adminButton.backButton
-a(href='/#{elementName}s', title='#{__i('view all')}').adminButton.allButton
+a(href='/#{elementName}s', title='#{__i('view all')}').paginationButton.allButton
 if session.user_id == 'superadmin' || session.user_id == element._id
 	a(href='/#{elementName}s/edit/#{element._id}', title='#{__i('modify user')}').adminButton.modifyButton
 	if element.status == 'private'
 		div(title='private').adminIcon.privateButton
+
+

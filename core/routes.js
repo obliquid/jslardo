@@ -30,91 +30,170 @@
 /* carica le routes interne di jslardo */
 function defineRoutes(app) {
 	
-	
-	//controllo che sito è richiesto, se il sito di admin, o se un sito pubblico degli utenti
-	app.get('*', function(req, res, next){
-		//app.jsl.routeInit(req);
-		//console.log(req.headers.host);
-		//console.log(req.url);
-		//il sito di admin può anche girare su un ip, mentre i siti degli utenti (v.sotto) possono girare solo su un dominio
-		//il dell'admin deve essere in una delle forme:
-		//admindomain
-		//admindomain:adminport
-		//adminip
-		//adminip:adminport
-		if
-		(
-			req.headers.host == app.jsl.config.domain ||
-			req.headers.host == app.jsl.config.domain+":"+app.jsl.config.port ||
-			req.headers.host == app.jsl.config.ip ||
-			req.headers.host == app.jsl.config.ip+":"+app.jsl.config.port
-		)
+	//NON-ADMIN route
+	//prima considero le route dei siti degli utenti
+	app.get('/:route?', app.jsl.readStrucPermDefault, function(req, res, next)
+	{
+		//non so perchè ma quando viene richiesto un file statico, le sessions non sono definite
+		//quindi se non sono deifnite, deduco si tratti di un file statico, e skippo
+		if ( !req.session )
 		{
-			//è stato richiesto il sito di admin, posso procedere nel processare le route
 			next();
+			//non faccio niente
+			//console.log("negot per:"+req.url);
 		}
-		else
+		//se stanno chiamando un service json skippo oltre
+		else if ( req.params.route == 'json' )
 		{
-			//non è stato richiesto il sito di admin, controllo se è stato richiesto un sito pubblico
-			
-			//prima leggo tutti i domini dei siti pubblici o share
-			var conditions = 
-				{ $or: [
-						{ 'status': 'public' }, 
-						{ 'status': 'share' }
-				]};
-			app.jsl.site.find(
-				conditions,
-				function(err, sites) {
-					//il dominio richiesto, per appartenere ad un sito di un'utente, deve essere in una delle forme:
-					//sitedomain
-					//sitedomain:adminport
-					//sitedomain.admindomain
-					//sitedomain.admindomain:adminport
-					for (var x=0;x<sites.length;x++)
-					{
-						if
-						(
-							req.headers.host == sites[x].domain ||
-							req.headers.host == sites[x].domain+":"+app.jsl.config.port ||
-							req.headers.host == sites[x].domain+"."+app.jsl.config.domain ||
-							req.headers.host == sites[x].domain+"."+app.jsl.config.domain+":"+app.jsl.config.port
-						)
-						{
-							//trovato il mio sito
-							//QUI!!!
-							//cerco tra tutte le pagine una con la mia route
-							//se non la trovo, cerco la pagina home
-							//se non c'è nemmeno la home, msg di errore perchè il sito non ha pagine
-							res.render('debug', {
-								layout: false, 
-								variable: 'my content!'
-							});								
-							
-							
-							
-							
-							
-							
-							
-							
-							break;
-						}
-					}
-					
-					
-					
-					
-				}
-			);				
-			
-			
+			next();
+			console.log('stanno chiamando un json, skippo oltre');
 		}
-		
-		/*
-		if(req.headers.host == 'some.sub.domain.com')  //if it's a sub-domain
-			req.url = '/mysubdomain' + req.url;  //append some text yourself
-		*/
+		else{
+			app.jsl.routeInit(req);
+			//console.log("vabè per:"+req.url);
+			//console.log(req.headers.host);
+			//console.log(req.url);
+			//il sito di admin può anche girare su un ip, mentre i siti degli utenti (v.sotto) possono girare solo su un dominio
+			//il dell'admin deve essere in una delle forme:
+			//admindomain
+			//admindomain:adminport
+			//adminip
+			//adminip:adminport
+			if
+			(
+				req.headers.host == app.jsl.config.domain ||
+				req.headers.host == app.jsl.config.domain+":"+app.jsl.config.port ||
+				req.headers.host == app.jsl.config.ip ||
+				req.headers.host == app.jsl.config.ip+":"+app.jsl.config.port
+			)
+			{
+				//è stato richiesto il sito di admin, posso procedere nel processare le route
+				next();
+			}
+			else
+			{
+				//non è stato richiesto il sito di admin, controllo se è stato richiesto un sito pubblico
+				//console.log('passo da qui'+req.session.loggedIn);
+				//console.log(req);
+				//prima però devo leggere i permessi
+				//app.jsl.readStrucPermDefault(req, res, function()
+				//{
+				//var express = require('express');
+				//app.use(express.static(__dirname + '/public'));
+				
+				////if ( !req.session )
+				////{
+					////next();
+					//////non faccio niente
+				////}
+				////else
+				////{
+				
+					//controllo se esiste nel db il sito (host) richiesto
+					var conditions = ( req.session.user_id == 'superadmin' ) 
+					? 
+					{
+						'domain': req.headers.host
+					}
+					:
+					{
+						'domain': req.headers.host,
+						$or: [
+							{ 'status': 'public' }, 
+							{ 'status': 'share' }, 
+							{'author': req.session.user_id }
+						]
+					};
+					//console.log('e qui'+req.session.loggedIn);
+					app.jsl.site.findOne(
+						conditions,
+						function(err, site) {
+							//console.log('e anche qui'+req.session.loggedIn);
+							if ( !err )
+							{
+								if ( site )
+								{
+									//il sito richiesto esiste nel db
+									/*
+									res.render('debug', {
+										layout: false, 
+										variable: 'beccato sito: '+req.headers.host
+									});
+									*/
+									//cerco tra tutte le pagine del sito permesse al mio utente una con la mia route
+									//se la route è nulla, automaticamente uscirà la pagina di root
+									//console.log('e anche qui pure'+req.session.loggedIn);
+									var conditions = ( req.session.user_id == 'superadmin' ) 
+									? 
+									{
+										'site': site.id,
+										'route': ( req.params.route ) ? req.params.route : ''
+										//'route': req.url.substring(1)
+									} 
+									: 
+									{
+										'site': site.id,
+										'route': ( req.params.route ) ? req.params.route : '',
+										//'route': req.url.substring(1), 
+										$or: [
+											{ 'status': 'share' }, 
+											{ 'status': 'public' }, 
+											{ 'author': req.session.user_id }
+									]};
+									app.jsl.page
+										.findOne(
+											conditions,
+											[], 
+											{}
+										)
+										.populate('site')
+										.run(function(err, page) {
+											//console.log('e anche qui pure forse'+req.session.loggedIn);
+											if ( !err )
+											{
+												if ( page )
+												{
+													//console.log('e anche qui pure forse magari'+req.session.loggedIn);
+													//ho trovato la pagina richiesta dall'utente
+													//posso finalmente procedere a visualizzare la pagina
+													
+													var pageController = require('../controllers/page');
+													pageController.render( req, res, page );
+													/* questo funzia
+													res.render('debug', {
+														layout: false, 
+														variable: 'pagina: '+page.route+" del sito: "+site.domain
+													});
+													*/
+												}
+												else
+												{
+													app.jsl.errorPage(res, err, "page not found on this site: "+req.url, false);
+													//non ho trovato la pagina, procedo, potrebbe essere stato richiesto un file statico
+													//next();
+												}
+											}
+											else
+											{
+												app.jsl.errorPage(res, err, "error on query to find page: "+req.url, false);
+											}
+										});							
+								}
+								else
+								{
+									app.jsl.errorPage(res, err, "site not found on this server: "+req.headers.host, false);
+								}
+							}
+							else
+							{
+								app.jsl.errorPage(res, err, "error on query to find site: "+req.headers.host, false);
+							}
+						}
+					);				
+				////}
+				//});
+			}
+		}
 	}); 	
 	
 	
@@ -122,7 +201,7 @@ function defineRoutes(app) {
 	
 	
 	
-	
+	//da qui in poi solo route del sito di admin
 	
 	
 	//GET: home

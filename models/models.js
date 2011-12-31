@@ -71,6 +71,7 @@ function defineModels(mongoose, app, next) {
 		'domain': { type: String, index: { unique: true }, required: true, trim: true },
 		'description': { type: String },
 		'keywords': { type: String },
+		//themes: sarà un array di temi, e un tema è un layout.jade + uno style.css
 		//common fields
 		'author': { type: Schema.ObjectId, ref: 'user', required: true, index: true },
 		'status': { type: String, required: true, enum: ['public', 'private', 'share'], index: true },
@@ -78,17 +79,49 @@ function defineModels(mongoose, app, next) {
 	});
 	mongoose.model('site', Site);
 	
+	//Schema divOrdered
+	var DivOrdered = new Schema({
+		'father': { type: Schema.ObjectId, index: true }, //questo può essere sia un id di pagina che di div
+		'div': { type: Schema.ObjectId, ref: 'div', index: true },
+		'order': { type: Number, index: true}
+	});
+	
+	//Schema div
+	var Div = new Schema({
+		'type': { type: String, required: true, enum: ['vertCont', 'horizCont', 'module'], index: true },
+		'class': { type: String },
+		'is_table': { type: Boolean, default: false },
+		'inline_style': { type: Boolean, default: true },
+		'children': [DivOrdered],
+		'module': { type: Schema.ObjectId, ref: 'module', index: true },
+		//common fields
+		'author': { type: Schema.ObjectId, ref: 'user', required: true, index: true },
+		'status': { type: String, required: true, enum: ['public', 'private', 'share'], index: true },
+		'created': { type: Date, required: true }
+	});
+	mongoose.model('div', Div);
+	
 	//Schema page
 	var Page = new Schema({
 		'site': { type: Schema.ObjectId, ref: 'site', required: true },
 		//'site': { type: Schema.ObjectId, ref: 'site' },
-		'route': { type: String, index: true, required: true, trim: true },
+		'route': { type: String, index: true, trim: true }, //nota che non è required, perchè la route vuota è accettata come root page del sito
+		'divs': [DivOrdered],
 		//common fields
 		'author': { type: Schema.ObjectId, ref: 'user', required: true, index: true },
 		'status': { type: String, required: true, enum: ['public', 'private', 'share'], index: true },
 		'created': { type: Date, required: true }
 	});
 	mongoose.model('page', Page);
+	
+	//Schema module
+	var Module = new Schema({
+		//common fields
+		'author': { type: Schema.ObjectId, ref: 'user', required: true, index: true },
+		'status': { type: String, required: true, enum: ['public', 'private', 'share'], index: true },
+		'created': { type: Date, required: true }
+	});
+	mongoose.model('module', Module);
 	
 	//Schema debug
 	//usato per testing

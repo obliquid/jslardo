@@ -75,6 +75,7 @@ app.configure(function(){
 	//permissions
 	var sessions = require('./core/sessions');
 	app.jsl.checkValidUser = sessions.checkValidUser;
+	app.jsl.setSignedOut = sessions.setSignedOut;
 	app.jsl.setSignedIn = sessions.setSignedIn;
 	app.jsl.hashPw = sessions.hashPw;
 	//pagination
@@ -160,6 +161,9 @@ app.jsl.models.defineModels(mongoose, app, function() {
 	app.jsl.role = mongoose.model('role');
 	app.jsl.site = mongoose.model('site');
 	app.jsl.page = mongoose.model('page');
+	app.jsl.div = mongoose.model('div');
+	//app.jsl.divOrdered = mongoose.model('divOrdered'); //non ha ne view ne controller perchè è un embedded document
+	app.jsl.module = mongoose.model('module');
 	app.jsl.debuggin = mongoose.model('debuggin');
 	//app.jsl.linkedserver = mongoose.model('linkedserver');
 	//console.log("finito coi modelli!");
@@ -180,11 +184,15 @@ app.jsl.defineRoutes(app);
 //route per gli elementi della struttura
 require('./controllers/user').defineRoutes(app);
 require('./controllers/role').defineRoutes(app);
-require('./controllers/page').defineRoutes(app);
+require('./controllers/module').defineRoutes(app);
 require('./controllers/debuggin').defineRoutes(app);
 //per questi elementi oltre alle route, mi servono anche altri metodi esposti dal controller, quindi devo tenere tutto il controller
+app.jsl.pageController = require('./controllers/page');
+app.jsl.pageController.defineRoutes(app);
 app.jsl.siteController = require('./controllers/site');
 app.jsl.siteController.defineRoutes(app);
+app.jsl.divController = require('./controllers/div');
+app.jsl.divController.defineRoutes(app);
 
 
 /*queste non riesco a farle andare...

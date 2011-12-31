@@ -30,9 +30,11 @@
 // VARIE
 
 /* visualizza una pagina di errore e logga sulla console */
-function errorPage(res, errMsg, publicMsg) {
+function errorPage(res, errMsg, publicMsg, useLayout) {
+	if ( useLayout === undefined ) useLayout = true;
 	console.log(errMsg);
-	res.render('error', { 
+	res.render('error', {
+		layout: useLayout,
 		errMsg: errMsg,
 		publicMsg: publicMsg
 	});			
@@ -55,6 +57,11 @@ per non dover scrivere condice embedded (un assegnamento per ogni campo del form
 e li salva pari pari nell'oggetto che andrà nel db.
 */
 function populateModel(model, modelData) {
+	/*
+	console.log('populateModel');
+	console.log(model);
+	console.log(modelData);
+	*/
 	//ciclo su tutte le property che mi arrivano in modelData (le dovrò replicare in model)
 	for(var prop in modelData) {
 		if(modelData.hasOwnProperty(prop))
@@ -62,7 +69,23 @@ function populateModel(model, modelData) {
 			//assegno a model la mia property, ma solo se non si tratta dell'id
 			if( prop != "id" )
 			{
-				model[prop] = modelData[prop];
+				/*
+				console.log('typeof modelData[prop]='+typeof modelData[prop]);
+				console.log('typeof model[prop]='+typeof model[prop]);
+				console.log('modelData[prop]='+modelData[prop]);
+				console.log('model[prop]='+model[prop]);
+				*/
+				//faccio un po' di casting perchè in modelData vanno persi dei type
+				if ( typeof model[prop] === 'boolean' )
+				{
+					if ( modelData[prop] == 'yes' ) {
+						model[prop] = true;
+					} else {
+						model[prop] = false;
+					}
+				} else {
+					model[prop] = modelData[prop];
+				}
 			}
 		}
 	}

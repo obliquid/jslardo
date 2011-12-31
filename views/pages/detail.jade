@@ -1,29 +1,23 @@
-h3 #{__i(elementName)} #{__i('detail')}
-	img(src='/images/pov/icon_core_page_40x30.png').floatLeft
+h3 #{__i(elementName)}:
+	img(src='/images/pov/icon_core_page_60x45.png').floatLeft
 hr
-h3.floatLeft http://#{element.site.domain}/
-h1 #{element.route}
-//-
-	br
+if element.route != ''
+	h1 #{element.route}
 	h4
 		span http://
-			a(href='http://#{element.domain}', target='_blank', title='#{__i('open')}') #{element.domain}
-	br
-	table
-		tr
-			td
-				h6 #{__i('description')}:
-			td 
-				span #{element.description}
-		tr
-			td 
-				h6 #{__i('keywords')}:
-			td 
-				span #{element.keywords}
-
-	hr
-	.outerCont
-		a(href='/pages').floatLeft.elementButton.buttonPages #{__i('pages')}
+			a(href='http://#{element.site.domain}/#{element.route}', target='_blank', title='#{__i('open')}') #{element.site.domain}/#{element.route}
+else
+	h1 [root]
+	h4
+		span http://
+			a(href='http://#{element.site.domain}/', target='_blank', title='#{__i('open')}') #{element.site.domain}/
+//- dead
+	if element.layout
+		div.outerContMinimal #{element.layout}
+hr
+.outerCont
+	a(href='/sites/#{element.site._id}').floatLeft.elementButton.buttonSites #{__i('site')}
+	a(href='/filterBySite/#{element.site._id}/#{encURI('/pages/')}', title='#{__i('all pages for this site')}').floatLeft.elementButton.buttonPages #{__i('pages')}
 
 include ../includes/detailCommon
 

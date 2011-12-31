@@ -38,7 +38,7 @@
   /* src: url('../fonts/HelveticaNeue-LightExt.ttf'); */
 }
 
-h1, h2, h3, h4, h5, h6, a, input, select, textarea
+h1, h2, h3, h4, h5, h6, a, input, select, textarea, .jstree
 {
 	font-family: Arial, Helvetica, sans-serif;
 	font-family: TitlesFont, Arial, Helvetica, sans-serif;
@@ -64,7 +64,7 @@ html
 	margin: 0px;
 }
 
-body, input, select, textarea
+body, input, select, textarea, .jstree
 {
 	font-weight:normal;
 	font-size:16px;
@@ -85,7 +85,18 @@ img
 
 /* texts and titles */
 
-h1 
+h1
+{
+	font-weight:normal;
+	font-size:90px;
+	line-height: 80px;
+	letter-spacing: -5px;
+	padding: 0px;
+	margin: 0px;
+	margin-bottom: 35px;
+}
+
+h2 
 {
 	font-weight:normal;
 	font-size:69px;
@@ -96,7 +107,7 @@ h1
 	margin-bottom: 25px;
 }
 
-h2 
+h3 
 {
 	font-weight:normal;
 	font-size:52px;
@@ -107,7 +118,7 @@ h2
 	margin-bottom: 20px;
 }
 
-h3 
+h4 
 {
 	font-size: 30px;
 	font-weight: normal;
@@ -115,10 +126,11 @@ h3
 	letter-spacing: -1px;
 	padding: 0px;
 	margin: 0px;
-	margin-bottom: 15px;
+	margin-bottom: 20px;
 }
 
-h4
+h5,
+.formChoice
 {
 	font-size: 22px;
 	font-weight: normal;
@@ -129,7 +141,7 @@ h4
 	margin-bottom: 10px;
 }
 
-h5 
+h6
 {
 	font-size: 16px;
 	font-weight: normal;
@@ -137,15 +149,6 @@ h5
 	padding: 0px;
 	margin: 0px;
 	margin-bottom: 5px;
-}
-
-h6 
-{
-	font-size: 14px;
-	font-weight: normal;
-	letter-spacing: 0px;
-	padding: 0px;
-	margin: 0px;
 }
 
 
@@ -364,12 +367,14 @@ textarea:hover,
 {
 }
 
+/* MINIMUMS */
+
 /* minimum padding */
 a,
 input, select,
 textarea,
 .minimum_padding,
-.linkSelected
+.linkSelected, .jstree
 {
 	padding: 2px 6px;
 }
@@ -379,10 +384,12 @@ a,
 span,
 input, select,
 textarea,
-.minimum_margin
+.minimum_margin, .jstree
 {
 	margin: 2px;
 }
+
+/* MEDIUMS */
 
 /* medium padding */
 .medium_padding
@@ -420,7 +427,8 @@ textarea,
 .innerCont,
 .adminIcon,
 .formSuccess,
-.linkSelected
+.linkSelected,
+.formRow, .jstree
 {
 	border-radius: 14px; 
 	-moz-border-radius: 14px; 
@@ -477,10 +485,28 @@ textarea:hover,
 	text-shadow: rgba(0, 0, 0, 0.5) 0px 1px 0px;
 }
 
+/* display */
+
+.invisible
+{
+	display: none;
+	width: 0px;
+	height: 0px;
+	margin: 0px;
+	padding: 0px;
+	boder: 0px;
+}
+
 /* floats */
+
 .floatLeft
 {
 	float: left;
+}
+
+.floatRight
+{
+	float: right;
 }
 
 .clear
@@ -537,8 +563,6 @@ textarea:hover,
 .outerCont,
 .outerContMinimal
 {
-	padding:5px;
-	margin:2px;
 	/*
 	margin-right:15px;
 	margin-bottom:15px;
@@ -548,6 +572,11 @@ textarea:hover,
 }
 .outerCont
 {
+	padding:5px;
+	margin-top:0px;
+	margin-left:0px;
+	margin-right:5px;
+	margin-bottom:5px;
 	background-image:url('../images/bg/bianco66perc.png');
 	background-repeat:repeat;
 }
@@ -557,7 +586,14 @@ textarea:hover,
 }
 .outerContMinimal
 {
-	border: 2px solid #e8e8e8;
+	padding:5px;
+	margin-top:0px;
+	margin-left:0px;
+	margin-right:10px;
+	margin-bottom:10px;
+	/* border: 2px solid #e8e8e8; */
+	background-image:url('../images/bg/bianco33perc.png');
+	background-repeat:repeat;
 }
 
 .innerCont
@@ -664,11 +700,20 @@ textarea:hover,
 .formLabel
 {
 	display: inline-block;
+	float: left;
 }
 
 .formSuccess
 {
 	padding: 5px;
+}
+
+.formRow
+{
+  background-image:url('../images/bg/bianco50perc.png');
+  background-repeat:repeat;
+  padding: 5px;
+  margin-bottom: 10px;
 }
 
 .adminButton,
@@ -691,6 +736,7 @@ textarea:hover,
 .adminIcon
 {
 	background-color: #aaaaaa;
+	cursor: default;
 }
 
 .addButton
@@ -805,6 +851,11 @@ textarea:hover,
 	background-image:url('../images/pov/icon_core_page_30x23.png');
 }
 
+.buttonDivs
+{
+	background-image:url('../images/pov/icon_core_div_30x23.png');
+}
+
 .buttonRoles
 {
 	background-image:url('../images/pov/icon_core_role_30x23.png');
@@ -888,3 +939,46 @@ textarea:hover,
 	top: 20px;
 	left: 500px;
 }
+
+
+/* JSTREE */
+.jstreeColumn {
+	text-align: center;
+}
+.jstree
+{
+	height: 285px;
+	text-align: left;
+	display: inline-block;
+	background-color:transparent;
+	background-image:url('../images/bg/nero20perc.png');
+	background-repeat:repeat;
+}
+
+.jstreeElements {
+	height: 70px;
+}
+
+.jstreeOtherPage {
+	height: 150px;
+}
+
+.jstree a {
+  /* background-color: transparent; */
+  background-image: none;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

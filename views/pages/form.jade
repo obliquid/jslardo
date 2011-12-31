@@ -1,44 +1,55 @@
 script
 	function validate_elementForm()
 	{
+		/*
 		if( $('#route').val() == '' )
 		{
-			alert("#{__i('route is required')}");
+			alert('#{__i('route is required')}');
 			return false;
 		}
+		//quando salvo, devo aggiornare il textarea con il json del mio albero
+		var jsonLayout = $('#layoutTree').jstree('get_json');
+		var jsonLayoutSerialized = JSON.stringify(jsonLayout);
+		$('#layout').val( jsonLayoutSerialized );
+		*/
 	}
 
 
+img(src='/images/pov/icon_core_page_60x45.png').floatLeft
 include ../includes/formHeader
 
-form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmit='return validate_elementForm()' ).size4
-	h5.formLabel #{__i('site')}
-	select(id='site', name='site')
-		each combo_site in combo_sites
-			if combo_site._id == element.site
-				option(value='#{combo_site._id}',selected='true') #{combo_site.title}
-			else
-				option(value='#{combo_site._id}') #{combo_site.title}
-	br
-	h5.formLabel #{__i('route')}
-		span.formError *
-		span /
-	input(id='route', name='route', value='#{element.route || ""}').size3
-	br
-	span #{__i('note: a route cannot be empty, so for the entry page of your site, use special route \'home\': every direct entry on your site will be redirected on this route')}
-	//-
-		br
-		h5.formLabel  #{__i('domain')}
+form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmit='return validate_elementForm()' ).size5
+	.formRow
+		h5.formLabel #{__i('site')}
+		select(id='site', name='site')
+			each combo_site in combo_sites
+				div #{element.site}
+				div #{combo_site._id}
+				if String(combo_site._id) == String(element.site)
+					option(value='#{combo_site._id}',selected='true') #{combo_site.title}
+				else
+					option(value='#{combo_site._id}') #{combo_site.title}
+	.formRow
+		h5.formLabel #{__i('route')}
 			span.formError *
-		span http://&nbsp;
-		input(id='domain', name='domain', value='#{element.domain || ""}').size3
-		br
-		h5.formLabel  #{__i('description')}
-		input(id='description', name='description', value='#{element.description || ""}').size3
-		br
-		h5.formLabel  #{__i('keywords')}
-		input(id='keywords', name='keywords', value='#{element.keywords || ""}').size3
-	
+		span /
+		input(id='route', name='route', value='#{element.route || ""}').size3
+		p #{__i('note: leaving blank means that you refer to the root page of the site, the page that is visualized when a user only specifies the site domain')}
+	.formRow
+		h5.formLabel #{__i('layout')}
+		div.jstreeColumn.floatRight
+			h6 #{__i('available divs')}
+			div#elementsTree.size2.jstree.jstreeElements
+			hr
+			h6 #{__i('link/duplicate from other page')}
+			div#otherPageTree.size2.jstree.jstreeOtherPage
+		div.jstreeColumn.floatRight
+			h6 #{__i('your page')}
+			div#layoutTree.size2.jstree
+		//- textarea(id='layout',name='layout').invisible #{element.layout || ''}
+		div.clear
+		script(language='JavaScript', type='text/javascript', src='/javascripts/jq/jstree/jquery.jstree.js')
+		include formJs
 	
 	include ../includes/formStatus
 
