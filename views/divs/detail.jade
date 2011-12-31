@@ -1,0 +1,43 @@
+h3 #{__i(elementName)}:
+	img(src='/images/pov/icon_core_div_60x45.png').floatLeft
+hr
+h3.floatLeft #{element.type}:&nbsp;
+if element.class
+	h1 #{element.class}
+
+table.outerContMinimal
+	if element.class
+		tr
+			td
+				h6 #{__i('css classes')}:
+			td 
+				span #{element.class}
+	tr
+		td 
+			h6 #{__i('auto generate inline styles')}:
+		td 
+			span.formChoice
+				if element.inline_style
+					#{__i('yes')}
+				else
+					#{__i('no')}
+	tr
+		td 
+			h6 #{__i('render as a table')}:
+		td 
+			span.formChoice
+				if element.is_table
+					#{__i('yes')}
+				else
+					#{__i('no')}
+if element.children.length > 0
+	hr
+	.outerCont
+		h5 #{__i('children')}
+		each child in element.children
+			a(href='/divs/#{child.div.id}').floatLeft.elementButton.buttonDivs #{child.div.class} (#{child.div.type})
+
+include ../includes/detailCommon
+
+include ../includes/detailCrudbox
+

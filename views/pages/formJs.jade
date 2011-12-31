@@ -1,0 +1,349 @@
+script
+
+
+	/* ### COMMON VARS && FUNCTIONS ### */
+	
+
+
+	//questa var contiene il lyaout della pagina così come mi arriva dal db
+	/*
+	var jsonDivs = JSON.stringify(#{element.divs});
+	console.log(jsonDivs);
+	if ( !jsonDivs ) jsonDivs = {};
+	*/
+	//qui ci metto la configurazione dei type consentiti, condivisa da tutti i jstree di questa pagina
+	var allowedTypes = {
+		'valid_children' : [ 'vertCont','horizCont','module' ],
+		'max_depth' : -2,
+		'max_children' : -2,					
+		'types' : {
+			'vertCont' : {
+				'icon' : {
+					'image' : '/images/pov/icon_arrow_s_15x15.png'
+				},
+				'valid_children' : [ 'vertCont','horizCont','module' ]
+			},
+			'horizCont' : {
+				'icon' : {
+					'image' : '/images/pov/icon_arrow_e_15x15.png'
+				},
+				'valid_children' : [ 'vertCont','horizCont','module' ]
+			},
+			'module' : {
+				'icon' : {
+					'image' : '/images/pov/icon_core_page_20x15.png'
+				},
+				'valid_children' : 'none'
+			}
+		}
+	};
+	
+	
+	
+	
+	
+	/* ### LAYOUT TREE ### */
+	
+	//creo l'albero con la struttura della pagina
+	$('#layoutTree').jstree({
+		'core' : {  },
+		'types' : allowedTypes,				
+		/*
+		'json_data' : {
+			'data' : jsonDivs
+		},
+		*/
+		'json_data' : {
+			'ajax' : {
+				// the URL to fetch the data
+				url : '/json/divs/divChildren/#{element._id}/jstree',
+				type: 'POST',
+				dataType: 'json',
+				//questa function viene richiamata una volta al boot ( con toBeOpenedNode = -1 )
+				//e poi ogni volta che apro un nodo, e toBeOpenedNode sarà valorizzato col nodo che voglio aprire
+				//questa function deve ritornare un oggetto, che vene mandato allo script in 'url'
+				//in pratica dopo il return di questa function, viene chiamato l'url remoto
+				data: function ( toBeOpenedNode ) {
+					if ( typeof toBeOpenedNode === 'object' ) {
+						//console.log( 'lutente ha aperto un nodo:' );
+						//console.log( toBeOpenedNode );
+						//console.log( $(toBeOpenedNode).data() );
+						return { parent : $(toBeOpenedNode).data().id };
+					}
+				},
+				complete: function() {
+					//console.log('pageDivs: process complete');
+				},
+				success: function(result) {
+					//console.log('pageDivs: process sucess: letti divs della pagina');
+					//console.log(result);
+					return result;
+					
+				},
+				error: function() {
+					console.log('pageDivs: ajax error calling: /json/divs/divChildren/');
+				}
+				
+				
+				/*
+				'data' : function (n) {
+					//console.log('ritornato dalla popolazione del tree');
+					//console.log(n);
+					// the result is fed to the AJAX request `data` option
+					return {
+						'operation' : 'get_children',
+						'id' : n.attr ? n.attr('id').replace('node_','') : 1
+					};
+				}
+				*/
+			}
+		},
+		
+		'themes' : {
+			'theme' : 'classic'
+		},
+		'dnd' : {
+			'tree' : 'layoutTree'
+		},
+		'plugins' : [ 'themes', 'json_data', 'ui', 'dnd', 'types' ]
+	})
+	.bind("select_node.jstree", function (e, data) {
+		// `data.rslt.obj` is the jquery extended node that was clicked
+		var jsonDiv = $(data.rslt.obj).data();
+		//alert(data.rslt.obj.attr("id"));
+		//console.log(jsonDiv);
+		window.open('/divs/'+jsonDiv.id);
+	})
+	.bind('prepare_move.jstree', function (e, data) {
+		//console.log('prepare_move');
+		//console.log(data);
+		//devo decidere se copiare o linkare
+		//se mi sto muovendo all'interno del mio sito, linko
+		var oldTree = data.rslt.op.closest('.jstree').attr('id');
+		var newTree = data.rslt.np.closest('.jstree').attr('id');
+		if ( oldTree == newTree ) {
+			//se il tree non sta cambiando, vuol dire che sto muovendo un nodo dentro al tree, quindi non devo copiare il nodo
+			data.inst.set_copying(false);
+			//var oldPosition = data.rslt.cp;
+			//console.log('cy='+data.rslt.oc);
+		}
+		else
+		{
+			//per ora in tutti gli altri casi copio
+			data.inst.set_copying(true);
+		}
+		//devo sempre vuotare il mio nodo prima che venga copiato
+		
+		
+	})
+	.bind('move_node.jstree', function (e, data) {
+		//console.log('move_node.bind()');
+		//console.log(data);
+		//console.log(data.inst._get_settings().dnd.tree);//OK, ma inutile perchè mi dice quale è il mio tree, e già lo so chi sono
+		//console.log(data.inst.get_json());//OK! ritorna un array di oggetti json che sono i nodi di primo livello nel tree
+		//var obj = data.inst._get_node(data.rslt.o);
+		//console.log( obj );
+		//console.log( data.rslt.o );
+		//console.log( $(data.rslt.o).data().type ); //OK!!!
+		
+		//console.log( data.rslt.o );
+		
+		//memorizzo gli elementi del dragdrop che mi servono
+		var jsonDiv = $(data.rslt.o).data();
+		var objDiv = data.rslt.o;
+		var jsonOldParent = $(data.rslt.op).data();
+		var jsonNewParent = $(data.rslt.np).data();
+		//var oldPosition = data.rslt.cop;
+		var newPosition = data.rslt.cp;
+		
+		/*
+		//var newPositionRel = data.rslt.p;
+		//var newPositionFinal = ( newPositionRel == 'after' ) ? newPosition + 1 : newPosition;
+		//se mi sto muovendo all'interno di uno stesso parent, e se il mio order sta aumentando (mi sto muovendo in basso),
+		//jstree sbaglia la pasition (è aumentata di 1), e va corretta
+		console.log('check valid position:');
+		console.log('dragged div:');
+		console.log(jsonDiv);
+		console.log('reference div:');
+		console.log($(data.rslt.r).data());
+		console.log('proposed newPosition:'+newPosition);
+		//console.log('previous order:'+jsonDiv.order);
+		console.log('jsonNewParent:');
+		console.log(jsonNewParent);
+		console.log('jsonOldParent children:');
+		console.log(jsonOldParent);
+		//console.log('newPosition='+newPosition);
+		*/
+			
+		//se sto copiando, devo anche salvare nel db il mio nuovo div
+		if ( data.inst.get_copying() )
+		{
+			console.log("node copying");
+			//console.log('jsonNewParent:');
+			//console.log(jsonNewParent);
+			//salvo nel db
+			$.ajax({
+				url: '/json/divs/new',
+				type: 'POST',
+				dataType: 'json',
+				data: {div: jsonDiv },
+				complete: function() {
+					//console.log('process complete');
+				},
+			
+				success: function(div) {
+					//console.log('div saved: process sucess');
+					//console.log(div);
+					
+					//una volta salvato il div, devo salvarlo come child del suo nuovo parent
+					//console.log('chi è il parent?: ');
+					//console.log(jsonNewParent);
+					if (jsonNewParent.id && ( jsonNewParent.type == 'vertCont' || jsonNewParent.type == 'horizCont' ) ) {
+						//console.log('appendo ad un container');
+						//sto copiando dentro un container
+						//quindi devo aggiungere il nuovo child al container (parent)
+						$.ajax({ 
+							url: '/json/divs/appendDiv/'+jsonNewParent.id+'/'+div._id+'/'+newPosition,
+							type: 'POST',
+							dataType: 'json',
+							data: {},
+							complete: function() {
+								//console.log('process complete');
+							},
+							success: function(result) {
+								//console.log('process sucess: div aggiunto al suo parent');
+								//console.log(result);
+							},
+							error: function() {
+								console.log('ajax error calling: json/divs/appendDiv');
+							}
+						});					
+					} else {
+						//console.log('appendo ad una pagina: #{element._id}');
+						//sto copiando nella root della pagina
+						//quindi devo aggiungere il nuovo child alla pagina
+						$.ajax({
+							url: '/json/pages/appendDiv/#{element._id}/'+div._id+'/'+newPosition,
+							type: 'POST',
+							dataType: 'json',
+							data: {},
+							complete: function() {
+								//console.log('process complete');
+							},
+							success: function(result) {
+								//console.log('process sucess: div aggiunto alla pagina:');
+								//console.log(result);
+								//quando aggiungo alla pagina forzo un reload della pagina
+								//console.log('ora refresh');
+								data.inst.refresh();
+							},
+							error: function() {
+								console.log('ajax error calling: json/pages/appendDiv');
+							}
+						});					
+					}
+					//console.log(jsonNewParent);
+				},
+			
+				error: function() {
+					//questo errore può accadere, per esempio quando qualcuno che non ha il permesso (il superadmin)
+					//cerca di salvare un div. quindi faccio un rollback del tree
+					$.jstree.rollback(data.rlbk);
+					alert('#{__i('forbidden')}');
+					console.log('ajax error calling: /json/divs/new');
+				},
+			});					
+		} else {
+			//se non sto copiando allora vuol dire che sto spostando nello stesso tree
+			console.log("node moving");
+			$.ajax({
+				url: '/json/divs/moveDiv/'+jsonDiv.id+'/'+newPosition+'/'+jsonOldParent.id+'/'+jsonNewParent.id+'/#{element._id}',
+				type: 'POST', 
+				dataType: 'json',
+				data: {},
+				complete: function() {
+					//console.log('process complete');
+				},
+				success: function(result) {
+					console.log('process success: div moved!');
+					//console.log(result);
+				},
+				error: function() {
+					console.log('ajax error calling: /json/divs/moveDiv');
+				}
+			});					
+		}
+	});
+
+
+
+
+
+
+
+	/* ### ELEMENTS TREE ### */
+	
+
+	//creo il tree con gli elementi da draggare
+	$('#elementsTree').jstree({
+		'core' : {  },
+		'types' : allowedTypes,								
+		'json_data' : {
+			'data' : [
+				{ 
+					'data' : '(vertCont)',
+					'attr' : { 'rel' : 'vertCont' },
+					'metadata' : {
+						'type' : 'vertCont',
+						'class' : '',
+						'is_table' : false,
+						'inline_style' : true,
+						'status' : 'public'
+					}
+				},
+				{ 
+					'data' : '(horizCont)', 
+					'attr' : { 'rel' : 'horizCont' },
+					'metadata' : {
+						'type' : 'horizCont',
+						'class' : '',
+						'is_table' : false,
+						'inline_style' : true,
+						'status' : 'public'
+					}
+				},
+				{ 
+					'data' : '(module)', 
+					'attr' : { 'rel' : 'module' },
+					'metadata' : {
+						'type' : 'module',
+						'class' : '',
+						'is_table' : false,
+						'inline_style' : true,
+						'status' : 'public'
+					}
+				}
+			]
+		},
+		'themes' : {
+			'theme' : 'classic'
+		},
+		'dnd' : {
+			'tree' : 'elementsTree'
+		},
+		'plugins' : [ 'themes', 'json_data', 'ui', 'dnd', 'types' ]
+		
+	})
+	//.bind('select_node.jstree', function (e, data) { alert(data.rslt.obj.data('type')); });
+	.bind('prepare_move.jstree', function (e, data) {
+		//console.log('prepare_move');
+		//se sto cpiando qui dentro, devo sempre impostare il copying, altrimenti l'elemento droppato qui sparirebbe dal suo tree originario
+		//poi, in move_node, farò un rollback su questo albero per eliminare l'elemento copiato
+		data.inst.set_copying(true);
+	})
+	.bind('move_node.jstree', function (e, data) {
+		//console.log(data);
+		//console.log(data.rslt.o[0]);
+		$.jstree.rollback(data.rlbk);
+		alert('#{__i('forbidden')}');
+	});

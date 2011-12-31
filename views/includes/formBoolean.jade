@@ -1,0 +1,10 @@
+if (fieldValue)
+	input(type='radio', name='#{field}', value='yes', checked=true)
+	span.formChoice #{__i('yes')}&nbsp;&nbsp;
+	input(type='radio', name='#{field}', value='no')
+	span.formChoice #{__i('no')}
+else
+	input(type='radio', name='#{field}', value='yes')
+	span.formChoice #{__i('yes')}&nbsp;&nbsp;
+	input(type='radio', name='#{field}', value='no', checked=true)
+	span.formChoice #{__i('no')}
