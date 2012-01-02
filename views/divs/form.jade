@@ -40,7 +40,13 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 		span #{__i('module')}		
 		
 	.formRow
-		h5.formLabel  #{__i('css classes')}
+		h5.formLabel id
+		span &nbsp;=&nbsp;
+		input(id='dom_id', name='dom_id', value='#{element.dom_id || ""}').size3
+		p  #{__i('the id attribute of the div')}
+	.formRow
+		h5.formLabel class
+		span &nbsp;=&nbsp;
 		input(id='class', name='class', value='#{element.class || ""}').size3
 		p  #{__i('names of css classes to be used for this div, space separated')}
 	.formRow

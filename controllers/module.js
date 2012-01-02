@@ -197,7 +197,7 @@ function defineRoutes(app) {
 	});	
 	
 	//GET: module form (modify) //quando entro in un form da un link (GET) e non ci arrivo dal suo stesso submit (caso POST)
-	app.get('/modules/edit/:id/:msg?', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModify, function(req, res, next){
+	app.get('/modules/edit/:id/:msg?', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnModuleId, function(req, res, next){
 		app.jsl.routeInit(req);
 		//mi hanno passato l'id obbligatoriamente
 		//leggo il mio module dal db, e assegno il result al tpl
@@ -222,7 +222,7 @@ function defineRoutes(app) {
 		);	
 	});
 	//POST: module form (modify)
-	app.post('/modules/edit/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModify, function(req, res, next){
+	app.post('/modules/edit/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnModuleId, function(req, res, next){
 		app.jsl.routeInit(req);
 		//prima trovo il mio module da modificare nel db
 		app.jsl.module.findOne(
@@ -263,7 +263,7 @@ function defineRoutes(app) {
 	});
 	
 	//GET: module delete
-	app.get('/modules/delete/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModify, function(req, res, next){
+	app.get('/modules/delete/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnModuleId, function(req, res, next){
 		app.jsl.routeInit(req);
 		//cancello l'module
 		app.jsl.module.remove(

@@ -229,7 +229,7 @@ function defineRoutes(app) {
 	});	
 	
 	//GET: page form (modify) //quando entro in un form da un link (GET) e non ci arrivo dal suo stesso submit (caso POST)
-	app.get('/pages/edit/:id/:msg?', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModify, function(req, res, next){
+	app.get('/pages/edit/:id/:msg?', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnPageId, function(req, res, next){
 		app.jsl.routeInit(req);
 		//mi hanno passato l'id obbligatoriamente
 		//leggo il mio page dal db, e assegno il result al tpl
@@ -242,14 +242,20 @@ function defineRoutes(app) {
 					//devo ovviamente popolare anche il combo con i miei sites
 					app.jsl.siteController.getSites(req,res,function(sites) {
 						//ho trovato anche i sites per popolare il combo
-						//posso finalmente procedere a visualizzare il form popolato
-						res.render('pages/form', { 
-							title: app.i18n.t(req,'modify page'),
-							elementName: 'page',
-							element: page,
-							msg: req.params.msg,
-							combo_sites: sites
-						});	
+						//devo popolare le pagine disponibili per linkare/copiare divs
+						
+						app.jsl.pageController.getPages(req,res,function(pages) {
+							//ho anche le pagine per il combo
+							//posso finalmente procedere a visualizzare il form popolato
+							res.render('pages/form', { 
+								title: app.i18n.t(req,'modify page'),
+								elementName: 'page',
+								element: page,
+								msg: req.params.msg,
+								combo_sites: sites,
+								combo_pages: pages
+							});	
+						});
 					});						
 				}
 				else
@@ -259,7 +265,7 @@ function defineRoutes(app) {
 			});	
 	});
 	//POST: page form (modify)
-	app.post('/pages/edit/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModify, function(req, res, next){
+	app.post('/pages/edit/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnPageId, function(req, res, next){
 		app.jsl.routeInit(req);
 		//prima trovo il mio page da modificare nel db
 		app.jsl.page.findOne(
@@ -300,7 +306,7 @@ function defineRoutes(app) {
 	});
 	
 	//GET: page delete
-	app.get('/pages/delete/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModify, function(req, res, next){
+	app.get('/pages/delete/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnPageId, function(req, res, next){
 		app.jsl.routeInit(req);
 		//cancello l'page
 		app.jsl.page.remove(
@@ -330,19 +336,75 @@ function defineRoutes(app) {
 		//console.log(req.params);
 		appendDiv(req, req.params.page, req.params.div, req.params.ord, function(){ res.json(); });
 	});	
-
 	
 	
 }
 exports.defineRoutes = defineRoutes; 
 
-function render(req, res, page) {
-	res.render('debug', {
-		layout: false, 
-		variable: 'pagina: '+page.route+" del sito: "+page.site.domain
-	});
+//questo metodo ritorna una lista di tutte le pagina visibili dall'utente corrente
+//in base al fatto che sia loggato o meno, e che sia superadmin o meno
+function getPages(req,res,closure)
+{
+	//prima di tutto distinguo se sono loggato o meno
+	if ( req.session.loggedIn )
+	{
+		//poi distinguo se sto filtrando solo sui miei elementi o su tutti (quelli visibili)
+		if ( req.session.filterAllOrMine == 'mine' )
+		{
+			//voglio vedere solo le mie pagine (questa condizione non può avvenire se sono superadmin, quindi non sono sicuramente superadmin)
+			//e sono loggato, quindi vedrò solo i miei
+			var conditions = { 'author': req.session.user_id };
+		}
+		else
+		{
+			//voglio vedere tutte le pagine
+			//e sono loggato, quindi devo distinguere se sono superadmin(vedo tutte le pagine) o no (vedo solo le share o le mie)
+			var conditions = ( req.session.user_id == 'superadmin' ) 
+			? 
+			{} 
+			: 
+			{ $or: [
+				{ 'status': 'share' },
+				{ 'author': req.session.user_id }
+			]};
+		}
+	}
+	else
+	{
+		//se non sono loggato, vedo solo le share
+		var conditions = { 'status': 'share' };
+	}
+	//aggiungo la conditions sul site se sto filtrando per site
+	if ( req.session.filterBySite != '' && req.session.filterBySite != undefined ) {
+		conditions.site = req.session.filterBySite;
+	}
+	
+	//poi eseguo la query
+	req.app.jsl.page
+		.find( conditions, [], { sort: [['site', 'ascending'],['route', 'ascending']] } )
+		.populate('site')
+		.run(function(err, pages) {
+			if ( !err )
+			{
+				if ( pages )
+				{
+					//ho trovato delle pagine
+					
+					closure(pages);
+				}
+				else
+				{
+					//non ho trovato nessun site, ritorno niente
+					closure();
+				}
+			}
+			else
+			{
+				req.app.jsl.errorPage(res, err, "page.getPages(): query error");
+			}
+		});	
 }
-exports.render = render;
+exports.getPages = getPages;
 
 function appendDiv(req, page_id, div_id, ord, next) {
 	//trovo la pagina cui appendere il div
@@ -382,7 +444,7 @@ function appendDiv(req, page_id, div_id, ord, next) {
 					}
 					else
 					{
-						console.log('POST: json page add div: error saving page'+err);
+						console.log('POST: json page add div: error saving page '+err);
 						//res.json({ 'error': 'POST: json page add div: error saving page'+err});
 					}
 				});
@@ -397,7 +459,7 @@ function appendDiv(req, page_id, div_id, ord, next) {
 }
 exports.appendDiv = appendDiv; 
 
-function removeDiv(req, page_id, div, next) {
+function unlinkDiv(req, page_id, div, next) {
 	var conditions = ( req.session.user_id == 'superadmin' ) 
 	? 
 	{ '_id': page_id } 
@@ -428,21 +490,33 @@ function removeDiv(req, page_id, div, next) {
 							}
 							else
 							{
-								res.json({ 'error': 'removeDiv(): error saving page'});
+								res.json({ 'error': 'unlinkDiv(): error saving page'});
 							}
 						});
 						break;
 					}
 				}				
 			} else {
-				console.log('removeDiv(): page not found');
+				console.log('unlinkDiv(): page not found');
 			}
 		} else {
-			console.log('removeDiv(): error in page query');
+			console.log('unlinkDiv(): error in page query');
 		}
 	});	
 }
-exports.removeDiv = removeDiv; 
+exports.unlinkDiv = unlinkDiv; 
+
+
+function render(req, res, page) {
+	//algoritmo ricorsivo che fa 2 cose:
+	//prima la query per avere i dati del div corrente
+	//poi, onresult, il rendering del tpl del div
+	res.render('debug', {
+		layout: false, 
+		variable: 'pagina: '+page.route+" del sito: "+page.site.domain
+	});
+}
+exports.render = render;
 
 
 

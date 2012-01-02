@@ -196,7 +196,7 @@ function defineRoutes(app) {
 	});	
 	
 	//GET: site form (modify) //quando entro in un form da un link (GET) e non ci arrivo dal suo stesso submit (caso POST)
-	app.get('/sites/edit/:id/:msg?', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModify, function(req, res, next){
+	app.get('/sites/edit/:id/:msg?', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnSiteId, function(req, res, next){
 		app.jsl.routeInit(req);
 		//mi hanno passato l'id obbligatoriamente
 		//leggo il mio site dal db, e assegno il result al tpl
@@ -221,7 +221,7 @@ function defineRoutes(app) {
 		);	
 	});
 	//POST: site form (modify)
-	app.post('/sites/edit/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModify, function(req, res, next){
+	app.post('/sites/edit/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnSiteId, function(req, res, next){
 		app.jsl.routeInit(req);
 		//prima trovo il mio site da modificare nel db
 		app.jsl.site.findOne(
@@ -262,7 +262,7 @@ function defineRoutes(app) {
 	});
 	
 	//GET: site delete
-	app.get('/sites/delete/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModify, function(req, res, next){
+	app.get('/sites/delete/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnSiteId, function(req, res, next){
 		app.jsl.routeInit(req);
 		//cancello l'site
 		app.jsl.site.remove(

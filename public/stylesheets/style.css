@@ -301,7 +301,8 @@ a.outerCont:hover
 	color: #E57200;
 }
 .adminButton,
-.adminIcon
+.adminIcon,
+#vakata-contextmenu
 {
 	background-color: #E57200;
 }
@@ -428,7 +429,7 @@ textarea,
 .adminIcon,
 .formSuccess,
 .linkSelected,
-.formRow, .jstree
+.formRow, .jstree, #vakata-contextmenu
 {
 	border-radius: 14px; 
 	-moz-border-radius: 14px; 
@@ -947,7 +948,7 @@ textarea:hover,
 }
 .jstree
 {
-	height: 285px;
+	height: 443px;
 	text-align: left;
 	display: inline-block;
 	background-color:transparent;
@@ -960,7 +961,7 @@ textarea:hover,
 }
 
 .jstreeOtherPage {
-	height: 150px;
+	height: 250px;
 }
 
 .jstree a {
@@ -968,7 +969,10 @@ textarea:hover,
   background-image: none;
 }
 
-
+#vakata-contextmenu
+{
+  border: none;
+}
 
 
 

@@ -129,5 +129,13 @@
 	"create new div": "create new div",
 	"yes": "yes",
 	"no": "no",
-	"children": "children"
+	"children": "children",
+	"DOM id": "DOM id",
+	"the id attribute of the div": "the id attribute of the div",
+	"id": "id",
+	"create new divs": "create new divs",
+	"link/duplicate divs from page": "link/duplicate divs from page",
+	"link": "link",
+	"copy": "copy",
+	"divs from page": "divs from page"
 }

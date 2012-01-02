@@ -78,7 +78,7 @@ function populateModel(model, modelData) {
 				//faccio un po' di casting perchè in modelData vanno persi dei type
 				if ( typeof model[prop] === 'boolean' )
 				{
-					if ( modelData[prop] == 'yes' ) {
+					if ( modelData[prop] == 'yes' || modelData[prop] == 'true' ) { //'yes' lo usano i form, 'true' mi arriva dal jstree
 						model[prop] = true;
 					} else {
 						model[prop] = false;
@@ -89,6 +89,11 @@ function populateModel(model, modelData) {
 			}
 		}
 	}
+	/*
+	console.log('populateModel alla fine');
+	console.log(model);
+	console.log(modelData);
+	*/
 }
 
 

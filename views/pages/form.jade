@@ -23,8 +23,6 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 		h5.formLabel #{__i('site')}
 		select(id='site', name='site')
 			each combo_site in combo_sites
-				div #{element.site}
-				div #{combo_site._id}
 				if String(combo_site._id) == String(element.site)
 					option(value='#{combo_site._id}',selected='true') #{combo_site.title}
 				else
@@ -38,15 +36,27 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 	.formRow
 		h5.formLabel #{__i('layout')}
 		div.jstreeColumn.floatRight
-			h6 #{__i('available divs')}
-			div#elementsTree.size2.jstree.jstreeElements
-			hr
-			h6 #{__i('link/duplicate from other page')}
-			div#otherPageTree.size2.jstree.jstreeOtherPage
+			if session.user_id != 'superadmin'
+				h6 #{__i('create new divs')}:
+				div#elementsTree.size2.jstree.jstreeElements
+				hr
+				h6 
+					input(type='radio', name='link_or_copy', value='link', checked=true)
+					span.formChoice #{__i('link')}&nbsp;
+					input(type='radio', name='link_or_copy', value='copy')
+					span.formChoice #{__i('copy')}&nbsp;
+					span #{__i('divs from page')}:
+				select(id='page', name='page', onchange='loadExternalTree(this.options[this.selectedIndex].value)')
+					option(value='') -
+					each combo_page in combo_pages
+						if combo_page.route == ''
+							option(value='#{combo_page._id}') #{combo_page.site.title} - [root]
+						else
+							option(value='#{combo_page._id}') #{combo_page.site.title} - #{combo_page.route}
+				div.clear
+				div#otherPageTree.size2.jstree.jstreeOtherPage
 		div.jstreeColumn.floatRight
-			h6 #{__i('your page')}
 			div#layoutTree.size2.jstree
-		//- textarea(id='layout',name='layout').invisible #{element.layout || ''}
 		div.clear
 		script(language='JavaScript', type='text/javascript', src='/javascripts/jq/jstree/jquery.jstree.js')
 		include formJs

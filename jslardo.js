@@ -72,7 +72,12 @@ app.configure(function(){
 	app.jsl.needStrucPermCreate = permissions.needStrucPermCreate;
 	app.jsl.needStrucPermModify = permissions.needStrucPermModify;
 	app.jsl.needStrucPermModifyMyself = permissions.needStrucPermModifyMyself;
-	//permissions
+	app.jsl.needStrucPermModifyOnDivId = permissions.needStrucPermModifyOnDivId;
+	app.jsl.needStrucPermModifyOnModuleId = permissions.needStrucPermModifyOnModuleId;
+	app.jsl.needStrucPermModifyOnPageId = permissions.needStrucPermModifyOnPageId;
+	app.jsl.needStrucPermModifyOnRoleId = permissions.needStrucPermModifyOnRoleId;
+	app.jsl.needStrucPermModifyOnSiteId = permissions.needStrucPermModifyOnSiteId;
+	//sessions
 	var sessions = require('./core/sessions');
 	app.jsl.checkValidUser = sessions.checkValidUser;
 	app.jsl.setSignedOut = sessions.setSignedOut;
@@ -87,7 +92,7 @@ app.configure(function(){
 	app.jsl.defineRoute404 = utils.defineRoute404;
 	app.jsl.errorPage = utils.errorPage;
 	app.jsl.populateModel = utils.populateModel;
-	//utils
+	//routes
 	var routes = require('./core/routes');
 	app.jsl.defineRoutes = routes.defineRoutes;
 	app.jsl.routeInit = routes.routeInit;

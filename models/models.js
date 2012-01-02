@@ -89,6 +89,7 @@ function defineModels(mongoose, app, next) {
 	//Schema div
 	var Div = new Schema({
 		'type': { type: String, required: true, enum: ['vertCont', 'horizCont', 'module'], index: true },
+		'dom_id': { type: String },
 		'class': { type: String },
 		'is_table': { type: Boolean, default: false },
 		'inline_style': { type: Boolean, default: true },

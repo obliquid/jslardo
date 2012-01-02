@@ -29,10 +29,12 @@
 //PERMISSIONS
 
 //questi sono wrapper che mi servono per differenziare i permessi in base all'oggetto trattato
+
 function readStrucPermOn_users(req, res, next) {
 	readStrucPerm('user', req, res, next);
 }
 exports.readStrucPermOn_users = readStrucPermOn_users;
+
 
 function readStrucPermDefault(req, res, next) {
 	/*
@@ -49,20 +51,98 @@ function readStrucPermDefault(req, res, next) {
 }
 exports.readStrucPermDefault = readStrucPermDefault; 
 
+
 //quando si assegnano i middleware alle routes, prima bisogna sempre leggere i permessi (readStrucPermOn_XXX)
 //poi si possono imporre lecondizioni in base ai permessi (needStrucPermXXX)
 function needStrucPermCreate(req, res, next) {
 	( req.session.canCreate ) ? next() : res.redirect('/');
 }
 exports.needStrucPermCreate = needStrucPermCreate;
+
+
 function needStrucPermModify(req, res, next) {
 	( req.session.canModify ) ? next() : res.redirect('/');
 }
 exports.needStrucPermModify = needStrucPermModify;
+
+
 function needStrucPermModifyMyself(req, res, next) {
 	( req.session.canModifyMyself ) ? next() : res.redirect('/');
 }
 exports.needStrucPermModifyMyself = needStrucPermModifyMyself;
+
+
+//mi aspetto che l'id sia definito in req.params.id
+function needStrucPermModifyOnDivId(req, res, next) {
+	checkElementAuthorship('div', req, res ,next);
+}
+exports.needStrucPermModifyOnDivId = needStrucPermModifyOnDivId;
+
+
+function needStrucPermModifyOnModuleId(req, res, next) {
+	checkElementAuthorship('module', req, res ,next);
+}
+exports.needStrucPermModifyOnModuleId = needStrucPermModifyOnModuleId;
+
+
+function needStrucPermModifyOnPageId(req, res, next) {
+	checkElementAuthorship('page', req, res ,next);
+}
+exports.needStrucPermModifyOnPageId = needStrucPermModifyOnPageId;
+
+
+function needStrucPermModifyOnRoleId(req, res, next) {
+	checkElementAuthorship('role', req, res ,next);
+}
+exports.needStrucPermModifyOnRoleId = needStrucPermModifyOnRoleId;
+
+
+function needStrucPermModifyOnSiteId(req, res, next) {
+	checkElementAuthorship('site', req, res ,next);
+}
+exports.needStrucPermModifyOnSiteId = needStrucPermModifyOnSiteId;
+
+
+function checkElementAuthorship(element, req, res, next) {
+	//prima controllo se ho il permesso di modify o se sono superadmin
+	if ( req.session.canModify ) {
+		//console.log('ok, ho modify per '+element);
+		//se sono superadmin ho modify a prescindere dall'id, quindi bypasso il controllo
+		if ( req.session.user_id == 'superadmin' ) {
+			//console.log('sono superadmin, quindi ho modify per tutti gli id ');
+			next();
+		} else {
+			//poi controllo se sono author dell'elemento di cui mi stanno passando l'id
+			req.app.jsl[element].findOne(
+				{ '_id': req.params.id, 'author': req.session.user_id },
+				function(err, result) {
+					if (!err)
+					{
+						if ( result )
+						{
+							//return true;
+							//console.log('ok, sono author di un '+element+' con id '+req.params.id);
+							next();
+						}
+						else
+						{
+							//return false;
+							//console.log('KO, NON sono author di un '+element+' con id '+req.params.id);
+							res.redirect('/');
+						}
+					}
+					else
+					{
+						//qualcosa è andato storto nella query
+						req.app.jsl.errorPage(res, err, 'permissions.checkElementAuthorship: error in query retrieving element');
+					}
+				}
+			);
+		}
+	} else {
+		res.redirect('/');
+	}
+}
 
 //questo metodo viene richiamato prima di eseguire ogni request che lo richiede
 //in qualunque controller di qualunque oggetto

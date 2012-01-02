@@ -2,16 +2,26 @@ h3 #{__i(elementName)}:
 	img(src='/images/pov/icon_core_div_60x45.png').floatLeft
 hr
 h3.floatLeft #{element.type}:&nbsp;
-if element.class
+if element.dom_id
+	h1 #{element.dom_id}
+else if element.class
 	h1 #{element.class}
+else
+	div.clear
 
 table.outerContMinimal
+	if element.dom_id
+		tr
+			td
+				h6 id =
+			td 
+				span "#{element.dom_id}"
 	if element.class
 		tr
 			td
-				h6 #{__i('css classes')}:
+				h6 class =
 			td 
-				span #{element.class}
+				span "#{element.class}"
 	tr
 		td 
 			h6 #{__i('auto generate inline styles')}:
@@ -35,7 +45,10 @@ if element.children.length > 0
 	.outerCont
 		h5 #{__i('children')}
 		each child in element.children
-			a(href='/divs/#{child.div.id}').floatLeft.elementButton.buttonDivs #{child.div.class} (#{child.div.type})
+			if child.div.dom_id
+				a(href='/divs/#{child.div.id}').floatLeft.elementButton.buttonDivs #{child.div.dom_id} (#{child.div.type})
+			else
+				a(href='/divs/#{child.div.id}').floatLeft.elementButton.buttonDivs #{child.div.class} (#{child.div.type})
 
 include ../includes/detailCommon
 

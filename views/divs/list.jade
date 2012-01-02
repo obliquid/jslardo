@@ -7,9 +7,13 @@ each element,i in elements
 	div.floatLeft.size1
 		a(href='/#{elementName}s/#{element._id}').elemGrid.outerCont
 			h5 #{element.type}
-			if element.class
+			if element.class || element.dom_id
 				div.innerCont
-					span.textMini #{__i('classes')}: 
+					if element.dom_id
+						span.textMini id:
+						h6 #{element.dom_id}
+					else if element.class
+						span.textMini class:
 						h6 #{element.class}
 			include ../includes/listInfoBox
 	if (i+1)%6==0

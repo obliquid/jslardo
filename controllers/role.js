@@ -181,7 +181,7 @@ function defineRoutes(app) {
 	});	
 	
 	//GET: role form (modify) //quando entro in un form da un link (GET) e non ci arrivo dal suo stesso submit (caso POST)
-	app.get('/roles/edit/:id/:msg?', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModify, function(req, res, next){
+	app.get('/roles/edit/:id/:msg?', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnRoleId, function(req, res, next){
 		app.jsl.routeInit(req);
 		//mi hanno passato l'id obbligatoriamente
 		//leggo il mio role dal db, e assegno il result al tpl
@@ -206,7 +206,7 @@ function defineRoutes(app) {
 		);	
 	});
 	//POST: role form (modify)
-	app.post('/roles/edit/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModify, function(req, res, next){
+	app.post('/roles/edit/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnRoleId, function(req, res, next){
 		app.jsl.routeInit(req);
 		//prima trovo il mio role da modificare nel db
 		app.jsl.role.findOne(
@@ -231,7 +231,7 @@ function defineRoutes(app) {
 	});
 	
 	//GET: role delete
-	app.get('/roles/delete/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModify, function(req, res, next){
+	app.get('/roles/delete/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnRoleId, function(req, res, next){
 		app.jsl.routeInit(req);
 		//cancello l'role
 		app.jsl.role.remove(

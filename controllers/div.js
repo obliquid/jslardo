@@ -200,7 +200,7 @@ function defineRoutes(app) {
 	});	
 	
 	//GET: div form (modify) //quando entro in un form da un link (GET) e non ci arrivo dal suo stesso submit (caso POST)
-	app.get('/divs/edit/:id/:msg?', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModify, function(req, res, next){
+	app.get('/divs/edit/:id/:msg?', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnDivId, function(req, res, next){
 		app.jsl.routeInit(req);
 		//mi hanno passato l'id obbligatoriamente
 		//leggo il mio div dal db, e assegno il result al tpl
@@ -225,7 +225,7 @@ function defineRoutes(app) {
 		);	
 	});
 	//POST: div form (modify)
-	app.post('/divs/edit/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModify, function(req, res, next){
+	app.post('/divs/edit/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnDivId, function(req, res, next){
 		app.jsl.routeInit(req);
 		//prima trovo il mio div da modificare nel db
 		app.jsl.div.findOne(
@@ -268,16 +268,110 @@ function defineRoutes(app) {
 	});
 	
 	//GET: div delete
-	app.get('/divs/delete/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModify, function(req, res, next){
+	app.get('/divs/delete/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnDivId, function(req, res, next){
 		app.jsl.routeInit(req);
-		//cancello l'div
+		//QUI!!!: oltre a div, vanno cancellati anche tutti i suoi elementi dipendenti
+		//sia per page che per div
+		
+		//prima cerco le pagine che hanno il mio div tra i propri divs
+		//console.log("cerco parenti pagina");
+		app.jsl.page
+			.find( {'divs.div': req.params.id}, [], {} )
+			.run(function(err, pages) {
+				if (!err) {
+					//console.log("trovati "+pages.length+" parenti pagina");
+					for (var i = 0; i < pages.length; i++) {
+						var page = pages[i];
+						//console.log("trovata relazione con pagina:"+pages[i].route);
+						//ciclo sui figli della mia pagina, per trovare me stesso ed eliminarmi
+						for (var j = 0; j < page.divs.length; j++) {
+							var div = page.divs[j];
+							//console.log("div figlio della mia pagina: ");
+							//console.log(div);
+							if ( div.div == req.params.id ) {
+								//console.log("trovato il mio div, mo lo elimino!");
+								//console.log("prima di splice:");
+								//console.log(page.divs);
+								//trovato me stesso, mi tolgo dall'array, salvo ed esco dal ciclo
+								page.divs.splice(j,1);
+								//console.log("dopo di splice:");
+								//console.log(page.divs);
+								//console.log("salvo!");
+								page.save(function (err) {
+									if (!err) 
+									{
+										//ho eliminato la relazione con la mia pagina
+										//console.log("eliminata relazione con pagina!");
+									}
+									else
+									{
+										res.json({ 'error': 'GET: div delete: failed saving page relations'});
+									}
+								});
+								break;
+							}
+						}
+					}
+				} else {
+					app.jsl.errorPage(res, err, 'GET: div delete: failed finding page relations');
+				}
+
+			});
+			
+		//poi cerco i div che hanno il mio div tra i propri children
+		//console.log("cerco parenti pagina");
+		app.jsl.div
+			.find( {'children.div': req.params.id}, [], {} )
+			.run(function(err, divs) {
+				if (!err) {
+					//console.log("trovati "+divs.length+" parenti pagina");
+					for (var i = 0; i < divs.length; i++) {
+						var div = divs[i];
+						//console.log("trovata relazione con parent:"+divs[i].id);
+						//ciclo sui figli della mia pagina, per trovare me stesso ed eliminarmi
+						for (var j = 0; j < div.children.length; j++) {
+							var my_div = div.children[j];
+							//console.log("div figlio del mio parent: ");
+							//console.log(my_div);
+							if ( my_div.div == req.params.id ) {
+								//console.log("trovato il mio div, mo lo elimino!");
+								//console.log("prima di splice:");
+								//console.log(div.children);
+								//trovato me stesso, mi tolgo dall'array, salvo ed esco dal ciclo
+								div.children.splice(j,1);
+								//console.log("dopo di splice:");
+								//console.log(div.children);
+								//console.log("salvo!");
+								div.save(function (err) {
+									if (!err) 
+									{
+										//ho eliminato la relazione con la mia pagina
+										//console.log("eliminata relazione con pagina!");
+									}
+									else
+									{
+										res.json({ 'error': 'GET: div delete: failed saving div relations'});
+									}
+								});
+								break;
+							}
+						}
+					}
+				} else {
+					app.jsl.errorPage(res, err, 'GET: div delete: failed finding div relations');
+				}
+
+			});
+			
+
+		//alla fine cancello il div
 		app.jsl.div.remove(
 			{ '_id': req.params.id },
 			function(err, div) {
 				if ( err ) app.jsl.errorPage(res, err, 'GET: div delete: failed query on db');
 			}
 		);
-		//QUI!!!: oltre a div, vanno cancellati anche tutti i suoi elementi dipendenti
+		
 		//faccio un redirect sulla lista
 		res.redirect('/divs');
 	});
@@ -342,37 +436,45 @@ function defineRoutes(app) {
 				.populate('children.div')
 				.run(function(err, div) {
 					if ( !err ) {
-						//se il chiamante è jstree, prima di ritornare l'array di divs, devo normalizzarli, perchè jstree li vuole conditi a modo suo
-						if ( req.params.param && req.params.param == 'jstree' )
-						{
-							//prima di normalizzarli, li ordino per order
-							div.children.sort(sortByOrd);
-							//console.log("div.children: appena leggo dal db:");
-							//console.log(div.children);
-							//poi normalizzo
-							var normDivs = [];
-							var len = div.children.length;
-							for (var i = 0; i < len; i++) {
-								//console.log(div.children[i]);
-								var obj = { 
-									'data' : div.children[i].div.class+' ('+div.children[i].div.type+')',
-									'attr' : { 'rel' : div.children[i].div.type, 'href' : '/divs/edit/'+div.children[i].div._id },
-									'metadata' : {
-										'type' : div.children[i].div.type,
-										'class' : div.children[i].div.class,
-										'is_table' : div.children[i].div.is_table,
-										'inline_style' : div.children[i].div.inline_style,
-										'id' : div.children[i].div._id,
-										'children' : div.children[i].div.children
-									}
-								};
-								if ( div.children[i].div.children.length > 0 ) obj.state = 'closed';
-								normDivs.push(obj);
-							}	
-							res.json( normDivs );
-						}
-						else {
-							res.json( div.children );
+						//se il mio div non ha figli, ritorno un json vuoto
+						if ( !div || !div.children || div.children.length == 0 ) {
+							res.json();
+						} else {
+							//il mio div ha figli.
+							//se il chiamante è jstree, prima di ritornare l'array di divs, devo normalizzarli, perchè jstree li vuole conditi a modo suo
+							if ( req.params.param && req.params.param == 'jstree' )
+							{
+								//prima di normalizzarli, li ordino per order
+								div.children.sort(sortByOrd);
+								//console.log("div.children: appena leggo dal db:");
+								//console.log(div.children);
+								//poi normalizzo
+								var normDivs = [];
+								var len = div.children.length;
+								for (var i = 0; i < len; i++) {
+									//console.log(div.children[i]);
+									var obj = { 
+										'data' : ( div.children[i].div.dom_id != '' ) ? div.children[i].div.dom_id+' ('+div.children[i].div.type+')' : div.children[i].div.class+' ('+div.children[i].div.type+')',
+										'attr' : { 'rel' : div.children[i].div.type, 'href' : '/divs/edit/'+div.children[i].div._id },
+										'metadata' : {
+											'type' : div.children[i].div.type,
+											'dom_id' : div.children[i].div.dom_id,
+											'class' : div.children[i].div.class,
+											'is_table' : div.children[i].div.is_table,
+											'inline_style' : div.children[i].div.inline_style,
+											'id' : div.children[i].div._id,
+											'children' : div.children[i].div.children,
+											'status' : div.children[i].div.status
+										}
+									};
+									if ( div.children[i].div.children.length > 0 ) obj.state = 'closed';
+									normDivs.push(obj);
+								}	
+								res.json( normDivs );
+							}
+							else {
+								res.json( div.children );
+							}
 						}
 					}
 					else {
@@ -418,11 +520,12 @@ function defineRoutes(app) {
 								for (var i = 0; i < len; i++) {
 									//console.log(page.divs[i]);
 									var obj = { 
-										'data' : page.divs[i].div.class+' ('+page.divs[i].div.type+')',
+										'data' : ( page.divs[i].div.dom_id != '' ) ? page.divs[i].div.dom_id+' ('+page.divs[i].div.type+')' : page.divs[i].div.class+' ('+page.divs[i].div.type+')',
 										'attr' : { 'rel' : page.divs[i].div.type, 'href' : '/divs/edit/'+page.divs[i].div._id },
 										'metadata' : {
 											'type' : page.divs[i].div.type,
 											'class' : page.divs[i].div.class,
+											'dom_id' : page.divs[i].div.dom_id,
 											'is_table' : page.divs[i].div.is_table,
 											'inline_style' : page.divs[i].div.inline_style,
 											'status' : page.divs[i].div.status,
@@ -462,7 +565,7 @@ function defineRoutes(app) {
 	//creo un nuovo div dall'admin
 	app.post('/json/divs/new', app.jsl.readStrucPermDefault, app.jsl.needStrucPermCreate, function(req, res, next){
 		app.jsl.routeInit(req);
-		//console.log(req.params);
+		//console.log(req.body);
 		//creo nuovo div
 		var my_div = new app.jsl.div();
 		//popolo il mio div
@@ -482,10 +585,13 @@ function defineRoutes(app) {
 			if (!err) 
 			{
 				//ho creato con successo il mio div nuovo
+				//console.log('div creato, lo ritorno: ');
+				//console.log(my_div);
 				res.json(my_div);
 			}
 			else
 			{
+				console.log('POST: json div form new: error saving div');
 				res.json({ 'error': 'POST: json div form new: error saving div'});
 			}
 		});
@@ -561,11 +667,11 @@ function defineRoutes(app) {
 			if ( req.params.oldParent == 'undefined' ) {
 				//il vecchio parent è una pagina
 				//scollego il div dalla pagina
-				app.jsl.pageController.removeDiv(req, req.params.page, req.params.div, next);
+				app.jsl.pageController.unlinkDiv(req, req.params.page, req.params.div, next);
 			} else {
 				//il vecchio parent è un div container
 				//scollego il div dal div container
-				app.jsl.divController.removeDiv(req, req.params.oldParent, req.params.div, next);
+				app.jsl.divController.unlinkDiv(req, req.params.oldParent, req.params.div, next);
 			}
 		}
 		
@@ -620,6 +726,24 @@ function defineRoutes(app) {
 				});	
 			}
 		}
+
+	});	
+
+
+	//POST: json unlink div
+	//scollega un link dal vecchio parent
+	app.post('/json/divs/unlinkDiv/:id/:oldParent/:page', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnDivId, function(req, res, next){
+		
+		if ( req.params.oldParent == 'undefined' ) {
+			//il vecchio parent è una pagina
+			//scollego il div dalla pagina
+			app.jsl.pageController.unlinkDiv(req, req.params.page, req.params.id, function() { res.json(); });
+		} else {
+			//il vecchio parent è un div container
+			//scollego il div dal div container
+			app.jsl.divController.unlinkDiv(req, req.params.oldParent, req.params.id, function() { res.json(); });
+		}
+		
 
 	});	
 
@@ -716,7 +840,7 @@ function appendDiv(req, parent_id, div_id, order, next) {
 exports.appendDiv = appendDiv; 
 
 
-function removeDiv(req, parent, div_id, next) {
+function unlinkDiv(req, parent, div_id, next) {
 	var conditions = ( req.session.user_id == 'superadmin' ) 
 	? 
 	{ '_id': parent } 
@@ -726,8 +850,8 @@ function removeDiv(req, parent, div_id, next) {
 	.run(function(err, div) {
 		if ( !err ) {
 			if ( div ) {
-				//ho trovato la mia pagina
-				//tolgo me stesso dai suoi divs
+				//ho trovato il mio div
+				//tolgo me stesso dai suoi children
 				for (var i = 0; i < div.children.length; i++) {
 					if ( div.children[i].div == div_id ) {
 						//trovato me stesso.
@@ -747,21 +871,21 @@ function removeDiv(req, parent, div_id, next) {
 							}
 							else
 							{
-								res.json({ 'error': 'removeDiv(): error saving div'});
+								res.json({ 'error': 'unlinkDiv(): error saving div'});
 							}
 						});
 						break;
 					}
 				}				
 			} else {
-				console.log('removeDiv(): div not found');
+				console.log('unlinkDiv(): div not found');
 			}
 		} else {
-			console.log('removeDiv(): error in div query');
+			console.log('unlinkDiv(): error in div query');
 		}
 	});	
 }
-exports.removeDiv = removeDiv; 
+exports.unlinkDiv = unlinkDiv; 
 
 function sortByOrd(a,b)
 {
