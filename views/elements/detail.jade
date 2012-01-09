@@ -1,0 +1,31 @@
+h3 #{__i(elementName)}
+	img(src='/images/pov/icon_core_element_60x45.png').floatLeft
+hr
+h1 #{element.jslModel.name}
+.dynView
+	if dynView
+		!= dynView
+//-
+	h1 #{element.title}
+	h4
+		span http://
+			a(href='http://#{element.domain}', target='_blank', title='#{__i('open')}') #{element.domain}
+	table.outerContMinimal
+		tr
+			td
+				h6 #{__i('description')}:
+			td 
+				span #{element.description}
+		tr
+			td 
+				h6 #{__i('keywords')}:
+			td 
+				span #{element.keywords}
+hr
+.outerCont
+	a(href='/jslModels/#{element.jslModel._id}', title='#{__i('model for this element')}').floatLeft.elementButton.buttonJslModels #{__i('model')}
+
+include ../includes/detailCommon
+
+include ../includes/detailCrudbox
+

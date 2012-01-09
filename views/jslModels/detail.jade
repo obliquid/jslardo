@@ -1,0 +1,13 @@
+h3 #{__i('model')}
+	img(src='/images/pov/icon_core_jslModel_60x45.png').floatLeft
+hr
+h1 #{element.name}
+!= drawSchema(element.jslSchema)
+hr
+.outerCont
+	a(href='/filterByModel/#{element._id}/#{encURI('/elements/')}', title='#{__i('elements for this model')}').floatLeft.elementButton.buttonElements #{__i('model elements')}
+
+include ../includes/detailCommon
+
+include ../includes/detailCrudbox
+

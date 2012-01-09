@@ -1,0 +1,14 @@
+!!!
+html
+	head
+		title jslardo
+		link(rel='stylesheet', href='/stylesheets/style.css')
+		script(language='JavaScript', type='text/javascript', src='/javascripts/jq/jquery-last.min.js')
+	body
+		//- include includes/header
+		//- if session.loggedIn
+		//- include includes/headerAdmin
+		div.bodyPopup
+			div.body!= body //- la variabile body contiene il template principale della pagina (unescaped, altrimenti visualizza i tag html)
+		//- include includes/footer
+	

@@ -1,0 +1,84 @@
+script
+	function validate_elementForm() {
+		//- il nome è obbligatorio
+		if( $('#name').val() == '' )
+		{
+			alert("#{__i('name is required')}");
+			return false;
+		}
+		//- se si sta cambiando il nome, non si può usare un nome già usato
+		if( $('#name').val() != $('#old_name').val() )
+		{
+			var linkDom = window.parent.$('#schemaTree a:contains("'+$('#name').val()+'")');
+			//console.log(linkDom);
+			if ( linkDom.length > 0 ) {
+				alert("#{__i('a field already exists with name')}: "+$('#name').val());
+				return false;
+			}
+		}
+		//- se si sta cambiando il nome -> warning sulla perdita dati
+		if( $('#name').val() != $('#old_name').val() && $('#old_name').val().substr(0,8) != 'newfield' )
+		{
+			if (!confirm('#{__i("renaming the field means to loose all data saved for this field. continue?")}')) return false;
+		}
+		//- se si sta cambiando type -> warning sulla perdita dati
+		if( $('#type').val() != $('#old_type').val() )
+		{
+			if (!confirm('#{__i("changing type means to loose all data saved for this field (unless changing from Number to String). continue?")}')) return false;
+		}
+		window.parent.saveField( { 'old_name': $('#old_name').val(), 'name': $('#name').val(), 'type': $('#type').val(), 'description': $('#description').val(), 'required': $('input[name="required"]:checked').val() } );
+		window.parent.$.modal.close();
+		return false;
+	}
+	
+	function typeChanged() {
+		if ( $('#type').val() == 'Model' ) {
+			appendModelsCombo();
+		}
+	}
+	
+	function appendModelsCombo() {
+		alert('mo visualizzo il combo coi model disponibili');
+		//qui!!
+	}
+	
+	//se questo form è stato aperto su type='Model' devo visualizzare da subito il combo coi models
+	$(document).ready(function() {
+		typeChanged();
+	});
+	
+
+img(src='/images/pov/icon_core_jslModel_60x45.png').floatLeft
+include ../includes/formHeader
+
+//- come primo parametro devo comunque passare l'id del modulo cui sto modificando il field, perchè controllerà i permessi sul modulo
+form(onsubmit='return validate_elementForm()').size4
+	.formRow
+		h5.formLabel #{__i('name')}
+			span.formError *
+		input(id='name', name='name', value='#{element.name || ""}').size3
+	.formRow
+		h5.formLabel #{__i('type')}
+			span.formError *
+		select(id='type', name='type', onchange='typeChanged();')
+			each combo_type in combo_types
+				if element.type == combo_type.name
+					option(value='#{combo_type.name}',selected='true') #{combo_type.name}
+				else
+					option(value='#{combo_type.name}') #{combo_type.name}
+	.formRow
+		h5.formLabel #{__i('description')}
+		textarea(id='description', name='description'}').size3 #{element.description}
+		p  #{__i('this is an explanation on how to compile this field, and will be shown only in the form')}
+	.formRow
+		h5.formLabel  #{__i('required')}
+		- var field = 'required';
+		- var fieldValue = ( !element.required || element.required === undefined || element.required == 'false' ) ? false : true;
+		include ../includes/formBoolean
+	hr
+	input(type='hidden', id='old_name', name='old_name', value='#{element.old_name || ""}')
+	input(type='hidden', id='old_type', name='old_type', value='#{element.old_type || ""}')
+			
+	input(type='submit', title='#{__i('set')}', value='#{__i('set')}').adminButton.saveButton
+
+

@@ -1,0 +1,32 @@
+script
+	function validate_dynForm_#{counter} () {
+		//- per i boolean non ha senso nessun controllo
+		return true;
+	}
+if required
+	script
+		function required_dynForm_#{counter} () {
+			//- per i boolean non ha senso nessun controllo
+			return true;
+		}
+else
+	script
+		//- deve sempre essere presente
+		function required_dynForm_#{counter} () {
+			return true;
+		}
+.formRow
+	h5.formLabel #{field}
+		if required
+			span.formError *
+			
+	//- var field = field; //??
+	- var fieldValue = ( !element[field] || element[field] == '' || element[field] === undefined || element[field] == 'false' ) ? false : true;
+	include ../formBoolean
+	
+	
+	//input(id='#{field}', name='#{field}', value='#{element[field] || ""}').size2
+	span.adminIcon.datatypeIcon
+		img(src='#{icon}')
+	if description
+		p #{description}

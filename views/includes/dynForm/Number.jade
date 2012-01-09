@@ -1,0 +1,33 @@
+script
+	function validate_dynForm_#{counter} () {
+		if ( $('#'+'#{field}').val() && isNaN( $('#'+'#{field}').val() ) ) {
+			alert("#{field} is not a number");
+			return false;				
+		}
+		return true;
+	}
+
+if required
+	script
+		function required_dynForm_#{counter} () {
+			if ( !$('#'+'#{field}').val() ) {
+				alert("#{field} is required");
+				return false;				
+			}
+			return true;
+		}
+else
+	script
+		//- deve sempre essere presente
+		function required_dynForm_#{counter} () {
+			return true;
+		}
+.formRow
+	h5.formLabel #{field}
+		if required
+			span.formError *
+	input(id='#{field}', name='#{field}', value='#{element[field] || ""}').size2
+	span.adminIcon.datatypeIcon
+		img(src='#{icon}')
+	if description
+		p #{description}

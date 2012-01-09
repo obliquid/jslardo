@@ -1,0 +1,384 @@
+script
+
+
+	/* ### COMMON VARS && FUNCTIONS ### */
+	
+
+
+	/*
+	qui ci metto la configurazione dei type consentiti, condivisa da tutti i jstree di questa pagina
+	convenzioni:
+	*/
+	//popolo allowedTypes
+	var valid_children = [];
+	var types = {};
+	var datatypes = !{app.jsl.utils.datatypes.stringify()};
+	for ( var i = 0; i < datatypes.length; i++ ) {
+		valid_children.push( datatypes[i].name );
+		types[datatypes[i].name] = {
+			'icon' : {
+				'image' : '/images/pov/'+datatypes[i].icon+'_20x15.png'
+			},
+			//'valid_children' : valid_children
+			'valid_children' : 'none'
+		};
+	}
+	var allowedTypes = {
+		'valid_children' : valid_children,
+		'max_depth' : -2,
+		'max_children' : -2,					
+		'types' : types
+	};
+	/* così è come dovrebbe uscire
+	var allowedTypes = {
+		'valid_children' : [ 'String','Number','Boolean' ],
+		'max_depth' : -2,
+		'max_children' : -2,					
+		'types' : {
+			'String' : {
+				'icon' : {
+					'image' : '/images/pov/icon_data_string_20x15.png'
+				},
+				//'valid_children' : [ 'String','Number','Boolean' ]
+				'valid_children' : 'none'
+			},
+			'Number' : {
+				'icon' : {
+					'image' : '/images/pov/icon_data_double_20x15.png'
+				},
+				'valid_children' : 'none'
+			},
+			'Boolean' : {
+				'icon' : {
+					'image' : '/images/pov/icon_data_flag_20x15.png'
+				},
+				'valid_children' : 'none'
+			}
+		}
+	};
+	*/
+	
+	/*
+	converte un tree json (preso con tree.get_json()) in uno schema testuale per
+	mongoose pronto per essere salvato nel db come stringa
+	*/
+	function treeToSchema() {
+		//siccome jstree fa cagare, non posso usare $('#schemaTree').jstree('get_json') che non funziona
+		//quindi devo ricostruire io a mano l'oggetto json di tutto il tree:
+		//ciclo su tutti i nodi del dom, e per ciascuno leggo i dati json gestiti da jquery con la funzione data()
+		var schemaJson = {};
+		var fields = $('#schemaTree').children().children();
+		//console.log('treeToSchema fields: ');
+		//console.log(fields);
+		for ( var i=0; i<fields.length; i++ ) {
+			var field = $(fields[i]).data();
+			schemaJson[field.name] = { 'type': field.type, 'required': field.required, 'description': field.description };
+		}
+		//console.log('treeToSchema ritorna: ');
+		//console.log(schemaJson);
+		return schemaJson;
+	}
+	
+	/*
+	converte uno schema mongoose testuale (dal textarea) in un oggetto json 
+	normalizzato e compatibile con jstree
+	*/
+	function schemaToTree() {
+		//inizializzo il json digeribile dal tree
+		var treeJson = { 'data': []};
+		//leggo lo schema dal textarea
+		var schema = $('#jslSchema').val();
+		//console.log('schemaToTree(): schema:');
+		//console.log(schema);
+		if (schema != '') {
+			//ho uno schema non vuoto, procedo nel parsing
+			var schemaJson = JSON.parse(schema);
+			//console.log('schemaJson:');
+			//console.log(schemaJson);
+			//normalizzo lo schema in modo da renderlo digeribile al tree
+			for (field in schemaJson) {
+				if ( schemaJson.hasOwnProperty(field) && typeof schemaJson.field !== 'function') {
+					//console.log('ho trovato questa field: '+field+' che vale: '+schemaJson[field]);
+					var treeProperty = {
+						'data' : field, 
+						'attr' : { 'rel' : schemaJson[field].type },
+						'metadata' : {
+							'name' : field,
+							'type' : schemaJson[field].type,
+							'description' : schemaJson[field].description,
+							'required' : schemaJson[field].required
+						}
+					};
+					treeJson.data.push(treeProperty);
+				}
+			}
+		}
+		//console.log('schemaToTree(): treeJson:');
+		//console.log(treeJson);
+		return treeJson;
+	}
+	
+	/*
+	questa viene richiamata dai form popup per salvare
+	*/
+	function saveField(field) {
+		//ora aggiorno il dom
+		var linkDom = $('#schemaTree a:contains("'+field.old_name+'")');
+		//salvo l'icona corrente
+		var linkIconDom = linkDom.children('ins');
+		//azzero il contenuto del nodo e scrivo il nome
+		linkDom.html(field.name);
+		//poi rimetto l'icona
+		linkDom.prepend(linkIconDom);
+		//poi riassegno tutti i valori json
+		linkDom.parent().attr('rel',field.type);
+		linkDom.parent().data('name',field.name);
+		linkDom.parent().data('type',field.type);
+		linkDom.parent().data('description',field.description);
+		linkDom.parent().data('required', (!field.required || field.required === undefined || field.required == 'yes') ? true : false );
+		//poi riassegno tutto aggiornato al textarea
+		$('#jslSchema').html( JSON.stringify( treeToSchema() ) );
+		return;
+	}
+	
+	
+	
+	/* ### SCHEMA TREE ### */
+	
+	//prima faccio il parsing di quanto ho nella textarea
+	
+	//creo l'albero con lo schema
+	$('#schemaTree').jstree({
+		'core' : {  },
+		'types' : allowedTypes,				
+		'json_data' : schemaToTree(),
+		'themes' : {
+			'theme' : 'classic'
+		},
+		'dnd' : {
+			'tree' : 'schemaTree'
+		},
+		'contextmenu' : {
+			'items' : {
+				'remove' : false,
+				'rename' : false,
+				'create' : false,
+				'ccp' : false,
+				'delete' : {
+					'label'				: 'delete',
+					'icon'				: false,
+					'action'			: function (obj) {
+						//devo rimuovere l'elemento dal dom
+						var linkDom = $('#schemaTree a:contains("'+$(obj).data().name+'")');
+						linkDom.parent().remove();
+						//poi riassegno tutto aggiornato al textarea
+						$('#jslSchema').html( JSON.stringify( treeToSchema() ) );
+					}
+				}
+			}
+		},
+		'plugins' : [ 'themes', 'json_data', 'ui', 'dnd', 'types', 'contextmenu' ]
+	})
+	
+	.bind("select_node.jstree", function (e, data) {
+		//console.log(data);
+		//non so perchè (jstree di merda) ma quando clicco un nodo, il tree perde tutti i suoi dati json tranne quelli del nodo.
+		//$('#schemaTree').jstree('refresh');
+		//$('#schemaTree').jstree('lock');
+		
+		var jsonDiv = $(data.rslt.obj).data();
+		//console.log('select_node.jstree: #schemaTree:');
+		//console.log($('#schemaTree').jstree('get_json'));
+		// Display an external page using an iframe
+		var src = '/fields/edit/'+'#{element._id}'+'/'+jsonDiv.name+'/'+jsonDiv.type+'/'+jsonDiv.required+'/'+jsonDiv.description;
+		$.modal('<iframe src="' + src + '" height="502" width="700" style="border:0">', {
+			closeHTML:'',
+			containerCss:{
+				backgroundColor:"#fff",
+				borderColor:"#fff",
+				height:502,
+				padding:0,
+				margin:0,
+				width:700
+			},
+			overlayClose:true,
+			modal:true,
+			opacity:70
+		});		
+		
+		//window.open('/fields/edit/'+'#{element._id}'+'/'+jsonDiv.name+'/'+jsonDiv.type); // /fields/edit/ vuole come primo params l'id del model, perchè i filed non hanno id
+	})
+	
+	.bind('prepare_move.jstree', function (e, data) {
+		//console.log('prepare_move');
+		//devo decidere se copiare o muovere
+		//se mi sto muovendo all'interno del mio tree sto muovendo, altrimenti copio
+		var oldTree = data.rslt.op.closest('.jstree').attr('id');
+		var newTree = data.rslt.np.closest('.jstree').attr('id');
+		if ( oldTree == newTree ) {
+			//se il tree non sta cambiando, vuol dire che sto muovendo un nodo dentro al tree, quindi non devo copiare il nodo
+			data.inst.set_copying(false);
+		}
+		else
+		{
+			//per ora in tutti gli altri casi copio
+			data.inst.set_copying(true);
+			
+			//sovrascrivo il nome del field che mi arriva con un nome seriale automatico
+			var defaultFiledName = 'newfield';
+			var newFiledName = '';
+			var obj = data.rslt.o;
+			var objJson = $(obj).data();
+			var counter = 0;
+			var found = false;
+			while ( !found ) {
+				console.log('ciclo su: ');
+				//conto quanti elementi già esistono nel tree con il nome 'new field'
+				if ( $('#schemaTree a:contains("'+defaultFiledName+counter+'")').length > 0 ) {
+					counter++;
+				} else {
+					newFiledName = defaultFiledName+counter;
+					found = true;
+				}
+			}
+			
+			
+			console.log('newFiledName:'+newFiledName);
+			
+			objJson.name = newFiledName;
+		}
+
+		
+	})
+	.bind('move_node.jstree', function (e, data) {
+		//console.log('move_node.jstree');
+		//console.log(data);
+		
+		//solo se sto copiando
+		if ( data.inst.get_copying() ) {
+			//forzo un aggiornamento del nome del nuovo elemento draggato dentro al tree
+			//il nome lo prendo dai dati json del nodo draggato
+			var obj = data.rslt.o;
+			var objJson = $(obj).data();
+			var linkDom = $('#schemaTree a:contains("'+objJson.type+'")');
+			var linkIconDom = linkDom.children('ins');
+			linkDom.html(objJson.name);
+			linkDom.prepend(linkIconDom);
+		}
+		
+		//aggiorno il textarea
+		$('#jslSchema').html( JSON.stringify( treeToSchema() ) );
+		
+		//apro il dialog per l'editing del nodo
+		//$('body').dialog();
+		
+		
+		//console.log('dopo aver aggiornato il tree: ');
+		//console.log($('#schemaTree').jstree('get_json'));
+		
+		//objJson.name = 'new field';
+		//console.log(data);
+		//console.log(data.rslt);
+		//console.log(data.rslt.o);
+		//console.log($(data.rslt.o.data).data());
+		//prendo il nodo mosso
+		//console.log('$(obj) prima:');
+		//console.log($(obj));
+		//console.log($(obj).attr('data'));
+		//e lo aggiorno con un nome di default
+		//$(obj).attr('data','jqippo');
+		//$(obj).attr('innerText','jqippo');
+		//obj.data = 'pippozzobj';
+		//console.log('$(obj) dopo:');
+		//console.log($(obj));
+		/*
+		//aggiorno il tree per far vedere il nuovo nome
+		if ( !$(obj).closest('li.jstree-open') ) {
+			//non ho padre, refresh della pagina
+			//$('#schemaTree').jstree('refresh');
+			console.log('refresh di pagina');
+		} else {
+			//refresh del padre
+			//$('#schemaTree').jstree('refresh', $(obj).closest('li.jstree-open'));
+			console.log('refresh di parent');
+		}
+	//} else {
+		//sono un container
+		//refresh di me stesso
+		//$('#schemaTree').jstree('refresh', obj);
+		*/
+		//refresh del tree
+		//schemaToTree();
+		//$('#schemaTree').jstree('init');
+		//$('#schemaTree').jstree('fuck');
+		//data.inst.init();
+	});
+
+
+
+
+
+
+
+	/* ### ELEMENTS TREE ### */
+	
+
+	//definisco il json per popolare questo tree
+	var treeJson = []; //è json_data.data
+	var datatypes = !{app.jsl.utils.datatypes.stringify()};
+	for ( var i = 0; i < datatypes.length; i++ ) {
+		treeJson.push({ 
+			'data' : datatypes[i].name,
+			'attr' : { 'rel' : datatypes[i].name },
+			'metadata' : {
+				'name' : '', //viene definito runtime quando si copia dentro ad uno schema
+				'type' : datatypes[i].name,
+				'description' : '',
+				'required' : false
+			}
+		});
+	}
+
+	//creo il tree con gli elementi da draggare
+	$('#elementsTree').jstree({
+		'core' : {  },
+		'types' : allowedTypes,								
+		'json_data' : {
+			'data' : treeJson
+		},
+		'themes' : {
+			'theme' : 'classic'
+		},
+		'dnd' : {
+			'tree' : 'elementsTree'
+		},
+		'plugins' : [ 'themes', 'json_data', 'ui', 'dnd', 'types' ]
+		
+	})
+	//.bind('select_node.jstree', function (e, data) { alert(data.rslt.obj.data('type')); });
+	.bind('prepare_move.jstree', function (e, data) {
+		//console.log('prepare_move');
+		//se sto cpiando qui dentro, devo sempre impostare il copying, altrimenti l'elemento droppato qui sparirebbe dal suo tree originario
+		//poi, in move_node, farò un rollback su questo albero per eliminare l'elemento copiato
+		data.inst.set_copying(true);
+	})
+	.bind('move_node.jstree', function (e, data) {
+		//console.log(data);
+		//console.log(data.rslt.o[0]);
+		$.jstree.rollback(data.rlbk);
+		alert('#{__i('forbidden')}');
+	});
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

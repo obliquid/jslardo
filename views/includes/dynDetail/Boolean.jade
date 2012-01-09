@@ -1,0 +1,9 @@
+.detailRow
+	h5.detailLabel #{field}:
+		span.adminIcon.datatypeIcon.floatLeft
+			img(src='#{icon}')
+	if content[field]
+		h4.size4.floatRight #{__i('yes')}
+	else
+		h4.size4.floatRight #{__i('no')}
+	div.clear

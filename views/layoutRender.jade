@@ -1,0 +1,8 @@
+!!!
+html
+	head
+		title #{page.site.title} : #{page.route}
+		//- link(rel='stylesheet', href='/stylesheets/style.css')
+		script(language='JavaScript', type='text/javascript', src='/javascripts/jq/jquery-last.min.js')
+	body!= body //- la variabile body contiene il template principale della pagina (unescaped, altrimenti visualizza i tag html)
+	

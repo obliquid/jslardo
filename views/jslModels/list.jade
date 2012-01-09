@@ -1,0 +1,18 @@
+h3 #{__i('models')}
+	img(src='/images/pov/icon_core_jslModel_60x45.png').floatLeft
+include ../includes/paginationTop
+include ../includes/filterAllOrMine
+
+each element,i in elements
+	div.floatLeft.size1
+		a(href='/#{elementName}s/#{element._id}').elemGrid.outerCont
+			h5 #{element.name}
+			//-
+				div.innerCont
+					span.textMini #{__i('domain')}: 
+						h6 #{element.domain}
+			include ../includes/listInfoBox
+	if (i+1)%6==0
+		div.clear
+include ../includes/paginationBottom
+include ../includes/listCrudbox
