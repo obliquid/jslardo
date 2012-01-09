@@ -1,0 +1,18 @@
+script
+	function changeModel()
+	{
+		//alert($('#filterByModel').val());
+		window.location.href = '/filterByModel/'+$('#filterByModel').val();
+	}
+
+div.filterByModel
+	span #{__i('from model')}:
+	select(id='filterByModel', onChange='changeModel()')
+		option(value='') #{__i('all')}
+		each combo_jslModel in combo_jslModels
+			if combo_jslModel._id == session.filterByModel
+				option(value='#{combo_jslModel._id}',selected='true') #{combo_jslModel.name}
+			else
+				option(value='#{combo_jslModel._id}') #{combo_jslModel.name}
+	
+	
