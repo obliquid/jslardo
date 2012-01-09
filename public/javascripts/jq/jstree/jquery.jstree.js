@@ -1489,7 +1489,16 @@
 		_fn : {
 			set_theme : function (theme_name, theme_url) {
 				if(!theme_name) { return false; }
-				if(!theme_url) { theme_url = $.jstree._themes + theme_name + '/style.css'; }
+				if(!theme_url) {
+					/* DA FEDE */
+					//non so perchè ma in firefox $.jstree._themes vale 'false' e non il path alla dir dei temi
+					//l'ho embeddata qui
+					if ( !$.jstree._themes ) {
+						$.jstree._themes = '/javascripts/jq/jstree/themes/';
+					}
+					//console.error('set theme url con _themes = %s',$.jstree._themes);
+					theme_url = $.jstree._themes + theme_name + '/style.css';
+				}
 				if($.inArray(theme_url, themes_loaded) == -1) {
 					$.vakata.css.add_sheet({ "url" : theme_url });
 					themes_loaded.push(theme_url);
@@ -1519,9 +1528,12 @@
 	// autodetect themes path
 	$(function () {
 		if($.jstree._themes === false) {
+			//console.error('qui ci passo in ff?');
 			$("script").each(function () { 
 				if(this.src.toString().match(/jquery\.jstree[^\/]*?\.js(\?.*)?$/)) { 
-					$.jstree._themes = this.src.toString().replace(/jquery\.jstree[^\/]*?\.js(\?.*)?$/, "") + 'themes/'; 
+					//console.error('magari anche qui ci passo in ff?');
+					$.jstree._themes = this.src.toString().replace(/jquery\.jstree[^\/]*?\.js(\?.*)?$/, "") + 'themes/';
+					//console.error('autodetect themes path con _themes = %s',$.jstree._themes);
 					return false; 
 				}
 			});

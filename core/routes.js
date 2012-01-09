@@ -32,7 +32,7 @@ function defineRoutes(app) {
 	
 	//NON-ADMIN route
 	//prima considero le route dei siti degli utenti
-	app.get('/:route?', app.jsl.readStrucPermDefault, function(req, res, next)
+	app.get('/:route?', app.jsl.perm.readStrucPermDefault, function(req, res, next)
 	{
 		//non so perchè ma quando viene richiesto un file statico, le sessions non sono definite
 		//quindi se non sono deifnite, deduco si tratti di un file statico, e skippo
@@ -49,7 +49,7 @@ function defineRoutes(app) {
 			console.log('stanno chiamando un json, skippo oltre');
 		}
 		else{
-			app.jsl.routeInit(req);
+			app.jsl.routes.routeInit(req);
 			//console.log("vabè per:"+req.url);
 			//console.log(req.headers.host);
 			//console.log(req.url);
@@ -76,7 +76,7 @@ function defineRoutes(app) {
 				//console.log('passo da qui'+req.session.loggedIn);
 				//console.log(req);
 				//prima però devo leggere i permessi
-				//app.jsl.readStrucPermDefault(req, res, function()
+				//app.jsl.perm.readStrucPermDefault(req, res, function()
 				//{
 				//var express = require('express');
 				//app.use(express.static(__dirname + '/public'));
@@ -168,25 +168,25 @@ function defineRoutes(app) {
 												}
 												else
 												{
-													app.jsl.errorPage(res, err, "page not found on this site: "+req.url, false);
+													app.jsl.utils.errorPage(res, err, "page not found on this site: "+req.url, false);
 													//non ho trovato la pagina, procedo, potrebbe essere stato richiesto un file statico
 													//next();
 												}
 											}
 											else
 											{
-												app.jsl.errorPage(res, err, "error on query to find page: "+req.url, false);
+												app.jsl.utils.errorPage(res, err, "error on query to find page: "+req.url, false);
 											}
 										});							
 								}
 								else
 								{
-									app.jsl.errorPage(res, err, "site not found on this server: "+req.headers.host, false);
+									app.jsl.utils.errorPage(res, err, "site not found on this server: "+req.headers.host, false);
 								}
 							}
 							else
 							{
-								app.jsl.errorPage(res, err, "error on query to find site: "+req.headers.host, false);
+								app.jsl.utils.errorPage(res, err, "error on query to find site: "+req.headers.host, false);
 							}
 						}
 					);				
@@ -205,22 +205,22 @@ function defineRoutes(app) {
 	
 	
 	//GET: home
-	app.get('/', app.jsl.readStrucPermDefault, function(req, res){ 
-		app.jsl.routeInit(req);
+	app.get('/', app.jsl.perm.readStrucPermDefault, function(req, res){ 
+		app.jsl.routes.routeInit(req);
 		res.render('home', {
 		});
 	});
 
 	//POST: login signin
 	app.post('/signin', function(req, res) {
-		app.jsl.routeInit(req);
+		app.jsl.routes.routeInit(req);
 		//controllo se esiste il mio utente nel db
-		app.jsl.checkValidUser(req, function(result, user_id) { 
+		app.jsl.sess.checkValidUser(req, function(result, user_id) { 
 			if ( result )
 			{
 				//ho trovato lo user nel db (oppure sono superadmin)
 				//il login è valido
-				app.jsl.setSignedIn(req, user_id);
+				app.jsl.sess.setSignedIn(req, user_id);
 				console.log("POST: login signin: login succeded for user: "+req.body.login_email);
 				//alla fine ricarico la pagina da cui arrivavo
 				res.redirect('back');
@@ -228,7 +228,7 @@ function defineRoutes(app) {
 			else
 			{
 				//il mio utente non c'è nel db
-				app.jsl.setSignedOut(req);
+				app.jsl.sess.setSignedOut(req);
 				console.log("POST: login signin: login failed for user: "+req.body.login_email);
 				//alla fine ricarico la pagina da cui arrivavo
 				res.redirect('back');
@@ -238,17 +238,17 @@ function defineRoutes(app) {
 	
 	//GET: login signout
 	app.get('/signout', function(req, res) {
-		app.jsl.routeInit(req);
+		app.jsl.routes.routeInit(req);
 		//resetto le session
 		console.log("POST: login signout: for user: "+req.session.email);
-		app.jsl.setSignedOut(req);
+		app.jsl.sess.setSignedOut(req);
 		//alla fine ricarico la pagina da cui arrivavo
 		res.redirect('back');
 	});
 	
 	//GET: change language
 	app.get('/lan/:locale?', function(req, res) {
-		app.jsl.routeInit(req);
+		app.jsl.routes.routeInit(req);
 		//cambio la lingua
 		//req.session.currentLocale = req.params.locale;
 		//console.log("prima nei cookie ho:");
@@ -268,7 +268,7 @@ function defineRoutes(app) {
 	
 	//GET: list filter All or Mine
 	app.get('/filterAllOrMine/:filterOn', function(req, res) {
-		app.jsl.routeInit(req);
+		app.jsl.routes.routeInit(req);
 		//posso filtrare sui miei elementi solo se sono loggato, e se non sono superadmin
 		if ( req.session.loggedIn && req.session.user_id != 'superadmin' )
 		{
@@ -292,7 +292,7 @@ function defineRoutes(app) {
 	//GET: filter by site
 	//nota: se si passa anche il parametro andGotoUrl, questo deve essere URIencodato: in jade usare #{encURI('url')}
 	app.get('/filterBySite/:site?/:andGotoUrl?', function(req, res) {
-		app.jsl.routeInit(req);
+		app.jsl.routes.routeInit(req);
 		//prima definisco su che url fare il redirect
 		var redirectTo = ( req.params.andGotoUrl != '' && req.params.andGotoUrl != undefined ) ? decodeURIComponent(req.params.andGotoUrl) : 'back';
 		//inizialmente azzero la session per il filtraggio
@@ -330,6 +330,52 @@ function defineRoutes(app) {
 		else
 		{
 			//non mi è arrivato il site, che vuol dire che non devo filtrare su nessun site
+			//ricarico la pagina da cui arrivavo
+			res.redirect(redirectTo);
+		}
+	});
+	
+	//GET: filter by model
+	//nota: se si passa anche il parametro andGotoUrl, questo deve essere URIencodato: in jade usare #{encURI('url')}
+	app.get('/filterByModel/:jslModel?/:andGotoUrl?', function(req, res) {
+		app.jsl.routes.routeInit(req);
+		//prima definisco su che url fare il redirect
+		var redirectTo = ( req.params.andGotoUrl != '' && req.params.andGotoUrl != undefined ) ? decodeURIComponent(req.params.andGotoUrl) : 'back';
+		//inizialmente azzero la session per il filtraggio
+		req.session.filterByModel = undefined;
+		//verifico se mi è arrivato un jslModel su cui filtrare
+		if ( req.params.jslModel != '' && req.params.jslModel != undefined )
+		{
+			//leggo i siti su cui posso filtrare, per verificare che l'utente stia cercando di filtrare su un sito a lui consentito
+			app.jsl.jslModelController.getJslModels(req,res,function(jslModels) {
+				if (jslModels)
+				{
+					//posso filtrare su dei jslModels. verifico se quello richiesto è tra quelli papabili
+					//nota: non posso usare array.forEach perchè devo poter usare break;
+					for (var x=0;x<jslModels.length;x++)
+					{
+						if ( jslModels[x]._id == req.params.jslModel )
+						{
+							//trovato il mio sito, posso usarlo per filtrare
+							//imposto le session ed esco dal ciclo
+							req.session.filterByModel = req.params.jslModel;
+							break;
+						}
+					}
+					//ricarico la pagina da cui arrivavo
+					res.redirect(redirectTo);				
+				}
+				else
+				{
+					//se non mi sono arrivati jslModels, vuol dire che non posso filtrare su niente
+					//ricarico la pagina da cui arrivavo
+					res.redirect(redirectTo);				
+				}
+			});
+		}
+		else
+		{
+			//non mi è arrivato il jslModel, che vuol dire che non devo filtrare su nessun jslModel
 			//ricarico la pagina da cui arrivavo
 			res.redirect(redirectTo);
 		}

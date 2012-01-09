@@ -1,12 +1,20 @@
-//- div.headerAdminCont
-	div.headerAdmin.size6
-		div.outerCont
-			//logo
+//- prima controllo se sto visualizzando una pagina che ha bisogno del menu secondario
+if session.currentPage == 'sites' || session.currentPage == 'pages' || session.currentPage == 'divs' || session.currentPage == 'jslModels' || session.currentPage == 'elements'
+	div.headerAdminCont
+		div.headerAdmin.size6
 			div.floatLeft
-				//- img(src='/images/logo/main_logo.png').floatLeft
-				h3.floatLeft Admin:&nbsp;
-			//menu
-			div.floatLeft
-				//a(href='/users').floatLeft users
-				a(href='/projects').floatLeft #{__i('projects')}
+				if session.currentPage == 'sites' || session.currentPage == 'pages' || session.currentPage == 'divs'
+					if session.currentPage == 'pages'
+						a(href='/pages').floatLeft.elementButtonSelected.buttonPages #{__i('pages')}
+					else
+						a(href='/pages').floatLeft.elementButton.buttonPages #{__i('pages')}
+					if session.currentPage == 'divs'
+						a(href='/divs').floatLeft.elementButtonSelected.buttonDivs #{__i('divs')}
+					else
+						a(href='/divs').floatLeft.elementButton.buttonDivs #{__i('divs')}
+				else if session.currentPage == 'jslModels' || session.currentPage == 'elements'
+					if session.currentPage == 'elements'
+						a(href='/elements').floatLeft.elementButtonSelected.buttonElements #{__i('elements')}
+					else
+						a(href='/elements').floatLeft.elementButton.buttonElements #{__i('elements')}
 			div.clear

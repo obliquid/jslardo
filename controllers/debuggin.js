@@ -41,7 +41,7 @@ function defineRoutes(app) {
 
 	//GET: debuggin
 	app.get('/debug', function(req, res) {
-		app.jsl.routeInit(req);
+		app.jsl.routes.routeInit(req);
 		//faccio qualcosa
 		console.log("debug: faccio qualcosa...");
 		
@@ -78,7 +78,7 @@ function defineRoutes(app) {
 			}
 			else
 			{
-				app.jsl.errorPage(res, err, "POST: debuggin error on query");
+				app.jsl.utils.errorPage(res, err, "POST: debuggin error on query");
 			}
 		}
 		

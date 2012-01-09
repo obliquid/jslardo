@@ -33,33 +33,35 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 		span /
 		input(id='route', name='route', value='#{element.route || ""}').size3
 		p #{__i('note: leaving blank means that you refer to the root page of the site, the page that is visualized when a user only specifies the site domain')}
-	.formRow
-		h5.formLabel #{__i('layout')}
-		div.jstreeColumn.floatRight
-			if session.user_id != 'superadmin'
-				h6 #{__i('create new divs')}:
-				div#elementsTree.size2.jstree.jstreeElements
-				hr
-				h6 
-					input(type='radio', name='link_or_copy', value='link', checked=true)
-					span.formChoice #{__i('link')}&nbsp;
-					input(type='radio', name='link_or_copy', value='copy')
-					span.formChoice #{__i('copy')}&nbsp;
-					span #{__i('divs from page')}:
-				select(id='page', name='page', onchange='loadExternalTree(this.options[this.selectedIndex].value)')
-					option(value='') -
-					each combo_page in combo_pages
-						if combo_page.route == ''
-							option(value='#{combo_page._id}') #{combo_page.site.title} - [root]
-						else
-							option(value='#{combo_page._id}') #{combo_page.site.title} - #{combo_page.route}
-				div.clear
-				div#otherPageTree.size2.jstree.jstreeOtherPage
-		div.jstreeColumn.floatRight
-			div#layoutTree.size2.jstree
-		div.clear
-		script(language='JavaScript', type='text/javascript', src='/javascripts/jq/jstree/jquery.jstree.js')
-		include formJs
+	//- se è un new, non visualizzo la parte del layout, perchè deve essere stato tutto salvato almeno una volta per avere l'id
+	if element._id != '' && element._id != undefined
+		.formRow
+			h5.formLabel #{__i('layout')}
+			div.jstreeColumn.floatRight
+				if session.user_id != 'superadmin'
+					h6 #{__i('add new divs to layout')}:
+					div#elementsTree.size2.jstree.jstreeElements
+					hr
+					h6 
+						input(type='radio', name='link_or_copy', value='link', checked=true)
+						span.formChoice #{__i('link')}&nbsp;
+						input(type='radio', name='link_or_copy', value='copy')
+						span.formChoice #{__i('copy')}&nbsp;
+						| #{__i('divs from page')}:
+					select(id='page', name='page', onchange='loadExternalTree(this.options[this.selectedIndex].value)')
+						option(value='') -
+						each combo_page in combo_pages
+							if combo_page.route == ''
+								option(value='#{combo_page._id}') #{combo_page.site.title} - [root]
+							else
+								option(value='#{combo_page._id}') #{combo_page.site.title} - #{combo_page.route}
+					div.clear
+					div#otherPageTree.size2.jstree.jstreeOtherPage
+			div.jstreeColumn.floatRight
+				div#layoutTree.size2.jstree
+			div.clear
+			script(language='JavaScript', type='text/javascript', src='/javascripts/jq/jstree/jquery.jstree.js')
+			include formJs
 	
 	include ../includes/formStatus
 

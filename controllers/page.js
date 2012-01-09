@@ -40,8 +40,8 @@ page
 function defineRoutes(app) {
 
 	//GET: page list
-	app.get('/pages/:page?', app.jsl.readStrucPermDefault, app.jsl.paginationInit, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/pages/:page?', app.jsl.perm.readStrucPermDefault, app.jsl.pag.paginationInit, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		if ( req.params.page == undefined || !isNaN(req.params.page) )
 		{
 			//leggo le page dal db, e assegno il result al tpl
@@ -98,7 +98,7 @@ function defineRoutes(app) {
 									res.render('pages/list', { 
 										elementName: 'page',
 										elements: pages,
-										pagination: app.jsl.paginationDo(req, total, '/pages/'),
+										pagination: app.jsl.pag.paginationDo(req, total, '/pages/'),
 										combo_sites: sites
 									});	
 								});								
@@ -106,7 +106,7 @@ function defineRoutes(app) {
 					}
 					else
 					{
-						app.jsl.errorPage(res, err, "GET: page list: failed query on db");
+						app.jsl.utils.errorPage(res, err, "GET: page list: failed query on db");
 					}	
 				}
 			);
@@ -118,8 +118,8 @@ function defineRoutes(app) {
 	});
 	
 	//GET: page detail 
-	app.get('/pages/:id', app.jsl.readStrucPermDefault, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/pages/:id', app.jsl.perm.readStrucPermDefault, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//leggo il mio page dal db, e assegno il result al tpl
 		//se sono superadmin vedo anche i non share
 		var conditions = ( req.session.user_id == 'superadmin' ) 
@@ -156,40 +156,44 @@ function defineRoutes(app) {
 				}
 				else
 				{
-					app.jsl.errorPage(res, err, "GET: page detail: query error");
+					app.jsl.utils.errorPage(res, err, "GET: page detail: query error");
 				}
 			});	
 	});
 	
 	//GET: page form (new)
-	app.get('/pages/edit/new', app.jsl.readStrucPermDefault, app.jsl.needStrucPermCreate, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/pages/edit/new', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermCreate, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//è un NEW, renderizzo il form, ma senza popolarlo
-		//(devo ovviamente popolare solo il combo con i miei sites)
+		//(devo ovviamente popolare solo il combo con i miei sites e quello con le external pages)
 		app.jsl.siteController.getSites(req,res,function(sites) {
 			//ho trovato anche i sites per popolare il combo
-			
 			//se il mio user sta filtrando su un sito (session.filterBySite è definito) allora preimposto il site della nuova page
 			var element = {};
 			if ( req.session.filterBySite != '' && req.session.filterBySite != undefined )
 			{
 				element.site = req.session.filterBySite;
 			}
-			
-			//posso finalmente procedere a visualizzare il form
-			res.render('pages/form', { 
-				title: app.i18n.t(req,'create new page'),
-				elementName: 'page',
-				element: element,
-				combo_sites: sites
-				
-			});	
+			//devo popolare le pagine disponibili per linkare/copiare divs
+			app.jsl.pageController.getPages(req,res,function(pages) {
+				//popolato anche il combo pages
+				//posso finalmente procedere a visualizzare il form
+				res.render('pages/form', { 
+					title: app.i18n.t(req,'create new page'),
+					elementName: 'page',
+					element: element,
+					combo_sites: sites,
+					combo_pages: pages,
+					is_new: 'yes'
+					
+				});	
+			});
 		});				
 	});
 	//POST: page form (new)
 	//qui ci entro quando dal form faccio un submit ma non è definito l'id, altrimenti andrei nella route POST di modify
-	app.post('/pages/edit', app.jsl.readStrucPermDefault, app.jsl.needStrucPermCreate, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.post('/pages/edit', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermCreate, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//prima verifico se la route non è già stata usata (cioè se esiste una pagina con questa route e per questo site)
 		app.jsl.page.findOne(
 			{ 'route': req.body.route, 'site': req.body.site },
@@ -197,7 +201,7 @@ function defineRoutes(app) {
 				if ( page ) 
 				{
 					//route già usato
-					app.jsl.errorPage(res, err, app.i18n.t(req, "already exists page with route")+": "+req.body.route);
+					app.jsl.utils.errorPage(res, err, app.i18n.t(req, "already exists page with route")+": "+req.body.route);
 				}
 				else
 				{
@@ -205,7 +209,7 @@ function defineRoutes(app) {
 					//creo nuovo page
 					var my_page = new app.jsl.page();
 					//popolo il mio page con quanto mi arriva dal form
-					app.jsl.populateModel(my_page, req.body);
+					app.jsl.utils.populateModel(my_page, req.body);
 					//assegno l'author (non gestito dal form ma impostato automaticamente)
 					my_page.author = req.session.user_id;
 					//inizializzo la data di creazione (che non è gestita dal form)
@@ -220,7 +224,7 @@ function defineRoutes(app) {
 						}
 						else
 						{
-							app.jsl.errorPage(res, err, "POST: page form: saving page");
+							app.jsl.utils.errorPage(res, err, "POST: page form: saving page");
 						}
 					});
 				}
@@ -229,8 +233,8 @@ function defineRoutes(app) {
 	});	
 	
 	//GET: page form (modify) //quando entro in un form da un link (GET) e non ci arrivo dal suo stesso submit (caso POST)
-	app.get('/pages/edit/:id/:msg?', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnPageId, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/pages/edit/:id/:msg?', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnPageId, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//mi hanno passato l'id obbligatoriamente
 		//leggo il mio page dal db, e assegno il result al tpl
 		app.jsl.page
@@ -243,7 +247,6 @@ function defineRoutes(app) {
 					app.jsl.siteController.getSites(req,res,function(sites) {
 						//ho trovato anche i sites per popolare il combo
 						//devo popolare le pagine disponibili per linkare/copiare divs
-						
 						app.jsl.pageController.getPages(req,res,function(pages) {
 							//ho anche le pagine per il combo
 							//posso finalmente procedere a visualizzare il form popolato
@@ -260,13 +263,13 @@ function defineRoutes(app) {
 				}
 				else
 				{
-					app.jsl.errorPage(res, err, "GET: page form (modify): failed query on db");
+					app.jsl.utils.errorPage(res, err, "GET: page form (modify): failed query on db");
 				}	
 			});	
 	});
 	//POST: page form (modify)
-	app.post('/pages/edit/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnPageId, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.post('/pages/edit/:id', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnPageId, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//prima trovo il mio page da modificare nel db
 		app.jsl.page.findOne(
 			{ '_id': req.params.id },
@@ -282,13 +285,13 @@ function defineRoutes(app) {
 							if ( pageSameRoute ) 
 							{
 								//route già usata
-								app.jsl.errorPage(res, err, app.i18n.t(req, "already exists page with route")+": "+req.body.route);
+								app.jsl.utils.errorPage(res, err, app.i18n.t(req, "already exists page with route")+": "+req.body.route);
 							}
 							else
 							{
 								//la nuova route è valida, posso procedere
 								//popolo il mio page con quanto mi arriva dal form
-								app.jsl.populateModel(page, req.body);
+								app.jsl.utils.populateModel(page, req.body);
 								//salvo lo page modificato e rimando nel form
 								page.save(function(err) {
 									res.redirect('/pages/edit/'+page.id+'/success');
@@ -299,20 +302,20 @@ function defineRoutes(app) {
 				}
 				else
 				{
-					app.jsl.errorPage(res, err, "POST: page form (modify): page not found on db");
+					app.jsl.utils.errorPage(res, err, "POST: page form (modify): page not found on db");
 				}
 			}
 		);
 	});
 	
 	//GET: page delete
-	app.get('/pages/delete/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnPageId, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/pages/delete/:id', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnPageId, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//cancello l'page
 		app.jsl.page.remove(
 			{ '_id': req.params.id },
 			function(err, page) {
-				if ( err ) app.jsl.errorPage(res, err, 'GET: page delete: failed query on db');
+				if ( err ) app.jsl.utils.errorPage(res, err, 'GET: page delete: failed query on db');
 			}
 		);
 		//QUI!!!: oltre a page, vanno cancellati anche tutti i suoi elementi dipendenti
@@ -331,8 +334,8 @@ function defineRoutes(app) {
 
 	//POST: json page add div
 	//appendo un div ad una pagina 
-	app.post('/json/pages/appendDiv/:page/:div/:ord', app.jsl.readStrucPermDefault, app.jsl.needStrucPermCreate, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.post('/json/pages/appendDiv/:page/:div/:ord', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermCreate, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//console.log(req.params);
 		appendDiv(req, req.params.page, req.params.div, req.params.ord, function(){ res.json(); });
 	});	
@@ -400,7 +403,7 @@ function getPages(req,res,closure)
 			}
 			else
 			{
-				req.app.jsl.errorPage(res, err, "page.getPages(): query error");
+				req.app.jsl.utils.errorPage(res, err, "page.getPages(): query error");
 			}
 		});	
 }
@@ -509,12 +512,59 @@ exports.unlinkDiv = unlinkDiv;
 
 function render(req, res, page) {
 	//algoritmo ricorsivo che fa 2 cose:
-	//prima la query per avere i dati del div corrente
-	//poi, onresult, il rendering del tpl del div
+	//prima la query ricorsiva che mette in un array tutti i partial con relativi dati da renderizzare
+	var divs = [
+		{
+			'partial' : 'pippo', //sarà: '/page/json/render/:moduleDiv'
+			'data' : { 'variabile': 'valore'}
+		},
+		{
+			'partial' : 'caio',
+			'data' : { 'altra_variabile': 'valore Bis'}
+		}
+	];
+	
+
+
+
+
+	//usare jade dinamicamente
+	var jade = require('jade');
+	var jadechunk = "span #{minchia}!";
+	var jadetemplate = jade.compile(jadechunk.toString('utf8'));
+	var jadeoutput = jadetemplate({
+		minchia: 'sabbri'
+	});	
+
+
+
+
+
+	
+	
+	
+	//poi l'array derivante dalla query viene dato ad un res.render sul layout che renderizza i partials
+	res.render('pageRender', {
+		'layout': 'layoutRender', 
+		'page': page,
+		'divs': divs,
+		'debug': 'pagina: '+page.route+" del sito: "+page.site.domain+" con layout: "+jadechunk+" che renderizzato viene: "+jadeoutput,
+		'debug2': jadeoutput
+	});
+	
+	
+	
+	
+	
+	
+	
+	
+	/*
 	res.render('debug', {
 		layout: false, 
-		variable: 'pagina: '+page.route+" del sito: "+page.site.domain
+		variable: 'altro ancora'
 	});
+	*/
 }
 exports.render = render;
 

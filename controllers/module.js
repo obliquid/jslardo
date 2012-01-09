@@ -41,8 +41,8 @@ function defineRoutes(app) {
 
 	/*
 	//GET: module list
-	app.get('/modules/:page?', app.jsl.readStrucPermDefault, app.jsl.paginationInit, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/modules/:page?', app.jsl.perm.readStrucPermDefault, app.jsl.pag.paginationInit, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		if ( req.params.page == undefined || !isNaN(req.params.page) )
 		{
 			//leggo gli module dal db, e assegno il result al tpl
@@ -84,14 +84,14 @@ function defineRoutes(app) {
 								res.render('modules/list', { 
 									elementName: 'module',
 									elements: modules,
-									pagination: app.jsl.paginationDo(req, total, '/modules/')
+									pagination: app.jsl.pag.paginationDo(req, total, '/modules/')
 								});	
 							}
 						);	
 					}
 					else
 					{
-						app.jsl.errorPage(res, err, "GET: module list: failed query on db");
+						app.jsl.utils.errorPage(res, err, "GET: module list: failed query on db");
 					}	
 				}
 			);
@@ -103,8 +103,8 @@ function defineRoutes(app) {
 	});
 	
 	//GET: module detail 
-	app.get('/modules/:id', app.jsl.readStrucPermDefault, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/modules/:id', app.jsl.perm.readStrucPermDefault, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//leggo il mio module dal db, e assegno il result al tpl
 		//se sono superadmin vedo anche i non share
 		var conditions = ( req.session.user_id == 'superadmin' ) 
@@ -139,14 +139,14 @@ function defineRoutes(app) {
 				}
 				else
 				{
-					app.jsl.errorPage(res, err, "GET: module detail: query error");
+					app.jsl.utils.errorPage(res, err, "GET: module detail: query error");
 				}
 			});	
 	});
 	
 	//GET: module form (new)
-	app.get('/modules/edit/new', app.jsl.readStrucPermDefault, app.jsl.needStrucPermCreate, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/modules/edit/new', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermCreate, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//è un NEW, renderizzo il form, ma senza popolarlo
 		res.render('modules/form', { 
 			title: app.i18n.t(req,'create new module'),
@@ -156,8 +156,8 @@ function defineRoutes(app) {
 	});
 	//POST: module form (new)
 	//qui ci entro quando dal form faccio un submit ma non è definito l'id, altrimenti andrei nella route POST di modify
-	app.post('/modules/edit', app.jsl.readStrucPermDefault, app.jsl.needStrucPermCreate, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.post('/modules/edit', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermCreate, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//prima verifico se il dominio non è già stato usato
 		app.jsl.module.findOne(
 			{ 'domain': req.body.domain },
@@ -165,7 +165,7 @@ function defineRoutes(app) {
 				if ( module ) 
 				{
 					//domain già usato
-					app.jsl.errorPage(res, err, "already exists module with domain: "+req.body.domain);
+					app.jsl.utils.errorPage(res, err, "already exists module with domain: "+req.body.domain);
 				}
 				else
 				{
@@ -173,7 +173,7 @@ function defineRoutes(app) {
 					//creo nuovo module
 					var my_module = new app.jsl.module();
 					//popolo il mio module con quanto mi arriva dal form
-					app.jsl.populateModel(my_module, req.body);
+					app.jsl.utils.populateModel(my_module, req.body);
 					//assegno l'author (non gestito dal form ma impostato automaticamente)
 					my_module.author = req.session.user_id;
 					//inizializzo la data di creazione (che non è gestita dal form)
@@ -188,7 +188,7 @@ function defineRoutes(app) {
 						}
 						else
 						{
-							app.jsl.errorPage(res, err, "POST: module form: saving module");
+							app.jsl.utils.errorPage(res, err, "POST: module form: saving module");
 						}
 					});
 				}
@@ -197,8 +197,8 @@ function defineRoutes(app) {
 	});	
 	
 	//GET: module form (modify) //quando entro in un form da un link (GET) e non ci arrivo dal suo stesso submit (caso POST)
-	app.get('/modules/edit/:id/:msg?', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnModuleId, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/modules/edit/:id/:msg?', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnModuleId, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//mi hanno passato l'id obbligatoriamente
 		//leggo il mio module dal db, e assegno il result al tpl
 		app.jsl.module.findOne(
@@ -215,15 +215,15 @@ function defineRoutes(app) {
 				}
 				else
 				{
-					app.jsl.errorPage(res, err, "GET: module form (modify): failed query on db");
+					app.jsl.utils.errorPage(res, err, "GET: module form (modify): failed query on db");
 				}	
 					
 			}
 		);	
 	});
 	//POST: module form (modify)
-	app.post('/modules/edit/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnModuleId, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.post('/modules/edit/:id', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnModuleId, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//prima trovo il mio module da modificare nel db
 		app.jsl.module.findOne(
 			{ '_id': req.params.id },
@@ -239,13 +239,13 @@ function defineRoutes(app) {
 							if ( moduleSameDomain ) 
 							{
 								//domain già usata
-								app.jsl.errorPage(res, err, "already exists module with domain: "+req.body.domain);
+								app.jsl.utils.errorPage(res, err, "already exists module with domain: "+req.body.domain);
 							}
 							else
 							{
 								//la nuova domain è valida, posso procedere
 								//popolo il mio module con quanto mi arriva dal form
-								app.jsl.populateModel(module, req.body);
+								app.jsl.utils.populateModel(module, req.body);
 								//salvo lo module modificato e rimando nel form
 								module.save(function(err) {
 									res.redirect('/modules/edit/'+module.id+'/success');
@@ -256,20 +256,20 @@ function defineRoutes(app) {
 				}
 				else
 				{
-					app.jsl.errorPage(res, err, "POST: module form (modify): module not found on db");
+					app.jsl.utils.errorPage(res, err, "POST: module form (modify): module not found on db");
 				}
 			}
 		);
 	});
 	
 	//GET: module delete
-	app.get('/modules/delete/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnModuleId, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/modules/delete/:id', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnModuleId, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//cancello l'module
 		app.jsl.module.remove(
 			{ '_id': req.params.id },
 			function(err, module) {
-				if ( err ) app.jsl.errorPage(res, err, 'GET: module delete: failed query on db');
+				if ( err ) app.jsl.utils.errorPage(res, err, 'GET: module delete: failed query on db');
 			}
 		);
 		//QUI!!!: oltre a module, vanno cancellati anche tutti i suoi elementi dipendenti

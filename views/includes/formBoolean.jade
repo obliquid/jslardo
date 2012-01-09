@@ -1,10 +1,10 @@
 if (fieldValue)
-	input(type='radio', name='#{field}', value='yes', checked=true)
+	input(type='radio', name='#{field}', value='sure_this_is_yes', checked=true)
 	span.formChoice #{__i('yes')}&nbsp;&nbsp;
-	input(type='radio', name='#{field}', value='no')
+	input(type='radio', name='#{field}', value='sure_this_is_false')
 	span.formChoice #{__i('no')}
 else
-	input(type='radio', name='#{field}', value='yes')
+	input(type='radio', name='#{field}', value='sure_this_is_yes')
 	span.formChoice #{__i('yes')}&nbsp;&nbsp;
-	input(type='radio', name='#{field}', value='no', checked=true)
+	input(type='radio', name='#{field}', value='sure_this_is_false', checked=true)
 	span.formChoice #{__i('no')}

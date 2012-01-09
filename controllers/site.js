@@ -40,8 +40,8 @@ site
 function defineRoutes(app) {
 
 	//GET: site list
-	app.get('/sites/:page?', app.jsl.readStrucPermDefault, app.jsl.paginationInit, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/sites/:page?', app.jsl.perm.readStrucPermDefault, app.jsl.pag.paginationInit, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		if ( req.params.page == undefined || !isNaN(req.params.page) )
 		{
 			//leggo gli site dal db, e assegno il result al tpl
@@ -83,14 +83,14 @@ function defineRoutes(app) {
 								res.render('sites/list', { 
 									elementName: 'site',
 									elements: sites,
-									pagination: app.jsl.paginationDo(req, total, '/sites/')
+									pagination: app.jsl.pag.paginationDo(req, total, '/sites/')
 								});	
 							}
 						);	
 					}
 					else
 					{
-						app.jsl.errorPage(res, err, "GET: site list: failed query on db");
+						app.jsl.utils.errorPage(res, err, "GET: site list: failed query on db");
 					}	
 				}
 			);
@@ -102,8 +102,8 @@ function defineRoutes(app) {
 	});
 	
 	//GET: site detail 
-	app.get('/sites/:id', app.jsl.readStrucPermDefault, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/sites/:id', app.jsl.perm.readStrucPermDefault, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//leggo il mio site dal db, e assegno il result al tpl
 		//se sono superadmin vedo anche i non share
 		var conditions = ( req.session.user_id == 'superadmin' ) 
@@ -138,14 +138,14 @@ function defineRoutes(app) {
 				}
 				else
 				{
-					app.jsl.errorPage(res, err, "GET: site detail: query error");
+					app.jsl.utils.errorPage(res, err, "GET: site detail: query error");
 				}
 			});	
 	});
 	
 	//GET: site form (new)
-	app.get('/sites/edit/new', app.jsl.readStrucPermDefault, app.jsl.needStrucPermCreate, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/sites/edit/new', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermCreate, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//è un NEW, renderizzo il form, ma senza popolarlo
 		res.render('sites/form', { 
 			title: app.i18n.t(req,'create new site'),
@@ -155,8 +155,8 @@ function defineRoutes(app) {
 	});
 	//POST: site form (new)
 	//qui ci entro quando dal form faccio un submit ma non è definito l'id, altrimenti andrei nella route POST di modify
-	app.post('/sites/edit', app.jsl.readStrucPermDefault, app.jsl.needStrucPermCreate, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.post('/sites/edit', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermCreate, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//prima verifico se il dominio non è già stato usato
 		app.jsl.site.findOne(
 			{ 'domain': req.body.domain },
@@ -164,7 +164,7 @@ function defineRoutes(app) {
 				if ( site ) 
 				{
 					//domain già usato
-					app.jsl.errorPage(res, err, "already exists site with domain: "+req.body.domain);
+					app.jsl.utils.errorPage(res, err, "already exists site with domain: "+req.body.domain);
 				}
 				else
 				{
@@ -172,7 +172,7 @@ function defineRoutes(app) {
 					//creo nuovo site
 					var my_site = new app.jsl.site();
 					//popolo il mio site con quanto mi arriva dal form
-					app.jsl.populateModel(my_site, req.body);
+					app.jsl.utils.populateModel(my_site, req.body);
 					//assegno l'author (non gestito dal form ma impostato automaticamente)
 					my_site.author = req.session.user_id;
 					//inizializzo la data di creazione (che non è gestita dal form)
@@ -187,7 +187,7 @@ function defineRoutes(app) {
 						}
 						else
 						{
-							app.jsl.errorPage(res, err, "POST: site form: saving site");
+							app.jsl.utils.errorPage(res, err, "POST: site form: saving site");
 						}
 					});
 				}
@@ -196,8 +196,8 @@ function defineRoutes(app) {
 	});	
 	
 	//GET: site form (modify) //quando entro in un form da un link (GET) e non ci arrivo dal suo stesso submit (caso POST)
-	app.get('/sites/edit/:id/:msg?', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnSiteId, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/sites/edit/:id/:msg?', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnSiteId, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//mi hanno passato l'id obbligatoriamente
 		//leggo il mio site dal db, e assegno il result al tpl
 		app.jsl.site.findOne(
@@ -214,15 +214,15 @@ function defineRoutes(app) {
 				}
 				else
 				{
-					app.jsl.errorPage(res, err, "GET: site form (modify): failed query on db");
+					app.jsl.utils.errorPage(res, err, "GET: site form (modify): failed query on db");
 				}	
 					
 			}
 		);	
 	});
 	//POST: site form (modify)
-	app.post('/sites/edit/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnSiteId, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.post('/sites/edit/:id', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnSiteId, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//prima trovo il mio site da modificare nel db
 		app.jsl.site.findOne(
 			{ '_id': req.params.id },
@@ -238,13 +238,13 @@ function defineRoutes(app) {
 							if ( siteSameDomain ) 
 							{
 								//domain già usata
-								app.jsl.errorPage(res, err, "already exists site with domain: "+req.body.domain);
+								app.jsl.utils.errorPage(res, err, "already exists site with domain: "+req.body.domain);
 							}
 							else
 							{
 								//la nuova domain è valida, posso procedere
 								//popolo il mio site con quanto mi arriva dal form
-								app.jsl.populateModel(site, req.body);
+								app.jsl.utils.populateModel(site, req.body);
 								//salvo lo site modificato e rimando nel form
 								site.save(function(err) {
 									res.redirect('/sites/edit/'+site.id+'/success');
@@ -255,20 +255,20 @@ function defineRoutes(app) {
 				}
 				else
 				{
-					app.jsl.errorPage(res, err, "POST: site form (modify): site not found on db");
+					app.jsl.utils.errorPage(res, err, "POST: site form (modify): site not found on db");
 				}
 			}
 		);
 	});
 	
 	//GET: site delete
-	app.get('/sites/delete/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnSiteId, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/sites/delete/:id', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnSiteId, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//cancello l'site
 		app.jsl.site.remove(
 			{ '_id': req.params.id },
 			function(err, site) {
-				if ( err ) app.jsl.errorPage(res, err, 'GET: site delete: failed query on db');
+				if ( err ) app.jsl.utils.errorPage(res, err, 'GET: site delete: failed query on db');
 			}
 		);
 		//QUI!!!: oltre a site, vanno cancellati anche tutti i suoi elementi dipendenti
@@ -335,7 +335,7 @@ function getSites(req,res,closure)
 			}
 			else
 			{
-				req.app.jsl.errorPage(res, err, "site.getSites(): query error");
+				req.app.jsl.utils.errorPage(res, err, "site.getSites(): query error");
 			}
 		});	
 }

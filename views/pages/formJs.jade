@@ -169,6 +169,7 @@ script
 		'plugins' : [ 'themes', 'json_data', 'ui', 'dnd', 'types', 'contextmenu' ]
 	})
 	.bind("select_node.jstree", function (e, data) {
+		//console.log($('#layoutTree').jstree('get_json'));
 		// `data.rslt.obj` is the jquery extended node that was clicked
 		var jsonDiv = $(data.rslt.obj).data();
 		//alert(data.rslt.obj.attr("id"));

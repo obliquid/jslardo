@@ -40,8 +40,8 @@ role
 function defineRoutes(app) {
 
 	//GET: role list
-	app.get('/roles/:page?', app.jsl.readStrucPermDefault, app.jsl.paginationInit, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/roles/:page?', app.jsl.perm.readStrucPermDefault, app.jsl.pag.paginationInit, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		if ( req.params.page == undefined || !isNaN(req.params.page) )
 		{
 			//leggo gli role dal db, e assegno il result al tpl
@@ -83,14 +83,14 @@ function defineRoutes(app) {
 								res.render('roles/list', { 
 									elementName: 'role',
 									elements: roles,
-									pagination: app.jsl.paginationDo(req, total, '/roles/')
+									pagination: app.jsl.pag.paginationDo(req, total, '/roles/')
 								});	
 							}
 						);	
 					}
 					else
 					{
-						app.jsl.errorPage(res, err, "GET: role list: failed query on db");
+						app.jsl.utils.errorPage(res, err, "GET: role list: failed query on db");
 					}	
 				}
 			);
@@ -102,8 +102,8 @@ function defineRoutes(app) {
 	});
 	
 	//GET: role detail 
-	app.get('/roles/:id', app.jsl.readStrucPermDefault, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/roles/:id', app.jsl.perm.readStrucPermDefault, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//leggo il mio role dal db, e assegno il result al tpl
 		//se sono superadmin vedo anche i non share
 		var conditions = ( req.session.user_id == 'superadmin' ) 
@@ -138,14 +138,14 @@ function defineRoutes(app) {
 				}
 				else
 				{
-					app.jsl.errorPage(res, err, "GET: role detail: query error");
+					app.jsl.utils.errorPage(res, err, "GET: role detail: query error");
 				}
 			});	
 	});
 	
 	//GET: role form (new)
-	app.get('/roles/edit/new', app.jsl.readStrucPermDefault, app.jsl.needStrucPermCreate, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/roles/edit/new', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermCreate, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//è un NEW, renderizzo il form, ma senza popolarlo
 		res.render('roles/form', { 
 			title: app.i18n.t(req,'create new role'),
@@ -155,12 +155,12 @@ function defineRoutes(app) {
 	});
 	//POST: role form (new)
 	//qui ci entro quando dal form faccio un submit ma non è definito l'id, altrimenti andrei nella route POST di modify
-	app.post('/roles/edit', app.jsl.readStrucPermDefault, app.jsl.needStrucPermCreate, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.post('/roles/edit', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermCreate, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//creo nuovo role
 		var my_role = new app.jsl.role();
 		//popolo il mio role con quanto mi arriva dal form
-		app.jsl.populateModel(my_role, req.body);
+		app.jsl.utils.populateModel(my_role, req.body);
 		//assegno l'author (non gestito dal form ma impostato automaticamente)
 		my_role.author = req.session.user_id;
 		//inizializzo la data di creazione (che non è gestita dal form)
@@ -175,14 +175,14 @@ function defineRoutes(app) {
 			}
 			else
 			{
-				app.jsl.errorPage(res, err, "POST: role form: query error saving role");
+				app.jsl.utils.errorPage(res, err, "POST: role form: query error saving role");
 			}
 		});
 	});	
 	
 	//GET: role form (modify) //quando entro in un form da un link (GET) e non ci arrivo dal suo stesso submit (caso POST)
-	app.get('/roles/edit/:id/:msg?', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnRoleId, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/roles/edit/:id/:msg?', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnRoleId, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//mi hanno passato l'id obbligatoriamente
 		//leggo il mio role dal db, e assegno il result al tpl
 		app.jsl.role.findOne(
@@ -199,15 +199,15 @@ function defineRoutes(app) {
 				}
 				else
 				{
-					app.jsl.errorPage(res, err, "GET: role form (modify): failed query on db");
+					app.jsl.utils.errorPage(res, err, "GET: role form (modify): failed query on db");
 				}	
 					
 			}
 		);	
 	});
 	//POST: role form (modify)
-	app.post('/roles/edit/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnRoleId, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.post('/roles/edit/:id', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnRoleId, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//prima trovo il mio role da modificare nel db
 		app.jsl.role.findOne(
 			{ '_id': req.params.id },
@@ -216,7 +216,7 @@ function defineRoutes(app) {
 				{
 					//ho trovato lo role da modificare
 					//popolo il mio role con quanto mi arriva dal form
-					app.jsl.populateModel(role, req.body);
+					app.jsl.utils.populateModel(role, req.body);
 					//salvo lo role modificato e rimando nel form
 					role.save(function(err) {
 						res.redirect('/roles/edit/'+role.id+'/success');
@@ -224,20 +224,20 @@ function defineRoutes(app) {
 				}
 				else
 				{
-					app.jsl.errorPage(res, err, "POST: role form (modify): role not found on db");
+					app.jsl.utils.errorPage(res, err, "POST: role form (modify): role not found on db");
 				}
 			}
 		);
 	});
 	
 	//GET: role delete
-	app.get('/roles/delete/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnRoleId, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/roles/delete/:id', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnRoleId, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//cancello l'role
 		app.jsl.role.remove(
 			{ '_id': req.params.id },
 			function(err, role) {
-				if ( err ) app.jsl.errorPage(res, err, 'GET: role delete: failed query on db');
+				if ( err ) app.jsl.utils.errorPage(res, err, 'GET: role delete: failed query on db');
 			}
 		);
 		//QUI!!!: oltre all'role, vanno cancellati anche tutti i suoi elementi dipendenti

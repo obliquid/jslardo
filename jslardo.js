@@ -27,7 +27,7 @@
  */
 
 var express = require('express'); //non devo mettere il './' perchè si tratta di un modulo, e non di un file da importare
-var mongoose = require('mongoose');
+//var mongoose = require('mongoose');
 var connectTimeout = require('connect-timeout');
 
 
@@ -48,15 +48,14 @@ app.configure(function(){
 	app.use(connectTimeout({ time: 120000 })); //2 minuti
 	//non lo uso... app.use(express.methodOverride()); //serve per poter usare nei form: <input type="hidden" name="_method" value="put" />, e quindi app.put('/', function(){ console.log(req.body.user); res.redirect('back');});
 	
-	//appendo jslardo all'app express
-	//app.jsl = require('./jslardo'); //non più usato, ora jslardo è l'app
-	app.jsl = {};
+	//appendo mongoose
+	app.mongoose = require('mongoose');
+	
 	//importo il necessario per jslardo
+	app.jsl = {};
 	app.jsl.config = require('./config').jslardo_config;
-	app.jsl.models = require('./models/models');
 	app.jsl.crypto = require('crypto');
-	//console.log(app.jsl);
-	//console.log(app.jsl.config);
+	
 	//configuro i18n
 	app.i18n = require("./core/i18n");
 	app.i18n.configure({
@@ -65,46 +64,59 @@ app.configure(function(){
 		defaultLocale: app.jsl.config.defaultLocale
 	});
     app.use(app.i18n.init);
+	
+	//carico i moduli core di jslardo
+	//models
+	app.jsl.models = require('./core/models');
 	//permissions
-	var permissions = require('./core/permissions');
-	app.jsl.readStrucPermDefault = permissions.readStrucPermDefault;
-	app.jsl.readStrucPermOn_users = permissions.readStrucPermOn_users;
-	app.jsl.needStrucPermCreate = permissions.needStrucPermCreate;
-	app.jsl.needStrucPermModify = permissions.needStrucPermModify;
-	app.jsl.needStrucPermModifyMyself = permissions.needStrucPermModifyMyself;
-	app.jsl.needStrucPermModifyOnDivId = permissions.needStrucPermModifyOnDivId;
-	app.jsl.needStrucPermModifyOnModuleId = permissions.needStrucPermModifyOnModuleId;
-	app.jsl.needStrucPermModifyOnPageId = permissions.needStrucPermModifyOnPageId;
-	app.jsl.needStrucPermModifyOnRoleId = permissions.needStrucPermModifyOnRoleId;
-	app.jsl.needStrucPermModifyOnSiteId = permissions.needStrucPermModifyOnSiteId;
+	app.jsl.perm = require('./core/permissions');
 	//sessions
-	var sessions = require('./core/sessions');
-	app.jsl.checkValidUser = sessions.checkValidUser;
-	app.jsl.setSignedOut = sessions.setSignedOut;
-	app.jsl.setSignedIn = sessions.setSignedIn;
-	app.jsl.hashPw = sessions.hashPw;
+	app.jsl.sess = require('./core/sessions');
 	//pagination
-	var pagination = require('./core/pagination');
-	app.jsl.paginationInit = pagination.paginationInit;
-	app.jsl.paginationDo = pagination.paginationDo;
+	app.jsl.pag = require('./core/pagination');
 	//utils
-	var utils = require('./core/utils');
-	app.jsl.defineRoute404 = utils.defineRoute404;
-	app.jsl.errorPage = utils.errorPage;
-	app.jsl.populateModel = utils.populateModel;
+	app.jsl.utils = require('./core/utils');
 	//routes
-	var routes = require('./core/routes');
-	app.jsl.defineRoutes = routes.defineRoutes;
-	app.jsl.routeInit = routes.routeInit;
+	app.jsl.routes = require('./core/routes');
+	
+	//init router
+	app.use(app.router);
+	//declare public dir
+	app.use(express.static(__dirname + '/public'));
+	
+	// Routes
+	//nota: le route sono importate, prima quelle di jslardo, poi quelle per ciascuno degli oggetti persistenti nel db
+	
+	//route miscellanee di jslardo
+	app.jsl.routes.defineRoutes(app);
+	
+	//route per gli elementi della struttura
+	require('./controllers/user').defineRoutes(app);
+	require('./controllers/role').defineRoutes(app);
+	require('./controllers/module').defineRoutes(app);
+	require('./controllers/debuggin').defineRoutes(app);
+	//per questi elementi oltre alle route, mi servono anche altri metodi esposti dal controller, quindi devo tenere tutto il controller
+	app.jsl.pageController = require('./controllers/page');
+	app.jsl.pageController.defineRoutes(app);
+	app.jsl.siteController = require('./controllers/site');
+	app.jsl.siteController.defineRoutes(app);
+	app.jsl.elementController = require('./controllers/element');
+	app.jsl.elementController.defineRoutes(app);
+	app.jsl.divController = require('./controllers/div');
+	app.jsl.divController.defineRoutes(app);
+	app.jsl.fieldController = require('./controllers/field');
+	app.jsl.fieldController.defineRoutes(app);
+	app.jsl.jslModelController = require('./controllers/jslModel');
+	app.jsl.jslModelController.defineRoutes(app);
 
-	
-	
 	//Static Helpers
 	app.helpers({
 		encURI: function(content){ return encodeURIComponent(content) },
 		decURI: function(content){ return decodeURIComponent(content) },
 		esc: function(content){ return escape(content) },
-		uesc: function(content){ return unescape(content) }
+		uesc: function(content){ return unescape(content) },
+		trunc: app.jsl.utils.trunc,
+		drawSchema: app.jsl.jslModelController.drawSchema
 	});
 	
 	//Dynamic Helpers
@@ -131,15 +143,6 @@ app.configure(function(){
 		}
 	});
 	
-	
-	
-	
-	//init router
-	app.use(app.router);
-	//declare public dir
-	app.use(express.static(__dirname + '/public'));
-	
-
 });
 
 //configurazioni dell'app differenziate in base alla modalità del server (sviluppo/produzione)
@@ -158,56 +161,23 @@ app.configure('production', function(){
 
 
 //DB connection
-mongoose.connect('mongodb://localhost/jslardo');
+app.mongoose.connect('mongodb://localhost/jslardo');
 
 //carico i modelli del DB, e li salvo a livello di app
-app.jsl.models.defineModels(mongoose, app, function() {
-	app.jsl.user = mongoose.model('user');
-	app.jsl.role = mongoose.model('role');
-	app.jsl.site = mongoose.model('site');
-	app.jsl.page = mongoose.model('page');
-	app.jsl.div = mongoose.model('div');
-	//app.jsl.divOrdered = mongoose.model('divOrdered'); //non ha ne view ne controller perchè è un embedded document
-	app.jsl.module = mongoose.model('module');
-	app.jsl.debuggin = mongoose.model('debuggin');
-	//app.jsl.linkedserver = mongoose.model('linkedserver');
+app.jsl.models.defineModels(app.mongoose, app, function() {
+	app.jsl.user = app.mongoose.model('user');
+	app.jsl.role = app.mongoose.model('role');
+	app.jsl.site = app.mongoose.model('site');
+	app.jsl.element = app.mongoose.model('element');
+	app.jsl.page = app.mongoose.model('page');
+	app.jsl.div = app.mongoose.model('div');
+	app.jsl.jslModel = app.mongoose.model('jslModel');
+	app.jsl.module = app.mongoose.model('module');
+	app.jsl.debuggin = app.mongoose.model('debuggin');
 	//console.log("finito coi modelli!");
 })
 
 
-
-
-
-
-
-// Routes
-//nota: le route sono importate, prima quelle di jslardo, poi quelle per ciascuno degli oggetti persistenti nel db
-
-//route miscellanee di jslardo
-app.jsl.defineRoutes(app);
-
-//route per gli elementi della struttura
-require('./controllers/user').defineRoutes(app);
-require('./controllers/role').defineRoutes(app);
-require('./controllers/module').defineRoutes(app);
-require('./controllers/debuggin').defineRoutes(app);
-//per questi elementi oltre alle route, mi servono anche altri metodi esposti dal controller, quindi devo tenere tutto il controller
-app.jsl.pageController = require('./controllers/page');
-app.jsl.pageController.defineRoutes(app);
-app.jsl.siteController = require('./controllers/site');
-app.jsl.siteController.defineRoutes(app);
-app.jsl.divController = require('./controllers/div');
-app.jsl.divController.defineRoutes(app);
-
-
-/*queste non riesco a farle andare...
-//per ultime le route per le pagine di errore, se nessuna altra route è stata matchata
-//app.jsl.defineRoute404(app);
-app.error(function(err, req, res){
-	app.jsl.errorPage(res, "404 not found: "+req.path);	
-	//res.send("fica");
-});
-*/
 
 
 //attivo l'applicazione Express

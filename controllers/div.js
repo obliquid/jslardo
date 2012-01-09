@@ -43,8 +43,8 @@ function defineRoutes(app) {
 
 
 	//GET: div list
-	app.get('/divs/:page?', app.jsl.readStrucPermDefault, app.jsl.paginationInit, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/divs/:page?', app.jsl.perm.readStrucPermDefault, app.jsl.pag.paginationInit, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		if ( req.params.page == undefined || !isNaN(req.params.page) )
 		{
 			//leggo gli div dal db, e assegno il result al tpl
@@ -87,13 +87,13 @@ function defineRoutes(app) {
 							res.render('divs/list', { 
 								elementName: 'div',
 								elements: divs,
-								pagination: app.jsl.paginationDo(req, total, '/divs/')
+								pagination: app.jsl.pag.paginationDo(req, total, '/divs/')
 							});	
 						});	
 					}
 					else
 					{
-						app.jsl.errorPage(res, err, "GET: div list: failed query on db");
+						app.jsl.utils.errorPage(res, err, "GET: div list: failed query on db");
 					}	
 				}
 			);
@@ -105,8 +105,8 @@ function defineRoutes(app) {
 	});
 
 	//GET: div detail 
-	app.get('/divs/:id', app.jsl.readStrucPermDefault, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/divs/:id', app.jsl.perm.readStrucPermDefault, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//leggo il mio div dal db, e assegno il result al tpl
 		//se sono superadmin vedo anche i non share
 		var conditions = ( req.session.user_id == 'superadmin' ) 
@@ -142,14 +142,14 @@ function defineRoutes(app) {
 				}
 				else
 				{
-					app.jsl.errorPage(res, err, "GET: div detail: query error");
+					app.jsl.utils.errorPage(res, err, "GET: div detail: query error");
 				}
 			});	
 	});
 	
 	//GET: div form (new)
-	app.get('/divs/edit/new', app.jsl.readStrucPermDefault, app.jsl.needStrucPermCreate, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/divs/edit/new', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermCreate, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//è un NEW, renderizzo il form, ma senza popolarlo
 		res.render('divs/form', { 
 			title: app.i18n.t(req,'create new div'),
@@ -159,8 +159,8 @@ function defineRoutes(app) {
 	});
 	//POST: div form (new)
 	//qui ci entro quando dal form faccio un submit ma non è definito l'id, altrimenti andrei nella route POST di modify
-	app.post('/divs/edit', app.jsl.readStrucPermDefault, app.jsl.needStrucPermCreate, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.post('/divs/edit', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermCreate, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//////prima verifico se il dominio non è già stato usato
 		////app.jsl.div.findOne(
 			////{ 'domain': req.body.domain },
@@ -168,7 +168,7 @@ function defineRoutes(app) {
 				////if ( div ) 
 				////{
 					//////domain già usato
-					////app.jsl.errorPage(res, err, "already exists div with domain: "+req.body.domain);
+					////app.jsl.utils.errorPage(res, err, "already exists div with domain: "+req.body.domain);
 				////}
 				////else
 				////{
@@ -176,7 +176,7 @@ function defineRoutes(app) {
 					//creo nuovo div
 					var my_div = new app.jsl.div();
 					//popolo il mio div con quanto mi arriva dal form
-					app.jsl.populateModel(my_div, req.body);
+					app.jsl.utils.populateModel(my_div, req.body);
 					//assegno l'author (non gestito dal form ma impostato automaticamente)
 					my_div.author = req.session.user_id;
 					//inizializzo la data di creazione (che non è gestita dal form)
@@ -191,7 +191,7 @@ function defineRoutes(app) {
 						}
 						else
 						{
-							app.jsl.errorPage(res, err, "POST: div form: saving div");
+							app.jsl.utils.errorPage(res, err, "POST: div form: saving div");
 						}
 					});
 				////}
@@ -200,8 +200,8 @@ function defineRoutes(app) {
 	});	
 	
 	//GET: div form (modify) //quando entro in un form da un link (GET) e non ci arrivo dal suo stesso submit (caso POST)
-	app.get('/divs/edit/:id/:msg?', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnDivId, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/divs/edit/:id/:msg?', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnDivId, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//mi hanno passato l'id obbligatoriamente
 		//leggo il mio div dal db, e assegno il result al tpl
 		app.jsl.div.findOne(
@@ -218,15 +218,15 @@ function defineRoutes(app) {
 				}
 				else
 				{
-					app.jsl.errorPage(res, err, "GET: div form (modify): failed query on db");
+					app.jsl.utils.errorPage(res, err, "GET: div form (modify): failed query on db");
 				}	
 					
 			}
 		);	
 	});
 	//POST: div form (modify)
-	app.post('/divs/edit/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnDivId, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.post('/divs/edit/:id', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnDivId, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//prima trovo il mio div da modificare nel db
 		app.jsl.div.findOne(
 			{ '_id': req.params.id },
@@ -242,13 +242,13 @@ function defineRoutes(app) {
 							////if ( divSameDomain ) 
 							////{
 								//////domain già usata
-								////app.jsl.errorPage(res, err, "already exists div with domain: "+req.body.domain);
+								////app.jsl.utils.errorPage(res, err, "already exists div with domain: "+req.body.domain);
 							////}
 							////else
 							////{
 								//////la nuova domain è valida, posso procedere
 								//popolo il mio div con quanto mi arriva dal form
-								app.jsl.populateModel(div, req.body);
+								app.jsl.utils.populateModel(div, req.body);
 								//console.log('sto per salvare sto div:');
 								//console.log(div);
 								//salvo lo div modificato e rimando nel form
@@ -261,15 +261,15 @@ function defineRoutes(app) {
 				}
 				else
 				{
-					app.jsl.errorPage(res, err, "POST: div form (modify): div not found on db");
+					app.jsl.utils.errorPage(res, err, "POST: div form (modify): div not found on db");
 				}
 			}
 		);
 	});
 	
 	//GET: div delete
-	app.get('/divs/delete/:id', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnDivId, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.get('/divs/delete/:id', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnDivId, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//QUI!!!: oltre a div, vanno cancellati anche tutti i suoi elementi dipendenti
 		//sia per page che per div
 		
@@ -313,7 +313,7 @@ function defineRoutes(app) {
 						}
 					}
 				} else {
-					app.jsl.errorPage(res, err, 'GET: div delete: failed finding page relations');
+					app.jsl.utils.errorPage(res, err, 'GET: div delete: failed finding page relations');
 				}
 
 			});
@@ -358,7 +358,7 @@ function defineRoutes(app) {
 						}
 					}
 				} else {
-					app.jsl.errorPage(res, err, 'GET: div delete: failed finding div relations');
+					app.jsl.utils.errorPage(res, err, 'GET: div delete: failed finding div relations');
 				}
 
 			});
@@ -368,7 +368,7 @@ function defineRoutes(app) {
 		app.jsl.div.remove(
 			{ '_id': req.params.id },
 			function(err, div) {
-				if ( err ) app.jsl.errorPage(res, err, 'GET: div delete: failed query on db');
+				if ( err ) app.jsl.utils.errorPage(res, err, 'GET: div delete: failed query on db');
 			}
 		);
 		
@@ -409,8 +409,8 @@ function defineRoutes(app) {
 	
 
 	//POST: json div list 
-	app.post('/json/divs/divChildren/:page/:param?', app.jsl.readStrucPermDefault, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.post('/json/divs/divChildren/:page/:param?', app.jsl.perm.readStrucPermDefault, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//console.log(req.params);
 		//console.log(req.body);
 		
@@ -563,15 +563,15 @@ function defineRoutes(app) {
 	
 	//POST: json div form (new)
 	//creo un nuovo div dall'admin
-	app.post('/json/divs/new', app.jsl.readStrucPermDefault, app.jsl.needStrucPermCreate, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.post('/json/divs/new', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermCreate, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//console.log(req.body);
 		//creo nuovo div
 		var my_div = new app.jsl.div();
 		//popolo il mio div
 		//console.log("mi arriva questo div:");
 		//console.log(req.body.div);
-		app.jsl.populateModel(my_div, req.body.div);
+		app.jsl.utils.populateModel(my_div, req.body.div);
 		//console.log("ho popolato il model così:");
 		//console.log(my_div);
 		//console.log('typeof req.body.div.is_table = ' + typeof req.body.div.is_table );
@@ -599,16 +599,16 @@ function defineRoutes(app) {
 	
 	//POST: json page add div
 	//devo appendere un div già creato ad un div parent
-	app.post('/json/divs/appendDiv/:parent/:div/:order', app.jsl.readStrucPermDefault, app.jsl.needStrucPermCreate, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.post('/json/divs/appendDiv/:parent/:div/:order', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermCreate, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		appendDiv(req, req.params.parent, req.params.div, req.params.order, function(){ res.json(); });
 	});	
 
 
 	//POST: json move div
 	//devo muovere un div tra 2 padri (possono essere lo stesso) e secondo un order
-	app.post('/json/divs/moveDiv/:div/:order/:oldParent/:newParent/:page', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModify, function(req, res, next){
-		app.jsl.routeInit(req);
+	app.post('/json/divs/moveDiv/:div/:order/:oldParent/:newParent/:page', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModify, function(req, res, next){
+		app.jsl.routes.routeInit(req);
 		//console.log(req.params);
 		//trovo tutti i div (miei vecchi fratelli) figli del vecchio parent
 		findParentChildren( req.params.oldParent, function (children) {
@@ -732,7 +732,7 @@ function defineRoutes(app) {
 
 	//POST: json unlink div
 	//scollega un link dal vecchio parent
-	app.post('/json/divs/unlinkDiv/:id/:oldParent/:page', app.jsl.readStrucPermDefault, app.jsl.needStrucPermModifyOnDivId, function(req, res, next){
+	app.post('/json/divs/unlinkDiv/:id/:oldParent/:page', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnDivId, function(req, res, next){
 		
 		if ( req.params.oldParent == 'undefined' ) {
 			//il vecchio parent è una pagina

@@ -102,6 +102,16 @@ function needStrucPermModifyOnSiteId(req, res, next) {
 }
 exports.needStrucPermModifyOnSiteId = needStrucPermModifyOnSiteId;
 
+function needStrucPermModifyOnElementId(req, res, next) {
+	checkElementAuthorship('element', req, res ,next);
+}
+exports.needStrucPermModifyOnElementId = needStrucPermModifyOnElementId;
+
+function needStrucPermModifyOnJslModelId(req, res, next) {
+	checkElementAuthorship('jslModel', req, res ,next);
+}
+exports.needStrucPermModifyOnJslModelId = needStrucPermModifyOnJslModelId;
+
 
 function checkElementAuthorship(element, req, res, next) {
 	//prima controllo se ho il permesso di modify o se sono superadmin
@@ -134,7 +144,7 @@ function checkElementAuthorship(element, req, res, next) {
 					else
 					{
 						//qualcosa è andato storto nella query
-						req.app.jsl.errorPage(res, err, 'permissions.checkElementAuthorship: error in query retrieving element');
+						req.app.jsl.utils.errorPage(res, err, 'permissions.checkElementAuthorship: error in query retrieving element');
 					}
 				}
 			);
@@ -166,7 +176,7 @@ function readStrucPerm(on, req, res, next) {
 			//l'utente risulta loggato
 			//controllo se i suoi dati di login sono validi
 			//(questo controllo va fatto ogni volta, perchè se dall'ultimo conrollo l'utente fosse stato cancellato, non me ne accorgerei senza controllo
-			req.app.jsl.checkValidUser(req, function(result, user_id) { 
+			req.app.jsl.sess.checkValidUser(req, function(result, user_id) { 
 				if ( result )
 				{
 					//i dati di login sono validi

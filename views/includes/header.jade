@@ -7,22 +7,27 @@ div.headerCont
 				h3.floatLeft.logoLabel jslardo
 		//menu
 		div.floatLeft
-			if session.currentPage == 'users'
-				a(href='/users').floatLeft.elementButtonSelected.buttonUsers #{__i('users')}
-			else
-				a(href='/users').floatLeft.elementButton.buttonUsers #{__i('users')}
 			if session.currentPage == 'sites'
 				a(href='/sites').floatLeft.elementButtonSelected.buttonSites #{__i('sites')}
 			else
 				a(href='/sites').floatLeft.elementButton.buttonSites #{__i('sites')}
-			if session.currentPage == 'pages'
-				a(href='/pages').floatLeft.elementButtonSelected.buttonPages #{__i('pages')}
+			if session.currentPage == 'jslModels'
+				a(href='/jslModels').floatLeft.elementButtonSelected.buttonJslModels #{__i('models')}
 			else
-				a(href='/pages').floatLeft.elementButton.buttonPages #{__i('pages')}
-			if session.currentPage == 'divs'
-				a(href='/divs').floatLeft.elementButtonSelected.buttonDivs #{__i('divs')}
+				a(href='/jslModels').floatLeft.elementButton.buttonJslModels #{__i('models')}
+			//-
+				if session.currentPage == 'pages' || session.currentPage == 'sites' || session.currentPage == 'divs'
+					a(href='/pages').floatLeft.elementButtonSelected.buttonPages #{__i('pages')}
+				else
+					a(href='/pages').floatLeft.elementButton.buttonPages #{__i('pages')}
+				if session.currentPage == 'divs'
+					a(href='/divs').floatLeft.elementButtonSelected.buttonDivs #{__i('divs')}
+				else
+					a(href='/divs').floatLeft.elementButton.buttonDivs #{__i('divs')}
+			if session.currentPage == 'users'
+				a(href='/users').floatLeft.elementButtonSelected.buttonUsers #{__i('users')}
 			else
-				a(href='/divs').floatLeft.elementButton.buttonDivs #{__i('divs')}
+				a(href='/users').floatLeft.elementButton.buttonUsers #{__i('users')}
 			if session.currentPage == 'roles'
 				a(href='/roles').floatLeft.elementButtonSelected.buttonRoles #{__i('roles')}
 			else

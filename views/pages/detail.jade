@@ -1,4 +1,4 @@
-h3 #{__i(elementName)}:
+h3 #{__i(elementName)}
 	img(src='/images/pov/icon_core_page_60x45.png').floatLeft
 hr
 if element.route != ''
@@ -17,7 +17,7 @@ else
 hr
 .outerCont
 	a(href='/sites/#{element.site._id}').floatLeft.elementButton.buttonSites #{__i('site')}
-	a(href='/filterBySite/#{element.site._id}/#{encURI('/pages/')}', title='#{__i('all pages for this site')}').floatLeft.elementButton.buttonPages #{__i('pages')}
+	a(href='/filterBySite/#{element.site._id}/#{encURI('/pages/')}', title='#{__i('all pages for this site')}').floatLeft.elementButton.buttonPages #{__i('site pages')}
 
 include ../includes/detailCommon
 

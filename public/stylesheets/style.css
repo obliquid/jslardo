@@ -331,6 +331,10 @@ a.outerCont:hover
 	font-size:12px;
 }
 
+.code {
+	font-size:14px;
+	font-family: "Courier New", Courier, monospace;
+}
 
 
 /* links and buttons */
@@ -412,8 +416,7 @@ form
 }
 
 /* box shadow */
-.outerCont
-{
+.outerCont {
 	-moz-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.6);
 	-webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.6);
 	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.6);
@@ -429,7 +432,10 @@ textarea,
 .adminIcon,
 .formSuccess,
 .linkSelected,
-.formRow, .jstree, #vakata-contextmenu
+.formRow, .detailRow, .jstree, #vakata-contextmenu,
+#simplemodal-container,
+.simplemodal-wrap,
+.simplemodal-data
 {
 	border-radius: 14px; 
 	-moz-border-radius: 14px; 
@@ -638,6 +644,13 @@ textarea:hover,
 	margin: 0px;
 	padding: 0px;
 }
+.bodyPopup
+{
+	background-image:url('../images/bg/nero15perc.png');
+	background-repeat:repeat;
+	margin: 0px;
+	padding: 0px 20px;
+}
 .header
 {
 	margin: 0 auto;
@@ -698,7 +711,8 @@ textarea:hover,
 /* forms */
 
 
-.formLabel
+.formLabel,
+.detailLabel
 {
 	display: inline-block;
 	float: left;
@@ -709,7 +723,8 @@ textarea:hover,
 	padding: 5px;
 }
 
-.formRow
+.formRow,
+.detailRow
 {
   background-image:url('../images/bg/bianco50perc.png');
   background-repeat:repeat;
@@ -717,13 +732,27 @@ textarea:hover,
   margin-bottom: 10px;
 }
 
+
+/* DYNAMIC CONTENT RELATED */
+.dynForm,
+.dynView {
+}
+
+
+
+/* crud buttons */
+
 .adminButton,
 .adminIcon,
 .paginationButton
 {
 	display: inline-block;
+	/*
 	width: 24px;
 	height: 24px;
+	*/
+	width: 30px;
+	height: 30px;
 	background-repeat:no-repeat;
 	background-position:center;
 	margin: 2px;
@@ -739,7 +768,10 @@ textarea:hover,
 	background-color: #aaaaaa;
 	cursor: default;
 }
-
+.datatypeIcon {
+	width: 50px;
+	text-align: center;
+}
 .addButton
 {
 	background-image:url('../images/pov/icon_new_20x15.png');
@@ -751,7 +783,7 @@ textarea:hover,
 	height: 30px;
 	font-size: 18px;
 	background-image:url('../images/pov/icon_save_30x23.png');
-	background-position: 5px 4px;
+	background-position: 5px 3px;
 	padding-left: 25px;
 }
 
@@ -772,12 +804,12 @@ textarea:hover,
 
 .viewButton
 {
-	background-image:url('../images/pov/icon_view_one_20x15.png');
+	background-image:url('../images/pov/icon_view_one_30x23.png');
 }
 
 .allButton
 {
-	background-image:url('../images/pov/icon_view_all_20x15.png');
+	background-image:url('../images/pov/icon_view_all_30x23.png');
 }
 
 .selectButton
@@ -845,6 +877,16 @@ textarea:hover,
 .buttonSites
 {
 	background-image:url('../images/pov/icon_core_site_30x23.png');
+}
+
+.buttonElements
+{
+	background-image:url('../images/pov/icon_core_element_30x23.png');
+}
+
+.buttonJslModels
+{
+	background-image:url('../images/pov/icon_core_jslModel_30x23.png');
 }
 
 .buttonPages
@@ -934,12 +976,15 @@ textarea:hover,
 	left: 300px;
 }
 
-.filterBySite
+.filterBySite,
+.filterByModel
+/* questi 2 hanno la stessa posizione perchè non compaiono mai assieme */
 {
 	position: absolute;
 	top: 20px;
 	left: 500px;
 }
+
 
 
 /* JSTREE */
@@ -960,6 +1005,10 @@ textarea:hover,
 	height: 70px;
 }
 
+.jstreeDatatypes {
+	height: 200px;
+}
+
 .jstreeOtherPage {
 	height: 250px;
 }
@@ -976,9 +1025,21 @@ textarea:hover,
 
 
 
+/* SIMPLEMODAL */
 
-
-
+#simplemodal-container
+{
+	-moz-box-shadow: 0px 0px 30px rgba(0, 0, 0, 1);
+	-webkit-box-shadow: 0px 0px 30px rgba(0, 0, 0, 1);
+	box-shadow: 0px 0px 30px rgba(0, 0, 0, 1);
+}
+.simplemodal-overlay {
+	background-color: black;
+	overflow: hidden;
+}
+.simplemodal-wrap, .simplemodal-data {
+	overflow: hidden;
+}
 
 
 
