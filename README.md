@@ -11,10 +11,17 @@ as a template engine jslardo uses jade.
 ## yet implemented functionalities
   - internationalization:
     - via i18n
-  - pagination:
-    - defined as a middleware in express
+  - sites management
+  - pages management
+  - divs management
+  - models management
+  - models fields management
+  - contents management
+    - with automatic views generation
   - users management:
     - users can register, and modify their profile
+  - pagination:
+    - defined as a middleware in express
 
 ## installation
 see the wiki page for some more info. but, if you have node and npm already working, installing jslardo is as easy as
