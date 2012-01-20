@@ -1,0 +1,28 @@
+h3 #{__i('contents')}
+	img(src='/images/pov/icon_core_content_60x45.png').floatLeft
+hr
+include ../includes/paginationTop
+include ../includes/filterAllOrMine
+if !callback
+	//- include ../includes/filterByModel
+	include ../includes/listCrudbox
+
+each element,i in elements
+	div.floatLeft.size1
+		if callback
+			- var href = '';
+			- var onclick = callback+'("'+element._id+'")';
+		else
+			- var href = '/'+elementName+'s/'+req.params.modelId+'/'+element._id;
+			- var onclick = '';
+		a(onclick='window.parent.#{onclick};window.parent.$.modal.close();', href='#{href}').elemGrid.outerCont
+			if element.jslModel
+				h5 #{element.jslModel.name}
+			div.innerCont
+				.dynView
+					if element.dynView
+						!= element.dynView			
+			include ../includes/listInfoBox
+	if (i+1)%6==0
+		div.clear
+include ../includes/paginationBottom

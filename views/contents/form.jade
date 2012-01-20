@@ -1,0 +1,94 @@
+script
+	function validate_elementForm() {
+		if( $('#jslModel').val() == '' ) {
+			alert("#{__i('model is required')}");
+			return false;
+		}
+		
+		//- per ogni riga del form considero esista un field,
+		//e per ogni field dinamico chiamo il suo metodo di validazione
+		//e il suo metodo di required, definiti entrambi nel template
+		var fieldsNum = $('.dynForm').children().length;
+		//console.log(fieldsNum);
+		for ( var i=0; i<fieldsNum; i++) {
+			//console.log(i);
+			//console.log(this['validate_dynForm_'+i]);
+			//console.log(this['required_dynForm_'+i]);
+			if ( typeof this['validate_dynForm_'+i] === 'function' && !this['validate_dynForm_'+i]() ) {
+				return false;
+			}
+			if ( typeof this['required_dynForm_'+i] === 'function' && !this['required_dynForm_'+i]() ) {
+				return false;
+			}
+		}
+	}
+	
+	function renderDynForm() {
+		//chiedo conferma solo se non arrivo da un model non scelto (quindi form non visualizzato)
+		//console.log(modelId);
+		if ($('.dynForm').children().length > 0) {
+			var answer = confirm("#{__i('you will loose current form data, continue?')}")
+		} else {
+			var answer = true;
+		}
+		if (answer) {
+			var modelId = $('#jslModel').val();
+			//alert('olè per model id:'+$('#jslModel').val() );
+			if ( !modelId ) {
+				//con id vuoto, elimino il form
+				$('.dynForm').empty();
+			} else {
+				$.ajax({
+					url: '/json/contents/renderDynForm/'+modelId,
+					type: 'POST',
+					dataType: 'json',
+					data: {},
+					complete: function() {
+						//console.log('process complete');
+					},
+					success: function(renderedForm) {
+						//console.log('process sucess: ricevuto form renderizzato: '+renderedForm);
+						//console.log(renderedForm);
+						//console.log('refresh');
+						//refresh del form
+						$('.dynForm').empty();
+						$('.dynForm').html(renderedForm);
+					},
+					error: function() {
+						console.log('ajax error calling: /json/contents/renderDynForm/');
+					}
+				});				
+			}
+		}
+	}
+
+
+img(src='/images/pov/icon_core_content_60x45.png').floatLeft
+include ../includes/formHeader
+form(id='elementForm', method='post', action='/#{elementName}s/#{req.params.modelId}/edit/#{element._id || ""}', onsubmit='return validate_elementForm()' )
+	include ../includes/formSubmitTop
+	div.size4.floatLeft
+		div.mainColLeft
+			.formRow
+				h5.formLabel #{__i('model')}
+					span.formError *
+				select(id='jslModel', name='jslModel', onchange='renderDynForm()', disabled='disabled')
+					option(value='') -
+					each combo_jslModel in combo_jslModels
+						//- if String(combo_jslModel._id) == String(element.jslModel._id)
+						if combo_jslModel._id == req.params.modelId
+							option(value='#{combo_jslModel._id}',selected='true') #{combo_jslModel.name}
+						else
+							option(value='#{combo_jslModel._id}') #{combo_jslModel.name}
+			hr
+			h4 #{__i('content')}
+			.dynForm
+				if dynForm
+					!= dynForm
+	
+	div.size2.floatLeft
+		div.mainColRight
+			include ../includes/formStatus
+	div.clear
+	include ../includes/formSubmitBottom
+

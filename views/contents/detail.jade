@@ -1,0 +1,16 @@
+h3 #{__i(elementName)}
+	img(src='/images/pov/icon_core_content_60x45.png').floatLeft
+include ../includes/detailCrudbox
+a(href='/jslModels/#{element.jslModel._id}', title='#{__i('model for this content')}').floatLeft.elementButton.buttonJslModels #{__i('model')}
+hr
+div.size4.floatLeft
+	div.mainColLeft
+		h1 #{element.jslModel.name}
+		.dynView
+			if dynView
+				!= dynView
+div.size2.floatLeft
+	div.mainColRight
+		include ../includes/detailCommon
+div.clear
+

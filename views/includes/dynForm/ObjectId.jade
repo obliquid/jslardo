@@ -1,0 +1,56 @@
+script
+	function validate_dynForm_#{counter} () {
+		return true;
+	}
+if required
+	script
+		function required_dynForm_#{counter} () {
+			if ( !$('#'+'#{field}').val() ) {
+				alert("#{field} is required");
+				return false;				
+			}
+			return true;
+		}
+else
+	script
+		//- deve sempre essere presente
+		function required_dynForm_#{counter} () {
+			return true;
+		}
+
+if cardinality == 'single'
+	script
+		function select_#{field}(elementId) {
+			//- alert('chiamato! con elementId = '+elementId);
+			//- aggiorno il form
+			$('#'+'#{field}').val(elementId);
+		}
+if cardinality == 'multiple'
+	script
+		function select_#{field}(elementId) {
+			//- alert('chiamato! con elementId = '+elementId);
+			//- aggiorno il form
+			if ( !$('#'+'#{field}').val() ) {
+				$('#'+'#{field}').val(elementId);
+			} else {
+				var actualElements = $('#'+'#{field}').val().split(',');
+				actualElements.push(elementId);
+				$('#'+'#{field}').val(actualElements.join(','));
+			}
+		}
+
+#{cardinality}
+.formRow
+	h5.formLabel #{field}
+		if required
+			span.formError *
+	input(id='#{field}', name='#{field}', value='#{element[field] || ""}').size2
+	a(title='#{field}: #{__i("create new")}').adminButton.addButton
+	//- a(onclick='openModal("/filterByModel/#{type_model}/#{encURI('/contents/'+req.params.modelId+'/1/select_'+field)}",1000)', target='_blank', title='#{field}: #{__i("select existent")}').adminButton.selectButton
+	a(onclick='openModal("/contents/#{type_model}/1/select_#{field}",1000)', target='_blank', title='#{field}: #{__i("select existent")}').adminButton.selectButton
+	
+	span.adminIcon.datatypeIcon
+		img(src='#{icon}')
+	
+	if description
+		p #{description}
