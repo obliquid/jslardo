@@ -334,7 +334,8 @@ function defineRoutes(app) {
 			res.redirect(redirectTo);
 		}
 	});
-	
+
+	/*	
 	//GET: filter by model
 	//nota: se si passa anche il parametro andGotoUrl, questo deve essere URIencodato: in jade usare #{encURI('url')}
 	app.get('/filterByModel/:jslModel?/:andGotoUrl?', function(req, res) {
@@ -380,7 +381,7 @@ function defineRoutes(app) {
 			res.redirect(redirectTo);
 		}
 	});
-	
+	*/
 
 	
 	

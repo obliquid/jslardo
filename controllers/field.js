@@ -42,7 +42,7 @@ function defineRoutes(app) {
 	
 	//GET: field form (modify) //quando entro in un form da un link (GET) e non ci arrivo dal suo stesso submit (caso POST)
 	//il parametro id è obbligatorio, ed è inteso come l'id del model cui appartiene questo field. serve per controllare i permessi
-	app.get('/fields/edit/:id/:name/:type/:required/:description?', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnJslModelId, function(req, res, next){
+	app.get('/fields/edit/:id/:name/:type/:type_model/:type_cardinality/:required/:description?', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnJslModelId, function(req, res, next){
 		app.jsl.routes.routeInit(req);
 		//costruisco l'oggetto per popolare il form
 		var element = {
@@ -50,55 +50,62 @@ function defineRoutes(app) {
 			old_name: req.params.name, //questa mi serve per memorizzare il nome originario del field
 			type: req.params.type,
 			old_type: req.params.type, //questa mi serve per memorizzare il type originario del field
+			type_model: req.params.type_model,
+			old_type_model: req.params.type_model, //questa mi serve per memorizzare il type_model originario del field
+			type_cardinality: req.params.type_cardinality,
+			old_type_cardinality: req.params.type_cardinality, //questa mi serve per memorizzare il type_cardinality originario del field
 			description: req.params.description,
 			required: req.params.required,
 			model: req.params.id
 		};
-		res.render('fields/form', {
-			layout: 'layoutPopup',//OK per il layout, ma è da implementare il callback
-			title: app.i18n.t(req,'modify field'),
-			elementName: 'field',
-			element: element,
-			msg: req.params.msg,
-			combo_types: app.jsl.utils.datatypes
-		});	
-		/*
-		//mi hanno passato l'id obbligatoriamente
-		//leggo il mio field dal db, e assegno il result al tpl
-		app.jsl.field.findOne(
-			{ '_id': req.params.id },
-			function(err, field) {
-				if (!err)
-				{
-					res.render('fields/form', { 
-						title: app.i18n.t(req,'modify field'),
-						elementName: 'field',
-						element: field,
-						msg: req.params.msg
-					});	
-				}
-				else
-				{
-					app.jsl.utils.errorPage(res, err, "GET: field form (modify): failed query on db");
-				}	
-					
-			}
-		);
-		*/
+		//devo leggere tutti i model disponibili per il mio user
+		app.jsl.jslModelController.getJslModels(req,res,function(jslModels){
+			//posso popolare il form per il mio field
+			res.render('fields/form', {
+				layout: 'layoutPopup',
+				title: app.i18n.t(req,'modify field'),
+				elementName: 'field',
+				element: element,
+				msg: req.params.msg,
+				combo_types: app.jsl.utils.datatypes,
+				combo_models: jslModels
+			});	
+		});
 	});
-	/* in realtà questa non la uso mai perchè il form comunica direttamente con il suo opener, non chiama una route di save
-	//POST: field form (modify)
-	//il parametro id è obbligatorio, ed è inteso come l'id del model cui appartiene questo field. serve per controllare i permessi
-	app.post('/fields/edit/:id', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnJslModelId, function(req, res, next){
+
+
+
+
+
+
+	//JSON ROUTES
+
+	//POST: json field: add internal jslardo fields to a new schema
+	app.post('/json/fields/addInternalFields', app.jsl.perm.readStrucPermDefault, function(req, res, next){
 		app.jsl.routes.routeInit(req);
-		
-		console.log('name: '+req.body.name);
-		console.log('type: '+req.body.type);
-		
-		
-	});
-	*/
+		//console.log(req.params);
+		//è l'oggeto coi parametri che mi arrivano in post
+		res.json(addInternalFields(req.body));
+	});	
 	
+
+
+
 }
 exports.defineRoutes = defineRoutes;
  
+
+//add internal jslardo fields to a new schema
+function addInternalFields(schema) {
+	/*
+	'author': { type: Schema.ObjectId, ref: 'user', required: true, index: true },
+	'status': { type: String, required: true, enum: ['public', 'private', 'share'], index: true },
+	'created': { type: Date, required: true }
+	*/
+	schema.jslModel = { 'type': 'ObjectId', 'ref': 'jslModel', 'required': true, 'index': true };
+	schema.author = { 'type': 'ObjectId', 'ref': 'user', 'required': true, 'index': true };
+	schema.created = { 'type': 'Date', 'required': true };
+	schema.status = { 'type': 'String', 'required': true, 'enum': ['public', 'private', 'share'], 'index': true };
+	return schema;
+}
+exports.addInternalFields = addInternalFields;

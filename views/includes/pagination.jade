@@ -1,23 +1,25 @@
+if !callback
+	- var callback = ''
 div
 	if pagination.currentLabel.tooltip
-		h5.paginationActualResults #{ pagination.currentLabel.tooltip }
+		span.paginationActualResults #{ pagination.currentLabel.tooltip }
 	
 	if pagination.firstBtn.tooltip
-		a(href='#{pagination.firstBtn.link}', title='#{pagination.firstBtn.tooltip}', alt='|&lt;&lt;').paginationButton.paginationLinkFirst
+		a(href='#{pagination.firstBtn.link}/#{callback}', title='#{pagination.firstBtn.tooltip}', alt='|&lt;&lt;').paginationButton.paginationLinkFirst
 	
 	if pagination.prev10Btn.tooltip
-		a(href='#{pagination.prev10Btn.link}', title='#{pagination.prev10Btn.tooltip}', alt='&lt;&lt;').paginationButton.paginationLinkPrev10pages
+		a(href='#{pagination.prev10Btn.link}/#{callback}', title='#{pagination.prev10Btn.tooltip}', alt='&lt;&lt;').paginationButton.paginationLinkPrev10pages
 	
 	if pagination.prevBtn.tooltip
-		a(href='#{pagination.prevBtn.link}', title='#{pagination.prevBtn.tooltip}', alt='|&lt;&lt;').paginationButton.paginationLinkPrev
+		a(href='#{pagination.prevBtn.link}/#{callback}', title='#{pagination.prevBtn.tooltip}', alt='|&lt;&lt;').paginationButton.paginationLinkPrev
 	
 	if pagination.nextBtn.tooltip
-		a(href='#{pagination.nextBtn.link}', title='#{pagination.nextBtn.tooltip}',  alt='&gt;').paginationButton.paginationLinkNext
+		a(href='#{pagination.nextBtn.link}/#{callback}', title='#{pagination.nextBtn.tooltip}',  alt='&gt;').paginationButton.paginationLinkNext
 	
 	if pagination.next10Btn.tooltip
-		a(href='#{pagination.next10Btn.link}', title='#{pagination.next10Btn.tooltip}',  alt='&gt;&gt;').paginationButton.paginationLinkNext10pages
+		a(href='#{pagination.next10Btn.link}/#{callback}', title='#{pagination.next10Btn.tooltip}',  alt='&gt;&gt;').paginationButton.paginationLinkNext10pages
 	
 	if pagination.lastBtn.tooltip
-		a(href='#{pagination.lastBtn.link}', title='#{pagination.lastBtn.tooltip}',  alt='&gt;&gt;|').paginationButton.paginationLinkLast
+		a(href='#{pagination.lastBtn.link}/#{callback}', title='#{pagination.lastBtn.tooltip}',  alt='&gt;&gt;|').paginationButton.paginationLinkLast
 
 div.clear	

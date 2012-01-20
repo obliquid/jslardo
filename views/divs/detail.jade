@@ -1,56 +1,60 @@
 h3 #{__i(elementName)}
 	img(src='/images/pov/icon_core_div_60x45.png').floatLeft
-hr
-h3.floatLeft #{element.type}:&nbsp;
-if element.dom_id
-	h1 #{element.dom_id}
-else if element.class
-	h1 #{element.class}
-else
-	div.clear
-
-table.outerContMinimal
-	if element.dom_id
-		tr
-			td
-				h6 id =
-			td 
-				span "#{element.dom_id}"
-	if element.class
-		tr
-			td
-				h6 class =
-			td 
-				span "#{element.class}"
-	tr
-		td 
-			h6 #{__i('auto generate inline styles')}:
-		td 
-			span.formChoice
-				if element.inline_style
-					#{__i('yes')}
-				else
-					#{__i('no')}
-	tr
-		td 
-			h6 #{__i('render as a table')}:
-		td 
-			span.formChoice
-				if element.is_table
-					#{__i('yes')}
-				else
-					#{__i('no')}
-if element.children.length > 0
-	hr
-	.outerCont
-		h5 #{__i('children')}
-		each child in element.children
-			if child.div.dom_id
-				a(href='/divs/#{child.div.id}').floatLeft.elementButton.buttonDivs #{child.div.dom_id} (#{child.div.type})
-			else
-				a(href='/divs/#{child.div.id}').floatLeft.elementButton.buttonDivs #{child.div.class} (#{child.div.type})
-
-include ../includes/detailCommon
-
 include ../includes/detailCrudbox
+hr
+div.size4.floatLeft
+	div.mainColLeft
+		h3.floatLeft #{element.type}:&nbsp;
+		if element.dom_id
+			h1 #{element.dom_id}
+		else if element.class
+			h1 #{element.class}
+		else
+			div.clear
+		
+		table.outerContMinimal
+			if element.dom_id
+				tr
+					td
+						h6 id =
+					td 
+						span "#{element.dom_id}"
+			if element.class
+				tr
+					td
+						h6 class =
+					td 
+						span "#{element.class}"
+			tr
+				td 
+					h6 #{__i('auto generate inline styles')}:
+				td 
+					span.formChoice
+						if element.inline_style
+							#{__i('yes')}
+						else
+							#{__i('no')}
+			tr
+				td 
+					h6 #{__i('render as a table')}:
+				td 
+					span.formChoice
+						if element.is_table
+							#{__i('yes')}
+						else
+							#{__i('no')}
+div.size2.floatLeft
+	div.mainColRight
+		if element.children.length > 0
+			.outerContMinimal
+				h5 #{__i('children')}
+				each child in element.children
+					if child.div.dom_id
+						a(href='/divs/#{child.div.id}').floatLeft.elementButton.buttonDivs #{child.div.dom_id} (#{child.div.type})
+					else
+						a(href='/divs/#{child.div.id}').floatLeft.elementButton.buttonDivs #{child.div.class} (#{child.div.type})
+				div.clear
+			hr
+		include ../includes/detailCommon
 
+div.clear

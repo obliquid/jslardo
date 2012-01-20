@@ -1,3 +1,17 @@
+if elementName == 'content'
+	a( href='/jslModels/#{req.params.modelId}', title='#{__i("model of these contents")}').floatLeft.elementButton.buttonJslModels #{__i("model")}
+	
+if typeof combo_sites != 'undefined'
+	each combo_site in combo_sites
+		if combo_site._id == session.filterBySite
+			a( href='/sites/#{combo_site._id}', title='#{__i("site of these pages")}').floatLeft.elementButton.buttonJslModels #{__i("site")}
+	
 if session.canCreate
+	if elementName == 'content'
+		a(href='/contents/#{req.params.modelId}/edit/new', title='#{__i('new')} #{__i(elementName)}').adminButton.addButton
+	else
+		a(href='/#{elementName}s/edit/new', title='#{__i('new')} #{__i(elementName)}').adminButton.addButton
+	
+if elementName == 'content' || session.canCreate || typeof combo_sites != 'undefined'
+	div.clear
 	hr
-	a(href='/#{elementName}s/edit/new', title='#{__i('new')} #{__i(elementName)}').adminButton.addButton

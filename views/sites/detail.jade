@@ -1,27 +1,28 @@
 h3 #{__i(elementName)}
 	img(src='/images/pov/icon_core_site_60x45.png').floatLeft
-hr
-h1 #{element.title}
-h4
-	span http://
-		a(href='http://#{element.domain}', target='_blank', title='#{__i('open')}') #{element.domain}
-table.outerContMinimal
-	tr
-		td
-			h6 #{__i('description')}:
-		td 
-			span #{element.description}
-	tr
-		td 
-			h6 #{__i('keywords')}:
-		td 
-			span #{element.keywords}
-
-hr
-.outerCont
-	a(href='/filterBySite/#{element._id}/#{encURI('/pages/')}', title='#{__i('all pages for this site')}').floatLeft.elementButton.buttonPages #{__i('site pages')}
-
-include ../includes/detailCommon
-
 include ../includes/detailCrudbox
+a(href='/filterBySite/#{element._id}/#{encURI('/pages/')}', title='#{__i('all pages for this site')}').floatLeft.elementButton.buttonPages #{__i('pages')}
+hr
+div.size4.floatLeft
+	div.mainColLeft
+		h1 #{element.title}
+		h4
+			span http://
+				a(href='http://#{element.domain}', target='_blank', title='#{__i('open')}') #{element.domain}
+		table.outerContMinimal
+			tr
+				td
+					h6 #{__i('description')}:
+				td 
+					span #{element.description}
+			tr
+				td 
+					h6 #{__i('keywords')}:
+				td 
+					span #{element.keywords}
 
+div.size2.floatLeft
+	div.mainColRight
+		include ../includes/detailCommon
+
+div.clear

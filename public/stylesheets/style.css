@@ -567,8 +567,7 @@ textarea:hover,
 /* CUSTOM CLASSES */
 /* styles dedicated to specific elements */
 
-.outerCont,
-.outerContMinimal
+.outerCont
 {
 	/*
 	margin-right:15px;
@@ -619,8 +618,7 @@ textarea:hover,
 	overflow: hidden;
 }
 
-.headerCont,
-.headerAdminCont
+.headerCont
 {
 	background-image:url('../images/bg/ombraTop.png');
 	background-repeat:repeat-x;
@@ -628,7 +626,8 @@ textarea:hover,
 	margin: 0px;
 	padding: 5px 0px;
 }
-.footerCont
+.footerCont,
+.headerAdminCont
 {
 	background-image:url('../images/bg/ombraBottom.png');
 	background-repeat:repeat-x;
@@ -636,6 +635,10 @@ textarea:hover,
 	margin: 0px;
 	padding: 0px;
 	padding-top: 10px;
+}
+.headerAdminCont
+{
+	padding-top: 5px;
 }
 .bodyCont
 {
@@ -675,6 +678,13 @@ textarea:hover,
 	padding-top: 15px;
 	padding-bottom: 20px;
 	position: relative;
+}
+.mainColLeft {
+	padding-right: 10px;
+	margin-right: 10px;
+}
+.mainColRight {
+	
 }
 .logoLabel
 {
@@ -804,17 +814,17 @@ textarea:hover,
 
 .viewButton
 {
-	background-image:url('../images/pov/icon_view_one_30x23.png');
+	background-image:url('../images/pov/icon_view_one_20x20.png');
 }
 
 .allButton
 {
-	background-image:url('../images/pov/icon_view_all_30x23.png');
+	background-image:url('../images/pov/icon_view_all_20x20.png');
 }
 
 .selectButton
 {
-	background-image:url('../images/pov/icon_core_set_20x15.png');
+	background-image:url('../images/pov/icon_core_get_20x15.png');
 }
 
 .privateButton
@@ -856,12 +866,12 @@ textarea:hover,
 .elementButtonSelected
 {
 	display: inline-block;
-	height: 30px;
+	height: 28px;
 	background-repeat:no-repeat;
 	background-position: 3px 4px;
 	margin: 2px;
 	padding: 0px;
-	padding-top: 3px;
+	padding-top: 2px;
 	padding-left: 35px;
 	padding-right: 10px;
 	font-size: 18px;
@@ -910,6 +920,7 @@ textarea:hover,
 
 .paginationActualResults
 {
+	font-family: TitlesFont, Arial, Helvetica, sans-serif;
 	display: inline-block;
 	margin-top: 3px;
 	margin-right: 4px;
@@ -957,7 +968,7 @@ textarea:hover,
 .paginationBoxTop
 {
 	position: absolute;
-	top: 10px;
+	top: 30px;
 }
 
 .paginationBoxBottom
@@ -972,7 +983,7 @@ textarea:hover,
 .filterAllOrMine
 {
 	position: absolute;
-	top: 20px;
+	top: 30px;
 	left: 300px;
 }
 
@@ -981,8 +992,8 @@ textarea:hover,
 /* questi 2 hanno la stessa posizione perchè non compaiono mai assieme */
 {
 	position: absolute;
-	top: 20px;
-	left: 500px;
+	top: 30px;
+	left: 450px;
 }
 
 

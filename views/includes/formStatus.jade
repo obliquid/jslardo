@@ -1,4 +1,3 @@
-hr
 .formRow
 	h5.formLabel #{__i('status')}
 		span.formError *
@@ -7,11 +6,13 @@ hr
 	else
 		input(type='radio', name='status', value='private') 
 	span #{__i('private')}
+	br
 	if (element.status == 'public' )
 		input(type='radio', name='status', value='public', checked=true) 
 	else
 		input(type='radio', name='status', value='public') 
 	span #{__i('public')}
+	br
 	if (element.status == 'share' )
 		input(type='radio', name='status', value='share', checked=true) 
 	else

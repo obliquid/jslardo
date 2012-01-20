@@ -1,24 +1,28 @@
 h3 #{__i(elementName)}
 	img(src='/images/pov/icon_core_role_60x45.png').floatLeft
 hr
-h1 #{element.name}
-br
-h4
-	span [
-		a(href='mailto:#{element.email}', title='#{__i('mail to')}') #{element.email}
-		]
-br
-if element.profile
-	p #{element.profile}
-	br
-
-include ../includes/detailCommon
-
-hr
 a(href='/#{elementName}s', title='#{__i('view all')}').paginationButton.allButton
 if session.user_id == 'superadmin' || session.user_id == element._id
 	a(href='/#{elementName}s/edit/#{element._id}', title='#{__i('modify user')}').adminButton.modifyButton
 	if element.status == 'private'
 		div(title='private').adminIcon.privateButton
+hr
+div.size4.floatLeft
+	div.mainColLeft
+		h1 #{element.name}
+		br
+		h4
+			span [
+				a(href='mailto:#{element.email}', title='#{__i('mail to')}') #{element.email}
+				]
+		br
+		if element.profile
+			p #{element.profile}
+			br
+
+div.size2.floatLeft
+	div.mainColRight
+		include ../includes/detailCommon
+div.clear
 
 

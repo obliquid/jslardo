@@ -180,5 +180,20 @@
 	"changing type means to loose all data saved for this field (unless changing from Number to String). continue?": "changing type means to loose all data saved for this field (unless changing from Number to String). continue?",
 	"this is an explanation on how to compile this field, and will be shown only in the form": "this is an explanation on how to compile this field, and will be shown only in the form",
 	"required": "required",
-	"set": "set"
+	"set": "set",
+	"single": "single",
+	"multiple": "multiple",
+	"create new": "create new",
+	"select existent": "select existent",
+	"model for these pages": "model for these pages",
+	"model for these elements": "model for these elements",
+	"site for these pages": "site for these pages",
+	"site of these pages": "site of these pages",
+	"model of these elements": "model of these elements",
+	"contents for this model": "contents for this model",
+	"contents": "contents",
+	"create new content": "create new content",
+	"modify content": "modify content",
+	"model of these contents": "model of these contents",
+	"model for this content": "model for this content"
 }

@@ -31,62 +31,67 @@ script
 img(src='/images/pov/icon_core_role_60x45.png').floatLeft
 include ../includes/formHeader
 
-form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmit='return validate_elementForm()' ).size4
-	h4 #{__i('your profile')}
-	.formRow
-		h5.formLabel #{__i('name')}
-			span.formError *
-		input(id='name', name='name', value='#{element.name || ""}').size3
-	.formRow
-		h5.formLabel #{__i('profile')}
-			span.formError &nbsp;
-		textarea(name='profile').size3 #{element.profile || ''}
-	.formRow
-		h5.formLabel email
-		span.formError *
-		input(id='email', name='email', value='#{element.email || ""}').size3
-		p #{__i('email is also used as username')}
-	//- se è un nuovo utente, è obbligatorio inserire la pw
-	//- se è un modify, la pw viene inserita solo per cambiarla
-	if (typeof element._id === 'undefined' || element._id == '' )
-		.formRow
-			h5.formLabel password
+form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmit='return validate_elementForm()' )
+	include ../includes/formSubmitTop
+	div.size4.floatLeft
+		div.mainColLeft
+			h4 #{__i('your profile')}
+			.formRow
+				h5.formLabel #{__i('name')}
+					span.formError *
+				input(id='name', name='name', value='#{element.name || ""}').size3
+			.formRow
+				h5.formLabel #{__i('profile')}
+					span.formError &nbsp;
+				textarea(name='profile').size3 #{element.profile || ''}
+			.formRow
+				h5.formLabel email
 				span.formError *
-			input(type='password', id='password', name='password', value='#{element.password || ""}').size3
-		.formRow
-			h5.formLabel #{__i('retype')} password
-				span.formError *
-			input(type='password', id='retype_password', name='retype_password').size3
-	else
-		hr
-		h4 #{__i('change password')}
-		p #{__i('compile this only to change password; to keep current password leave this blank.')}
-		p #{__i("after changing password or email, you'll be forced to login again with new credentials.")}
-		.formRow
-			h5.formLabel #{__i('new password')}
-				span.formError *
-			input(type='password', id='new_password', name='new_password').size3
-		.formRow
-			h5.formLabel #{__i('retype password')}
-				span.formError *
-			input(type='password', id='retype_new_password', name='retype_new_password').size3
-			
-	//- nota: non si può usare 	'include ../includes/formStatus' perchè lo status degli user ha solo public e private
-	hr
-	.formRow
-		h5.formLabel #{__i('status')}
-			span.formError *
-		if (element.status != 'private' )
-			input(type='radio', name='status', value='public', checked=true) 
-		else
-			input(type='radio', name='status', value='public') 
-		span #{__i('public')}
-		if (element.status == 'private' )
-			input(type='radio', name='status', value='private', checked=true) 
-		else
-			input(type='radio', name='status', value='private') 
-		span #{__i('private')}
+				input(id='email', name='email', value='#{element.email || ""}').size3
+				p #{__i('email is also used as username')}
+			//- se è un nuovo utente, è obbligatorio inserire la pw
+			//- se è un modify, la pw viene inserita solo per cambiarla
+			if (typeof element._id === 'undefined' || element._id == '' )
+				.formRow
+					h5.formLabel password
+						span.formError *
+					input(type='password', id='password', name='password', value='#{element.password || ""}').size3
+				.formRow
+					h5.formLabel #{__i('retype')} password
+						span.formError *
+					input(type='password', id='retype_password', name='retype_password').size3
+			else
+				hr
+				h4 #{__i('change password')}
+				p #{__i('compile this only to change password; to keep current password leave this blank.')}
+				p #{__i("after changing password or email, you'll be forced to login again with new credentials.")}
+				.formRow
+					h5.formLabel #{__i('new password')}
+						span.formError *
+					input(type='password', id='new_password', name='new_password').size3
+				.formRow
+					h5.formLabel #{__i('retype password')}
+						span.formError *
+					input(type='password', id='retype_new_password', name='retype_new_password').size3
+					
+			//- nota: non si può usare 	'include ../includes/formStatus' perchè lo status degli user ha solo public e private
+	div.size2.floatLeft
+		div.mainColRight
+			.formRow
+				h5.formLabel #{__i('status')}
+					span.formError *
+				if (element.status != 'private' )
+					input(type='radio', name='status', value='public', checked=true) 
+				else
+					input(type='radio', name='status', value='public') 
+				span #{__i('public')}
+				br
+				if (element.status == 'private' )
+					input(type='radio', name='status', value='private', checked=true) 
+				else
+					input(type='radio', name='status', value='private') 
+				span #{__i('private')}
+	div.clear
 
-
-	include ../includes/formFooter
+	include ../includes/formSubmitBottom
 

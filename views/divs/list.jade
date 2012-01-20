@@ -1,7 +1,9 @@
 h3 #{__i('divs')}
 	img(src='/images/pov/icon_core_div_60x45.png').floatLeft
+hr
 include ../includes/paginationTop
 include ../includes/filterAllOrMine
+include ../includes/listCrudbox
 
 each element,i in elements
 	div.floatLeft.size1
@@ -19,4 +21,3 @@ each element,i in elements
 	if (i+1)%6==0
 		div.clear
 include ../includes/paginationBottom
-include ../includes/listCrudbox

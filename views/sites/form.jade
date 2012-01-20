@@ -17,30 +17,37 @@ script
 img(src='/images/pov/icon_core_site_60x45.png').floatLeft
 include ../includes/formHeader
 
-form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmit='return validate_elementForm()' ).size4
-	.formRow
-		h5.formLabel #{__i('title')}
-			span.formError *
-		input(id='title', name='title', value='#{element.title || ""}').size3
-	.formRow
-		h5.formLabel  #{__i('domain')}
-			span.formError *
-		div.clear
-		span http://&nbsp;
-		input(id='domain', name='domain', value='#{element.domain || ""}').size3
-		p  #{__i('if do not have a domain yet for your site, use a subdomain of')} #{ app.jsl.config.domain }
-		p  #{__i('for example')}: #{__i('yourdomain')}.#{ app.jsl.config.domain }
-	.formRow
-		h5.formLabel  #{__i('description')}
-		input(id='description', name='description', value='#{element.description || ""}').size3
-		p #{__i('also used as metatag for this site')}
-	.formRow
-		h5.formLabel  #{__i('keywords')}
-		input(id='keywords', name='keywords', value='#{element.keywords || ""}').size3
-		p #{__i('also used as metatag for this site')}. #{__i('comma separated')}
+form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmit='return validate_elementForm()' )
+	include ../includes/formSubmitTop
+	div.size4.floatLeft
+		div.mainColLeft
+			.formRow
+				h5.formLabel #{__i('title')}
+					span.formError *
+				input(id='title', name='title', value='#{element.title || ""}').size3
+			.formRow
+				h5.formLabel  #{__i('domain')}
+					span.formError *
+				div.clear
+				span http://&nbsp;
+				input(id='domain', name='domain', value='#{element.domain || ""}').size3
+				p  #{__i('if do not have a domain yet for your site, use a subdomain of')} #{ app.jsl.config.domain }
+				p  #{__i('for example')}: #{__i('yourdomain')}.#{ app.jsl.config.domain }
+			.formRow
+				h5.formLabel  #{__i('description')}
+				input(id='description', name='description', value='#{element.description || ""}').size3
+				p #{__i('also used as metatag for this site')}
+			.formRow
+				h5.formLabel  #{__i('keywords')}
+				input(id='keywords', name='keywords', value='#{element.keywords || ""}').size3
+				p #{__i('also used as metatag for this site')}. #{__i('comma separated')}
 	
 	
-	include ../includes/formStatus
+	div.size2.floatLeft
+		div.mainColRight
+			include ../includes/formStatus
 
-	include ../includes/formFooter
+	div.clear
+
+	include ../includes/formSubmitBottom
 

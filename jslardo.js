@@ -100,8 +100,10 @@ app.configure(function(){
 	app.jsl.pageController.defineRoutes(app);
 	app.jsl.siteController = require('./controllers/site');
 	app.jsl.siteController.defineRoutes(app);
-	app.jsl.elementController = require('./controllers/element');
-	app.jsl.elementController.defineRoutes(app);
+	//app.jsl.elementController = require('./controllers/element');
+	//app.jsl.elementController.defineRoutes(app);
+	app.jsl.contentController = require('./controllers/content');
+	app.jsl.contentController.defineRoutes(app);
 	app.jsl.divController = require('./controllers/div');
 	app.jsl.divController.defineRoutes(app);
 	app.jsl.fieldController = require('./controllers/field');
@@ -168,7 +170,7 @@ app.jsl.models.defineModels(app.mongoose, app, function() {
 	app.jsl.user = app.mongoose.model('user');
 	app.jsl.role = app.mongoose.model('role');
 	app.jsl.site = app.mongoose.model('site');
-	app.jsl.element = app.mongoose.model('element');
+	//app.jsl.element = app.mongoose.model('element');
 	app.jsl.page = app.mongoose.model('page');
 	app.jsl.div = app.mongoose.model('div');
 	app.jsl.jslModel = app.mongoose.model('jslModel');

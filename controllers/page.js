@@ -91,6 +91,7 @@ function defineRoutes(app) {
 							.populate('site')
 							.run(function(err, pages) {
 								//ho trovato le mie pagine
+								console.log(pages);
 								//devo popolare anche il combo con i siti
 								app.jsl.siteController.getSites(req,res,function(sites) {
 									//ho trovato anche i sites per popolare il combo

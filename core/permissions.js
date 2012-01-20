@@ -102,10 +102,10 @@ function needStrucPermModifyOnSiteId(req, res, next) {
 }
 exports.needStrucPermModifyOnSiteId = needStrucPermModifyOnSiteId;
 
-function needStrucPermModifyOnElementId(req, res, next) {
-	checkElementAuthorship('element', req, res ,next);
+function needStrucPermModifyOnContentId(req, res, next) {
+	checkElementAuthorship('content', req, res ,next);
 }
-exports.needStrucPermModifyOnElementId = needStrucPermModifyOnElementId;
+exports.needStrucPermModifyOnContentId = needStrucPermModifyOnContentId;
 
 function needStrucPermModifyOnJslModelId(req, res, next) {
 	checkElementAuthorship('jslModel', req, res ,next);
@@ -122,32 +122,44 @@ function checkElementAuthorship(element, req, res, next) {
 			//console.log('sono superadmin, quindi ho modify per tutti gli id ');
 			next();
 		} else {
-			//poi controllo se sono author dell'elemento di cui mi stanno passando l'id
-			req.app.jsl[element].findOne(
-				{ '_id': req.params.id, 'author': req.session.user_id },
-				function(err, result) {
-					if (!err)
-					{
-						if ( result )
+			//se si tratta di un content, devo prima caricare il suo model mongoose
+			if ( element == 'content' ) {
+				//console.log(req.params.modelId);
+				//l'id del model lo devo avere nelle sessions
+				req.app.jsl.jslModelController.loadMongooseModelFromId(req.app, req.params.modelId, function(){
+					go_on('jslmodel_'+req.params.modelId);
+				});
+			} else {
+				go_on(element);
+			}
+			function go_on(element) {
+				//poi controllo se sono author dell'elemento di cui mi stanno passando l'id
+				req.app.jsl[element].findOne(
+					{ '_id': req.params.id, 'author': req.session.user_id },
+					function(err, result) {
+						if (!err)
 						{
-							//return true;
-							//console.log('ok, sono author di un '+element+' con id '+req.params.id);
-							next();
+							if ( result )
+							{
+								//return true;
+								//console.log('ok, sono author di un '+element+' con id '+req.params.id);
+								next();
+							}
+							else
+							{
+								//return false;
+								//console.log('KO, NON sono author di un '+element+' con id '+req.params.id);
+								res.redirect('/');
+							}
 						}
 						else
 						{
-							//return false;
-							//console.log('KO, NON sono author di un '+element+' con id '+req.params.id);
-							res.redirect('/');
+							//qualcosa è andato storto nella query
+							req.app.jsl.utils.errorPage(res, err, 'permissions.checkElementAuthorship: error in query retrieving element');
 						}
 					}
-					else
-					{
-						//qualcosa è andato storto nella query
-						req.app.jsl.utils.errorPage(res, err, 'permissions.checkElementAuthorship: error in query retrieving element');
-					}
-				}
-			);
+				);
+			}
 		}
 	} else {
 		res.redirect('/');

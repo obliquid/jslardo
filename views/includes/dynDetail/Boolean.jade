@@ -3,7 +3,10 @@
 		span.adminIcon.datatypeIcon.floatLeft
 			img(src='#{icon}')
 	if content[field]
-		h4.size4.floatRight #{__i('yes')}
+		h4.size2.floatRight #{__i('yes')}
 	else
-		h4.size4.floatRight #{__i('no')}
+		h4.size2.floatRight #{__i('no')}
+	if description
+		div.clear
+		span #{description}
 	div.clear

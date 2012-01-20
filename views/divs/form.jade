@@ -19,51 +19,56 @@ script
 img(src='/images/pov/icon_core_div_60x45.png').floatLeft
 include ../includes/formHeader
 
-form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmit='return validate_elementForm()' ).size4
-	.formRow
-		h5.formLabel #{__i('type')}
-			span.formError *
-		if ( element.type != 'vertCont' && element.type != 'module' ) 
-			input(type='radio', name='type', value='horizCont', checked=true) 
-		else
-			input(type='radio', name='type', value='horizCont') 
-		span #{__i('horizontal container')}
-		if (element.type == 'vertCont' )
-			input(type='radio', name='type', value='vertCont', checked=true) 
-		else
-			input(type='radio', name='type', value='vertCont') 
-		span #{__i('vertical container')}
-		if (element.type == 'module' )
-			input(type='radio', name='type', value='module', checked=true) 
-		else
-			input(type='radio', name='type', value='module') 
-		span #{__i('module')}		
-		
-	.formRow
-		h5.formLabel id
-		span &nbsp;=&nbsp;
-		input(id='dom_id', name='dom_id', value='#{element.dom_id || ""}').size3
-		p  #{__i('the id attribute of the div')}
-	.formRow
-		h5.formLabel class
-		span &nbsp;=&nbsp;
-		input(id='class', name='class', value='#{element.class || ""}').size3
-		p  #{__i('names of css classes to be used for this div, space separated')}
-	.formRow
-		h5.formLabel  #{__i('automatically generate inline styles')}
-		- var field = 'inline_style';
-		- var fieldValue = ( element.inline_style || element.inline_style === undefined ) ? true : false;
-		include ../includes/formBoolean
-		p #{__i('these are styles needed for horizontal and verdical alignment of children inside a container. omitting them will render a horizCont the same way of a vertCont.')}
-	.formRow
-		h5.formLabel  #{__i('render as table')}
-		- var field = 'is_table';
-		- var fieldValue = ( !element.is_table || element.is_table === undefined ) ? false : true;
-		include ../includes/formBoolean
-		p #{__i('render the div as an html table. for example this prevents new line wrapping for children of an horizontal container')}
+form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmit='return validate_elementForm()' )
+	include ../includes/formSubmitTop
+	div.size4.floatLeft
+		div.mainColLeft
+			.formRow
+				h5.formLabel #{__i('type')}
+					span.formError *
+				if ( element.type != 'vertCont' && element.type != 'module' ) 
+					input(type='radio', name='type', value='horizCont', checked=true) 
+				else
+					input(type='radio', name='type', value='horizCont') 
+				span #{__i('horizontal container')}
+				if (element.type == 'vertCont' )
+					input(type='radio', name='type', value='vertCont', checked=true) 
+				else
+					input(type='radio', name='type', value='vertCont') 
+				span #{__i('vertical container')}
+				if (element.type == 'module' )
+					input(type='radio', name='type', value='module', checked=true) 
+				else
+					input(type='radio', name='type', value='module') 
+				span #{__i('module')}		
+				
+			.formRow
+				h5.formLabel id
+				span &nbsp;=&nbsp;
+				input(id='dom_id', name='dom_id', value='#{element.dom_id || ""}').size3
+				p  #{__i('the id attribute of the div')}
+			.formRow
+				h5.formLabel class
+				span &nbsp;=&nbsp;
+				input(id='class', name='class', value='#{element.class || ""}').size3
+				p  #{__i('names of css classes to be used for this div, space separated')}
+			.formRow
+				h5.formLabel  #{__i('automatically generate inline styles')}
+				- var field = 'inline_style';
+				- var fieldValue = ( element.inline_style || element.inline_style === undefined ) ? true : false;
+				include ../includes/formBoolean
+				p #{__i('these are styles needed for horizontal and verdical alignment of children inside a container. omitting them will render a horizCont the same way of a vertCont.')}
+			.formRow
+				h5.formLabel  #{__i('render as table')}
+				- var field = 'is_table';
+				- var fieldValue = ( !element.is_table || element.is_table === undefined ) ? false : true;
+				include ../includes/formBoolean
+				p #{__i('render the div as an html table. for example this prevents new line wrapping for children of an horizontal container')}
 	
-	
-	include ../includes/formStatus
+	div.size2.floatLeft
+		div.mainColRight
+			include ../includes/formStatus
+	div.clear
 
-	include ../includes/formFooter
+	include ../includes/formSubmitBottom
 

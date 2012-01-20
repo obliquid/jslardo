@@ -4,7 +4,7 @@ var jslardo_config = {
 	'port':'3000',
 	'superadminEmail':'admin',
 	'superadminPw':'admin',
-	'elementsPerPage':36,
+	'elementsPerPage':12,
 	'locales':['en','it'],
 	'defaultLocale':'en',
 	'usersCanRegister':true,

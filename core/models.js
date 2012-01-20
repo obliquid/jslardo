@@ -135,16 +135,6 @@ function defineModels(mongoose, app, next) {
 	});
 	mongoose.model('jslModel', JslModel);
 	
-	//Schema element
-	var Element = new Schema({
-		'jslModel': { type: Schema.ObjectId, ref: 'jslModel', required: true, index: true },
-		'content': { type: Schema.ObjectId, index: true },
-		//common fields
-		'author': { type: Schema.ObjectId, ref: 'user', required: true, index: true },
-		'status': { type: String, required: true, enum: ['public', 'private', 'share'], index: true },
-		'created': { type: Date, required: true }
-	});
-	mongoose.model('element', Element);
 	
 	//Schema debug
 	//usato per testing
@@ -155,6 +145,16 @@ function defineModels(mongoose, app, next) {
 	
 	
 	/*
+	//Schema element
+	var Element = new Schema({
+		'jslModel': { type: Schema.ObjectId, ref: 'jslModel', required: true, index: true },
+		//common fields
+		'author': { type: Schema.ObjectId, ref: 'user', required: true, index: true },
+		'status': { type: String, required: true, enum: ['public', 'private', 'share'], index: true },
+		'created': { type: Date, required: true }
+	});
+	mongoose.model('element', Element);
+	
 	//Schema linkedserver
 	var Linkedserver = new Schema({
 		'host': { type: String, validate: [validatePresenceOf, app.i18n.__('host is required')], index: { unique: true }, required: true },

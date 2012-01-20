@@ -9,7 +9,9 @@ script
 		//- se si sta cambiando il nome, non si può usare un nome già usato
 		if( $('#name').val() != $('#old_name').val() )
 		{
-			var linkDom = window.parent.$('#schemaTree a:contains("'+$('#name').val()+'")');
+			//- var linkDom = window.parent.$('#schemaTree a:contains("'+$('#name').val()+'")');
+			var liDom = $('#schemaTree li:data(name='+$('#name').val()+')');
+			var linkDom = liDom.children('a');
 			//console.log(linkDom);
 			if ( linkDom.length > 0 ) {
 				alert("#{__i('a field already exists with name')}: "+$('#name').val());
@@ -26,24 +28,22 @@ script
 		{
 			if (!confirm('#{__i("changing type means to loose all data saved for this field (unless changing from Number to String). continue?")}')) return false;
 		}
-		window.parent.saveField( { 'old_name': $('#old_name').val(), 'name': $('#name').val(), 'type': $('#type').val(), 'description': $('#description').val(), 'required': $('input[name="required"]:checked').val() } );
+		//- alert($('#type_model').val());
+		window.parent.saveField( { 'old_name': $('#old_name').val(), 'name': $('#name').val(), 'type': $('#type').val(), 'type_model': $('#type_model').val(), 'type_cardinality': $('#type_cardinality').val(), 'description': $('#description').val(), 'required': $('input[name="required"]:checked').val() } );
 		window.parent.$.modal.close();
 		return false;
 	}
 	
 	function typeChanged() {
-		if ( $('#type').val() == 'Model' ) {
-			appendModelsCombo();
+		if ( $('#type').val() == 'ObjectId' ) {
+			$('#type_model_container').show();
+		} else {
+			$('#type_model_container').hide();
 		}
 	}
 	
-	function appendModelsCombo() {
-		alert('mo visualizzo il combo coi model disponibili');
-		//qui!!
-	}
-	
-	//se questo form è stato aperto su type='Model' devo visualizzare da subito il combo coi models
 	$(document).ready(function() {
+		//se questo form è stato aperto su type='ObjectId' devo visualizzare da subito il combo coi models
 		typeChanged();
 	});
 	
@@ -63,9 +63,25 @@ form(onsubmit='return validate_elementForm()').size4
 		select(id='type', name='type', onchange='typeChanged();')
 			each combo_type in combo_types
 				if element.type == combo_type.name
-					option(value='#{combo_type.name}',selected='true') #{combo_type.name}
+					option(value='#{combo_type.name}',selected='true') #{combo_type.label}
 				else
-					option(value='#{combo_type.name}') #{combo_type.name}
+					option(value='#{combo_type.name}') #{combo_type.label}
+		span#type_model_container :
+			select(id='type_model', name='type_model', onchange='')
+				each combo_model in combo_models
+					if element.type_model == combo_model._id
+						option(value='#{combo_model._id}',selected='true') #{combo_model.name}
+					else
+						option(value='#{combo_model._id}') #{combo_model.name}
+			span :
+			select(id='type_cardinality', name='type_cardinality', onchange='')
+				if element.type_cardinality == 'multiple'
+					option(value='single') 1:1
+					option(value='multiple',selected='true') 1:N
+				else
+					option(value='single',selected='true') 1:1
+					option(value='multiple') 1:N
+			
 	.formRow
 		h5.formLabel #{__i('description')}
 		textarea(id='description', name='description'}').size3 #{element.description}

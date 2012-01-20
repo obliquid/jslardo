@@ -18,32 +18,38 @@ script(language='JavaScript', type='text/javascript', src='/javascripts/jq/jstre
 img(src='/images/pov/icon_core_jslModel_60x45.png').floatLeft
 include ../includes/formHeader
 
-form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmit='return validate_elementForm()' ).size5
-	.formRow
-		h5.formLabel #{__i('name')}
-			span.formError *
-		input(id='name', name='name', value='#{element.name || ""}').size3
-		p #{__i('best practice is to use singular names')}
-	if element._id != '' && element._id != undefined
-		.formRow
-			h5.formLabel  #{__i('schema')}
-				span.formError *
-			//- tree con i datatypes e i miei models
-			div.jstreeColumn.floatRight
-				if session.user_id != 'superadmin'
-					h6 #{__i('add new fields to schema')}:
-					div#elementsTree.size2.jstree.jstreeDatatypes
-					hr
-					h6 #{__i('schema json version')}:
-					textarea(id='jslSchema', name='jslSchema').size2.code #{element.jslSchema || ""}
-					p #{__i('this must be a valid mongoose schema')}
-			//- tree con lo schema
-			div.jstreeColumn.floatRight
-				div#schemaTree.size2.jstree
-			div.clear
-			include formJs
+form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmit='return validate_elementForm()' )
+	include ../includes/formSubmitTop
+	div.size5.floatLeft
+		div.mainColLeft
+			.formRow
+				h5.formLabel #{__i('name')}
+					span.formError *
+				input(id='name', name='name', value='#{element.name || ""}').size3
+				p #{__i('best practice is to use singular names')}
+			if element._id != '' && element._id != undefined
+				.formRow
+					h5.formLabel  #{__i('schema')}
+						span.formError *
+					//- tree con i datatypes e i miei models
+					div.jstreeColumn.floatRight
+						if session.user_id != 'superadmin'
+							h6 #{__i('add new fields to schema')}:
+							div#elementsTree.size2.jstree.jstreeDatatypes
+							hr
+							h6 #{__i('schema json version')}:
+							textarea(id='jslSchema', name='jslSchema', readonly='readonly').size2.code #{element.jslSchema || ""}
+							p #{__i('this must be a valid mongoose schema')}
+					//- tree con lo schema
+					div.jstreeColumn.floatRight
+						div#schemaTree.size2.jstree
+					div.clear
+					include formJs
 	
-	include ../includes/formStatus
+	div.size1.floatLeft
+		div.mainColRight
+			include ../includes/formStatus
+	div.clear
 
-	include ../includes/formFooter
+	include ../includes/formSubmitBottom
 

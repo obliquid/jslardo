@@ -1,25 +1,25 @@
 h3 #{__i(elementName)}
 	img(src='/images/pov/icon_core_page_60x45.png').floatLeft
-hr
-if element.route != ''
-	h1 #{element.route}
-	h4
-		span http://
-			a(href='http://#{element.site.domain}/#{element.route}', target='_blank', title='#{__i('open')}') #{element.site.domain}/#{element.route}
-else
-	h1 [root]
-	h4
-		span http://
-			a(href='http://#{element.site.domain}/', target='_blank', title='#{__i('open')}') #{element.site.domain}/
-//- dead
-	if element.layout
-		div.outerContMinimal #{element.layout}
-hr
-.outerCont
-	a(href='/sites/#{element.site._id}').floatLeft.elementButton.buttonSites #{__i('site')}
-	a(href='/filterBySite/#{element.site._id}/#{encURI('/pages/')}', title='#{__i('all pages for this site')}').floatLeft.elementButton.buttonPages #{__i('site pages')}
-
-include ../includes/detailCommon
-
 include ../includes/detailCrudbox
-
+a(href='/sites/#{element.site._id}').floatLeft.elementButton.buttonSites #{__i('site')}
+//- a(href='/filterBySite/#{element.site._id}/#{encURI('/pages/')}', title='#{__i('all pages for this site')}').floatLeft.elementButton.buttonPages #{__i('site pages')}
+hr
+div.size4.floatLeft
+	div.mainColLeft
+		if element.route != ''
+			h1 #{element.route}
+			h4
+				span http://
+					a(href='http://#{element.site.domain}/#{element.route}', target='_blank', title='#{__i('open')}') #{element.site.domain}/#{element.route}
+		else
+			h1 [root]
+			h4
+				span http://
+					a(href='http://#{element.site.domain}/', target='_blank', title='#{__i('open')}') #{element.site.domain}/
+		//- dead
+			if element.layout
+				div.outerContMinimal #{element.layout}
+div.size2.floatLeft
+	div.mainColRight
+		include ../includes/detailCommon
+div.clear

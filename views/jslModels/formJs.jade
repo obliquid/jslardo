@@ -62,7 +62,7 @@ script
 	converte un tree json (preso con tree.get_json()) in uno schema testuale per
 	mongoose pronto per essere salvato nel db come stringa
 	*/
-	function treeToSchema() {
+	function treeToSchema( next ) {
 		//siccome jstree fa cagare, non posso usare $('#schemaTree').jstree('get_json') che non funziona
 		//quindi devo ricostruire io a mano l'oggetto json di tutto il tree:
 		//ciclo su tutti i nodi del dom, e per ciascuno leggo i dati json gestiti da jquery con la funzione data()
@@ -72,11 +72,48 @@ script
 		//console.log(fields);
 		for ( var i=0; i<fields.length; i++ ) {
 			var field = $(fields[i]).data();
-			schemaJson[field.name] = { 'type': field.type, 'required': field.required, 'description': field.description };
+			//console.log(field);
+			//distinguo a seconda del type
+			switch ( field.type ) {
+				case 'ObjectId':
+					var fieldObj = { 'type': 'ObjectId', 'ref': 'jslmodel_'+field.type_model, 'required': field.required, 'description': field.description };
+					break;
+				default:
+					var fieldObj = { 'type': field.type, 'required': field.required, 'description': field.description };
+					//schemaJson[field.name] = fieldObj;
+					break;
+			}
+			//considero la cardinality, e assegno all'array
+			if ( field.type_cardinality == 'multiple' ) {
+				schemaJson[field.name] = [ fieldObj ];
+			} else {
+				schemaJson[field.name] = fieldObj;
+			}
+			
 		}
-		//console.log('treeToSchema ritorna: ');
-		//console.log(schemaJson);
-		return schemaJson;
+		//via ajax mi faccio dare i campi interni di jslardo che ogni schema deve avere
+		$.ajax({
+			url: '/json/fields/addInternalFields',
+			type: 'POST', 
+			dataType: 'json',
+			data: {},
+			dataType: 'json',
+			//questa function deve ritornare un oggetto, che vene mandato in POST allo script in 'url'
+			//in pratica dopo il return di questa function, viene chiamato l'url remoto
+			data: schemaJson, //questo viene passato a getInternalFields, che me lo ritorna popolato con i field interni obbligatori
+			complete: function() {
+				//console.log('process complete');
+			},
+			success: function(result) {
+				schemaJson = result;
+				//console.log('treeToSchema ritorna: ');
+				//console.log(schemaJson);
+				next( schemaJson );
+			},
+			error: function() {
+				console.log('ajax error calling: /json/fields/getInternalFields');
+			}
+		});								
 	}
 	
 	/*
@@ -97,19 +134,38 @@ script
 			//console.log(schemaJson);
 			//normalizzo lo schema in modo da renderlo digeribile al tree
 			for (field in schemaJson) {
-				if ( schemaJson.hasOwnProperty(field) && typeof schemaJson.field !== 'function') {
-					//console.log('ho trovato questa field: '+field+' che vale: '+schemaJson[field]);
-					var treeProperty = {
-						'data' : field, 
-						'attr' : { 'rel' : schemaJson[field].type },
-						'metadata' : {
-							'name' : field,
-							'type' : schemaJson[field].type,
-							'description' : schemaJson[field].description,
-							'required' : schemaJson[field].required
+				//a priori scardo i field di sistema di jslardo
+				if ( field == 'author' || field == 'created' || field == 'status' || field == 'jslModel' ) {
+					//skippo
+				} else {
+					if ( schemaJson.hasOwnProperty(field) && typeof schemaJson.field !== 'function') {
+						//console.log('ho trovato questa field: '+field+' che vale: '+schemaJson[field]);
+						//ho trovato un field
+						//ora devo capire se ha cardinality mutipla, ovvero se nello schema è definito come un array
+						//if (schemaJson[field] && typeof schemaJson[field] === 'object' && schemaJson[field].constructor === Array) {
+						if ( is_array( schemaJson[field] ) ) {
+							//console.log('multiple');
+							var type_cardinality = 'multiple';
+							schemaJson[field] = schemaJson[field].pop(); //ovviamente ho un solo elemento, per definizione di schema mongoose
+						} else {
+							//console.log('single');
+							var type_cardinality = 'single';
 						}
-					};
-					treeJson.data.push(treeProperty);
+						var treeProperty = {
+							'data' : field, 
+							'attr' : { 'rel' : schemaJson[field].type },
+							'metadata' : {
+								'name' : field,
+								'type' : schemaJson[field].type,
+								//'type_model' : schemaJson[field].type_model,
+								'type_model' : ( schemaJson[field].ref ) ? schemaJson[field].ref.substr(9) : '',
+								'type_cardinality' : type_cardinality,
+								'description' : schemaJson[field].description,
+								'required' : schemaJson[field].required
+							}
+						};
+						treeJson.data.push(treeProperty);
+					}
 				}
 			}
 		}
@@ -123,7 +179,8 @@ script
 	*/
 	function saveField(field) {
 		//ora aggiorno il dom
-		var linkDom = $('#schemaTree a:contains("'+field.old_name+'")');
+		var liDom = $('#schemaTree li:data(name='+field.old_name+')');
+		var linkDom = liDom.children('a');
 		//salvo l'icona corrente
 		var linkIconDom = linkDom.children('ins');
 		//azzero il contenuto del nodo e scrivo il nome
@@ -131,14 +188,19 @@ script
 		//poi rimetto l'icona
 		linkDom.prepend(linkIconDom);
 		//poi riassegno tutti i valori json
+		//console.log(field);
 		linkDom.parent().attr('rel',field.type);
 		linkDom.parent().data('name',field.name);
 		linkDom.parent().data('type',field.type);
+		linkDom.parent().data('type_model',field.type_model);
+		linkDom.parent().data('type_cardinality',field.type_cardinality);
 		linkDom.parent().data('description',field.description);
-		linkDom.parent().data('required', (!field.required || field.required === undefined || field.required == 'yes') ? true : false );
+		linkDom.parent().data('required', (!field.required || field.required === undefined || field.required == 'sure_this_is_yes') ? true : false );
 		//poi riassegno tutto aggiornato al textarea
-		$('#jslSchema').html( JSON.stringify( treeToSchema() ) );
-		return;
+		treeToSchema(function( populatedSchema ){
+			$('#jslSchema').html( JSON.stringify( populatedSchema ) );
+			return;
+		});
 	}
 	
 	
@@ -169,10 +231,13 @@ script
 					'icon'				: false,
 					'action'			: function (obj) {
 						//devo rimuovere l'elemento dal dom
-						var linkDom = $('#schemaTree a:contains("'+$(obj).data().name+'")');
-						linkDom.parent().remove();
+						var liDom = $('#schemaTree li:data(name='+$(obj).data().name+')');
+						liDom.remove();
 						//poi riassegno tutto aggiornato al textarea
-						$('#jslSchema').html( JSON.stringify( treeToSchema() ) );
+						treeToSchema(function( populatedSchema ){
+							$('#jslSchema').html( JSON.stringify( populatedSchema ) );
+							return;
+						});
 					}
 				}
 			}
@@ -190,7 +255,10 @@ script
 		//console.log('select_node.jstree: #schemaTree:');
 		//console.log($('#schemaTree').jstree('get_json'));
 		// Display an external page using an iframe
-		var src = '/fields/edit/'+'#{element._id}'+'/'+jsonDiv.name+'/'+jsonDiv.type+'/'+jsonDiv.required+'/'+jsonDiv.description;
+		if ( !jsonDiv.type_model ) jsonDiv.type_model = 'none'; //devo assegnare un valore di default perchè la route se lo aspetta nei params
+		var src = '/fields/edit/'+'#{element._id}'+'/'+jsonDiv.name+'/'+jsonDiv.type+'/'+jsonDiv.type_model+'/'+jsonDiv.type_cardinality+'/'+jsonDiv.required+'/'+jsonDiv.description;
+		openModal(src);
+		/*
 		$.modal('<iframe src="' + src + '" height="502" width="700" style="border:0">', {
 			closeHTML:'',
 			containerCss:{
@@ -204,9 +272,8 @@ script
 			overlayClose:true,
 			modal:true,
 			opacity:70
-		});		
-		
-		//window.open('/fields/edit/'+'#{element._id}'+'/'+jsonDiv.name+'/'+jsonDiv.type); // /fields/edit/ vuole come primo params l'id del model, perchè i filed non hanno id
+		});
+		*/
 	})
 	
 	.bind('prepare_move.jstree', function (e, data) {
@@ -225,27 +292,27 @@ script
 			data.inst.set_copying(true);
 			
 			//sovrascrivo il nome del field che mi arriva con un nome seriale automatico
-			var defaultFiledName = 'newfield';
-			var newFiledName = '';
+			var defaultFieldName = 'newfield';
+			var newFieldName = '';
 			var obj = data.rslt.o;
 			var objJson = $(obj).data();
 			var counter = 0;
 			var found = false;
 			while ( !found ) {
-				console.log('ciclo su: ');
-				//conto quanti elementi già esistono nel tree con il nome 'new field'
-				if ( $('#schemaTree a:contains("'+defaultFiledName+counter+'")').length > 0 ) {
+				//console.log('ciclo su: ');
+				//conto quanti elementi già esistono nel tree con il nome 'newfield'
+				if ( $('#schemaTree a:contains("'+defaultFieldName+counter+'")').length > 0 ) {
 					counter++;
 				} else {
-					newFiledName = defaultFiledName+counter;
+					newFieldName = defaultFieldName+counter;
 					found = true;
 				}
 			}
 			
 			
-			console.log('newFiledName:'+newFiledName);
+			//console.log('newFieldName:'+newFieldName);
 			
-			objJson.name = newFiledName;
+			objJson.name = newFieldName;
 		}
 
 		
@@ -260,58 +327,24 @@ script
 			//il nome lo prendo dai dati json del nodo draggato
 			var obj = data.rslt.o;
 			var objJson = $(obj).data();
-			var linkDom = $('#schemaTree a:contains("'+objJson.type+'")');
+			//var linkDom = $('#schemaTree a:contains("'+objJson.type+'")');
+			//var linkDom = $('#schemaTree li[ref="'+objJson.type+'"]').children('a');
+			
+			//var linkDom = $('#schemaTree li:data(type_model="jslmodel_none")').css('background-color', 'red');
+			//console.log($('#schemaTree li').data());
+			var liDom = $('#schemaTree li:data(isNew)');
+			//dopo che ho trovato il mio elemento appena draggato, gli resetto la property isNew
+			liDom.data('isNew', false);
+			var linkDom = liDom.children('a');
 			var linkIconDom = linkDom.children('ins');
 			linkDom.html(objJson.name);
 			linkDom.prepend(linkIconDom);
 		}
 		
 		//aggiorno il textarea
-		$('#jslSchema').html( JSON.stringify( treeToSchema() ) );
-		
-		//apro il dialog per l'editing del nodo
-		//$('body').dialog();
-		
-		
-		//console.log('dopo aver aggiornato il tree: ');
-		//console.log($('#schemaTree').jstree('get_json'));
-		
-		//objJson.name = 'new field';
-		//console.log(data);
-		//console.log(data.rslt);
-		//console.log(data.rslt.o);
-		//console.log($(data.rslt.o.data).data());
-		//prendo il nodo mosso
-		//console.log('$(obj) prima:');
-		//console.log($(obj));
-		//console.log($(obj).attr('data'));
-		//e lo aggiorno con un nome di default
-		//$(obj).attr('data','jqippo');
-		//$(obj).attr('innerText','jqippo');
-		//obj.data = 'pippozzobj';
-		//console.log('$(obj) dopo:');
-		//console.log($(obj));
-		/*
-		//aggiorno il tree per far vedere il nuovo nome
-		if ( !$(obj).closest('li.jstree-open') ) {
-			//non ho padre, refresh della pagina
-			//$('#schemaTree').jstree('refresh');
-			console.log('refresh di pagina');
-		} else {
-			//refresh del padre
-			//$('#schemaTree').jstree('refresh', $(obj).closest('li.jstree-open'));
-			console.log('refresh di parent');
-		}
-	//} else {
-		//sono un container
-		//refresh di me stesso
-		//$('#schemaTree').jstree('refresh', obj);
-		*/
-		//refresh del tree
-		//schemaToTree();
-		//$('#schemaTree').jstree('init');
-		//$('#schemaTree').jstree('fuck');
-		//data.inst.init();
+		treeToSchema(function( populatedSchema ){
+			$('#jslSchema').html( JSON.stringify( populatedSchema ) );
+		});
 	});
 
 
@@ -328,13 +361,16 @@ script
 	var datatypes = !{app.jsl.utils.datatypes.stringify()};
 	for ( var i = 0; i < datatypes.length; i++ ) {
 		treeJson.push({ 
-			'data' : datatypes[i].name,
+			'data' : datatypes[i].label,
 			'attr' : { 'rel' : datatypes[i].name },
 			'metadata' : {
 				'name' : '', //viene definito runtime quando si copia dentro ad uno schema
 				'type' : datatypes[i].name,
+				'type_model' : 'none',
+				'type_cardinality' : 'single',
 				'description' : '',
-				'required' : false
+				'required' : false,
+				'isNew' : true
 			}
 		});
 	}

@@ -1,7 +1,14 @@
 hr
-a(href='/#{elementName}s', title='#{__i('view all')}').paginationButton.allButton
+if elementName == 'content'
+	a(href='/#{elementName}s/#{req.params.modelId}', title='#{__i(elementName)}: #{__i('view all')}').paginationButton.allButton
+else
+	a(href='/#{elementName}s', title='#{__i(elementName)}: #{__i('view all')}').paginationButton.allButton
 if session.user_id == 'superadmin' || ( session.user_id == element.author._id && session.canModify )
-	a(href='/#{elementName}s/edit/#{element._id}', title='#{__i('modify')} #{__i(elementName)}').adminButton.modifyButton
-	a(title='#{__i('delete')} #{__i(elementName)}', onclick='if(confirm(\'#{__i("delete for sure?")}\')) window.location = "/#{elementName}s/delete/#{element._id}";').adminButton.deleteButton
+	if elementName == 'content'
+		a(href='/#{elementName}s/#{req.params.modelId}/edit/#{element._id}', title='#{__i(elementName)}: #{__i('modify')}').adminButton.modifyButton
+		a(title='#{__i(elementName)}: #{__i('delete')}', onclick='if(confirm(\'#{__i("delete for sure?")}\')) window.location = "/#{elementName}s/#{req.params.modelId}/delete/#{element._id}";').adminButton.deleteButton
+	else
+		a(href='/#{elementName}s/edit/#{element._id}', title='#{__i(elementName)}: #{__i('modify')}').adminButton.modifyButton
+		a(title='#{__i(elementName)}: #{__i('delete')}', onclick='if(confirm(\'#{__i("delete for sure?")}\')) window.location = "/#{elementName}s/delete/#{element._id}";').adminButton.deleteButton
 	if element.status == 'private'
 		div(title='private').adminIcon.privateButton

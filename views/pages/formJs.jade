@@ -2,8 +2,6 @@ script
 
 
 	/* ### COMMON VARS && FUNCTIONS ### */
-	
-
 
 	//questa var contiene il lyaout della pagina così come mi arriva dal db
 	/*
@@ -94,6 +92,7 @@ script
 				'rename' : false,
 				'create' : false,
 				'ccp' : false,
+				/*
 				'edit' : {
 					'label'				: 'edit',
 					'icon'				: false,
@@ -107,6 +106,7 @@ script
 						window.open('/divs/edit/'+$(obj).data().id);
 					}
 				},
+				*/
 				'unlink' : {
 					'label'				: 'unlink',
 					'icon'				: false,
@@ -174,7 +174,7 @@ script
 		var jsonDiv = $(data.rslt.obj).data();
 		//alert(data.rslt.obj.attr("id"));
 		//console.log(jsonDiv);
-		window.open('/divs/'+jsonDiv.id);
+		window.open('/divs/edit/'+jsonDiv.id);
 	})
 	.bind('prepare_move.jstree', function (e, data) {
 		//console.log('prepare_move');
@@ -366,7 +366,6 @@ script
 
 
 	/* ### ELEMENTS TREE ### */
-	
 
 	//creo il tree con gli elementi da draggare
 	$('#elementsTree').jstree({
@@ -381,8 +380,8 @@ script
 						'type' : 'vertCont',
 						'dom_id' : '',
 						'class' : '',
-						'is_table' : false,
-						'inline_style' : true,
+						'is_table' : 'sure_this_is_false',
+						'inline_style' : 'sure_this_is_true',
 						'status' : 'public'
 					}
 				},
@@ -393,8 +392,8 @@ script
 						'type' : 'horizCont',
 						'dom_id' : '',
 						'class' : '',
-						'is_table' : false,
-						'inline_style' : true,
+						'is_table' : 'sure_this_is_false',
+						'inline_style' : 'sure_this_is_true',
 						'status' : 'public'
 					}
 				},
@@ -405,8 +404,8 @@ script
 						'type' : 'module',
 						'dom_id' : '',
 						'class' : '',
-						'is_table' : false,
-						'inline_style' : true,
+						'is_table' : 'sure_this_is_false',
+						'inline_style' : 'sure_this_is_true',
 						'status' : 'public'
 					}
 				}
@@ -443,12 +442,8 @@ script
 	
 	
 	
-	
-	
-	
-	
-	
 	/* ### EXTERNAL PAGE TREE ### */
+	
 	//viene creato solo onchange del combo pagine esterne
 	function loadExternalTree(page_id) {
 		//creo l'albero con la struttura della pagina esterna
