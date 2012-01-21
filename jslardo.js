@@ -180,6 +180,27 @@ app.jsl.models.defineModels(app.mongoose, app, function() {
 })
 
 
+//estendo mongoose con qualche roba utile
+app.mongoose.Query.prototype.populateMulti = function (fields) {
+	//this.options.populate[path] = fields || [];
+	//console.log('###### populateMulti() con fields:');
+	//console.log(fields);
+	//console.log('prima:');
+	//console.log(this.options.populate);
+	while ( fields.length > 0 ) {
+		//var field = fields.pop();
+		this.populate(fields.pop());
+		/*
+		if ( alsoModel && field != 'jslModel' && field != 'author' && field != 'created' && field != 'status' ) {
+			this.populate(field+'.jslModel');
+		}
+		*/
+	}
+	//console.log('dopo:');
+	//console.log(this.options.populate);
+	return this;
+}
+
 
 
 //attivo l'applicazione Express

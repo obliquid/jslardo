@@ -325,9 +325,7 @@ function defineRoutes(app) {
 					//devo fare una query che mi trova tutti i jslModel che abbiano uno schema (che è una stringa) che
 					//contiene un field di tipo ObjectId con ref == al mio model:
 					//semplifico cercando quelli con uno schema che contenga la stringa 'jslmodel_XXXXXXXXXXXXXXXXX'
-					//app.jsl.jslModel.find('this.jslSchema.indexOf("jslmodel_'+req.params.id+'") != -1')
-					//app.jsl.jslModel.find({'jslSchema': '/jslmodel_'+req.params.id+'/'})
-					var re = new RegExp('\/jslmodel_'+req.params.id+'\/','g');
+					var re = new RegExp('.*jslmodel_'+req.params.id+'.*');
 					app.jsl.jslModel.find({'jslSchema': re})
 					.run(function(err, models){
 						if ( err ) {
@@ -347,23 +345,26 @@ function defineRoutes(app) {
 									var schemaOld = JSON.parse(model.jslSchema); //tengo una copia
 									//ciclo sui campi dello schema, e tutti quelli che trovo che referenziano il mio model, li elimino
 									for ( field in schema ) {
-										console.log('# considero il field:');
-										console.log(field);
-										//distinguo a seconda che sia array o singolo
-										if ( app.jsl.utils.is_array( schema[field] ) ) {
-											var fieldObj = schema[field][0];
-										}
-										else {
-											var fieldObj = schema[field];
-										}
-										console.log('con schema[field]:');
-										console.log(fieldObj);
-										if ( fieldObj.type == 'ObjectId' && fieldObj.ref == 'jslmodel_'+req.params.id ) {
-											console.log('!!! beccato il mio field, questo lo devo droppare');
-											delete schema[field];
+										//skippo i field interni di jslardo
+										if ( field != 'jslModel' && field != 'author' && field != 'created' && field != 'status' ) {
+											console.log('# considero il field:');
+											console.log(field);
+											//distinguo a seconda che sia array o singolo
+											if ( app.jsl.utils.is_array( schema[field] ) ) {
+												var fieldObj = schema[field][0];
+											}
+											else {
+												var fieldObj = schema[field];
+											}
+											console.log('con schema[field]:');
+											console.log(fieldObj);
+											if ( fieldObj.type == 'ObjectId' && fieldObj.ref == 'jslmodel_'+req.params.id ) {
+												console.log('############# !!! beccato il mio field, questo lo devo droppare');
+												delete schema[field];
+											}
 										}
 									}
-									console.log('ora devo risalvare il model affinchè si aggiorni lo schema');
+									console.log('## ora devo risalvare il model affinchè si aggiorni lo schema');
 									console.log('questo è lo schema che savlerei:');
 									console.log(schema);
 									model.jslSchema = JSON.stringify(schema);
@@ -372,8 +373,8 @@ function defineRoutes(app) {
 											app.jsl.utils.errorPage(res, err, 'GET: jslModel delete: failed saving model with updated schema');
 										} else {
 											console.log('model aggiornato');
-											console.log('ora devo droppare i field che ho eliminato dal mio model');
-											drop_db_fields(app, req.params.id, schemaOld, schema, function(){
+											console.log('ora devo droppare i field che ho eliminato dal mio model relazionato');
+											drop_db_fields(app, model.id, schemaOld, schema, function(){
 												console.log('droppati anche i fields.');
 												console.log('recurse!');
 												recurse();
@@ -521,18 +522,25 @@ function normalizeMongooseModel(app, jsonSchema) {
 		var fieldType = fieldObj.type;
 		if ( typeMappings[fieldType] ) {
 			fieldObj.type = typeMappings[fieldType];
+			
+			//correggo il valore required che è booleano ma mi arriva come stringa
+			fieldObj.required = app.jsl.utils.bool_parse(fieldObj.required);
+			//console.log('normalizeMongooseModel(): ho normalizzato il field: '+field);
+			//console.log(fieldObj);
 		} else {
 			console.error("normalizeMongooseModel(): invalid type - "+fieldType+" - specified for field: ", field);
 		}
 	}
+	/* non serve più
 	//aggiungo sempre come campo anche l'id dell'element cui è legato questo modello dinamico
 	jsonSchema.element = app.mongoose.Schema.ObjectId;
+	*/
 	//ritorno una nuova istanza del mio schema, pronta per essere caricata come model
 	try {
 		var normalizedModel = new app.mongoose.Schema(jsonSchema);
 		return normalizedModel;
 	} catch( err ) {
-		console.log('normalizeMongooseModel(): ho fallito chiamando app.mongoose.Schema(outputSchemaDef)');
+		console.log('normalizeMongooseModel(): ho fallito chiamando app.mongoose.Schema(jsonSchema)');
 		return false;
 	}
 }
@@ -561,6 +569,10 @@ function loadMongooseModel(app, model) {
 		//definisco il nome del model di mongoose (che poi sarà anche il nome della collection)
 		var modelName = 'jslmodel_'+model.id;
 		/*
+		console.log('loadMongooseModel(): PRIMA model.jslSchema=');
+		console.log(model.jslSchema);
+		console.log('loadMongooseModel(): PRIMA NewSchema=');
+		console.log(NewSchema);
 		if ( app.jsl[modelName] ) {
 			console.log('loadMongooseModel(): PRIMA app.jsl[modelName].schema=');
 			console.log(app.jsl[modelName].schema);
@@ -587,6 +599,8 @@ function loadMongooseModel(app, model) {
 			console.log('loadMongooseModel(): ho fallito chiamando app.mongoose.model(modelName)');
 		}
 		/*
+		console.log('loadMongooseModel(): DOPO model.jslSchema=');
+		console.log(model.jslSchema);
 		if ( app.jsl[modelName] ) {
 			console.log('loadMongooseModel(): DOPO app.jsl[modelName].schema=');
 			console.log(app.jsl[modelName].schema);
@@ -612,8 +626,7 @@ a next() passa il name del model caricato
 */
 function loadMongooseModelFromId(app, modelId, next, forceReload, alsoLoadRefsModels) {
 	var modelName = 'jslmodel_'+modelId;
-	//console.log('loadMongooseModelFromId(): forceReload=');
-	//console.log(forceReload);
+	console.log('loadMongooseModelFromId(): forceReload='+forceReload+'  modelId='+ modelId);
 	//se ho forceReload ed il model è già caricato, devo forzare un suo delete per poi poterlo ricaricare
 	if ( app.jsl[modelName] && forceReload ) {
 		//console.log('loadMongooseModelFromId: il model è già caricato, e ho forceReload, quindi lo droppo');
@@ -633,9 +646,11 @@ function loadMongooseModelFromId(app, modelId, next, forceReload, alsoLoadRefsMo
 	}
 
 	//controllo se il model è caricato, altrimenti lo carico
+	//nota: se però mi hanno chiesto anche i models relazionati, anche se il mio
+	//model è già caricato quelli relazionati possono non esserlo, quindi devo procedere
 	//console.log('controllo se è stato caricato il model: '+modelName);
-	if ( !app.jsl[modelName] ) {
-		//console.log('loadMongooseModelFromId: il model non è caricato. modelId = '+modelId);
+	if ( !app.jsl[modelName] || alsoLoadRefsModels ) {
+		console.log('loadMongooseModelFromId: il model non è caricato oppure mi hanno chiesto anche i models relazionati. modelId = '+modelId);
 		//if ( forceReload ) console.log('in realtà ho il reload forzato...');
 		//devo recuperare lo schema del mio model
 		app.jsl.jslModel
@@ -643,39 +658,35 @@ function loadMongooseModelFromId(app, modelId, next, forceReload, alsoLoadRefsMo
 			.run(function(err, jslModel) {
 				if ( !err ) {
 					if ( jslModel ) {
-						//console.log('loadMongooseModelFromId(): trovato lo schema del mio model: '+jslModel.jslSchema);
+						console.log('loadMongooseModelFromId(): trovato lo schema del mio model: '+jslModel.jslSchema);
 						//trovato lo schema, posso caricare il modello mongoose
 						if ( loadMongooseModel(app, jslModel) ) {
-							//modello mongoose caricato correttamente
+							console.log('modello mongoose caricato correttamente');
 							//QUI sembra che io debba forzare un reload dello schema in altro modo
 							//direi di no... a me ora sembra vada tutto
 							
 							//se specificato, carico anche i models relazionati
 							if ( alsoLoadRefsModels ) {
-								//console.log('loadMongooseModelFromId: mi hanno chiesto di caricare anche i models relazionati');
+								console.log('loadMongooseModelFromId: mi hanno chiesto di caricare anche i models relazionati');
 								var schema = JSON.parse(jslModel.jslSchema);
 								var referencedModelsToBeLoaded = [];
 								var fieldsToBePopulated = [];
-								//console.log('loadMongooseModelFromId: PRIMA parto senza models relazionati:');
-								//console.log(referencedModelsToBeLoaded);
-								//console.log('loadMongooseModelFromId: PRIMA parto senza fieldsToBePopulated:');
-								//console.log(fieldsToBePopulated);
-								//console.log("cerco gli ObjectId in questo schema:");
-								//console.log(schema);
+								console.log("cerco gli ObjectId in questo schema:");
+								console.log(schema);
 								for ( field in schema ) {
 									if ( app.jsl.utils.is_array( schema[field] ) ) {
 										var fieldObj = schema[field][0];
 									} else {
 										var fieldObj = schema[field];
 									}
-									//console.log('loadMongooseModelFromId: considero questo field:');
-									//console.log(field);
-									//console.log(fieldObj.type);
+									console.log('loadMongooseModelFromId: considero questo field:');
+									console.log(field);
+									console.log(fieldObj.type);
 									//mi interessano solo i field ObjectId, che però non siano quelli di elementi interni di jslardo
 									//(ovvero escludo gli elementi che hanno un model embedded in jslardo, mi interessano solo
 									//i model dinamici)
 									if ( fieldObj.type == 'ObjectId' && field != 'jslModel' && field != 'author') {
-										//console.log('loadMongooseModelFromId: devo tenere questo field:'+field);
+										console.log('loadMongooseModelFromId: devo tenere questo field:'+field);
 										var modelId = fieldObj.ref.substr(9);
 										//tutti i campi di tipo ObjectId vanno popolati
 										fieldsToBePopulated.push(field);
@@ -685,10 +696,10 @@ function loadMongooseModelFromId(app, modelId, next, forceReload, alsoLoadRefsMo
 										}
 									}
 								}
-								//console.log('loadMongooseModelFromId: DOPO trovato questi models relazionati:');
-								//console.log(referencedModelsToBeLoaded);
-								//console.log('loadMongooseModelFromId: DOPO trovato questi fieldsToBePopulated:');
-								//console.log(fieldsToBePopulated);
+								console.log('loadMongooseModelFromId: DOPO trovato questi models relazionati:');
+								console.log(referencedModelsToBeLoaded);
+								console.log('loadMongooseModelFromId: DOPO trovato questi fieldsToBePopulated:');
+								console.log(fieldsToBePopulated);
 								//ho trovato sia i fileds su cui andrà chiamato il populate(),
 								//sia gli id dei models relazionati che ora devo caricare in mongoose.
 								//devo chiamare loadMongoose su ciascuno dei models relazionati (se esistono)
@@ -714,7 +725,7 @@ function loadMongooseModelFromId(app, modelId, next, forceReload, alsoLoadRefsMo
 				}
 			});
 	} else {
-		//console.log('è già caricato');
+		console.log('è già caricato');
 		/*
 		if ( app.jsl[modelName] ) {
 			console.log('loadMongooseModelFromId(): DOPO app.jsl[modelName].schema=');
@@ -789,10 +800,10 @@ uguale)
 */
 function drop_db_fields(app, modelId, schemaOld, schemaNew, next) {
 	console.log('drop_db_fields: ');
-	console.log('schemaOld: ');
-	console.log(schemaOld);
-	console.log('schemaNew: ');
-	console.log(schemaNew);
+	//console.log('schemaOld: ');
+	//console.log(schemaOld);
+	//console.log('schemaNew: ');
+	//console.log(schemaNew);
 	var modelName = "jslmodel_"+modelId;
 	//carico sempre il model (se è già caricato non c'è overhead)
 	loadMongooseModelFromId(app, modelId, function(){
@@ -801,7 +812,7 @@ function drop_db_fields(app, modelId, schemaOld, schemaNew, next) {
 		for (field in schemaOld) {
 			//ovviamente a priori non considero i field interni di jslardo
 			if ( field != 'jslModel' && field != 'author' && field != 'created' && field != 'status' ) {
-				console.log('considero il field: '+field);
+				console.log('# considero il field: '+field);
 				/*
 				var toBeDropped = false;
 				//se sta cambiando la cardinality, droppo
@@ -837,17 +848,20 @@ function drop_db_fields(app, modelId, schemaOld, schemaNew, next) {
 				
 				//droppo se:
 				if (
+					//il field è stato cancellato (c'era nel vecchio schema, non c'è più in quello nuovo)
+					!fieldNewObj
+					||
 					//è cambiato il tipo e non si sta passando da String a Number (che invece è consentito)
 					( fieldNewObj.type != fieldOldObj.type && !( fieldNewObj.type == 'String' && fieldOldObj.type == 'Number' ) )
 					||
 					//il tipo resta ObjectIt ma è cambiato il ref
 					( fieldNewObj.type == 'ObjectId' && fieldNewObj.type == fieldOldObj.type && fieldNewObj.ref != fieldOldObj.ref )
 					||
-					//sta cambiando la cardinalità e non si sta passando da uno a molti (che invece è consentito)
-					newCardinality != oldCardinality && !( newCardinality == 'multiple' && oldCardinality == 'single' )
+					//sta cambiando la cardinalità
+					newCardinality != oldCardinality
 				) {
 					fieldsToBeDropped.push(field);
-					console.log('lo droppo!');
+					console.log('######### lo droppo! #########');
 				}
 				
 				/* vecchia versione, incompleta
@@ -879,7 +893,7 @@ function drop_db_fields(app, modelId, schemaOld, schemaNew, next) {
 		function recurse() {
 			if ( fieldsToBeDropped.length > 0 ) {
 				var field = fieldsToBeDropped.pop() //poppando l'array si riduce
-				console.log('############## ricorro su: '+field);
+				console.log('############## droppo in tutti i record della mia collection il campo: '+field);
 				var unset = {};//è l'oggetto di sort
 				unset[field] = 1;
 				//l'unset va chiamato su ogni singolo record, altrimenti non so perchè mongoose lo blocca
@@ -966,7 +980,7 @@ function drawSchema(schema, app) {
 							break;
 						case 'required':
 							//output
-							if (jsonChunk[field])
+							if (app.jsl.utils.bool_parse(jsonChunk[field]))
 								output += '<td colspan="2"><h6>required</h6></td>';
 							break;
 						case 'description':

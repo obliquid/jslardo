@@ -167,6 +167,32 @@ var in_array = function (arr,obj) {
 }
 exports.in_array = in_array; 
 
+var splice_by_element = function (my_array,array_element) {
+	for(var i=0; i<my_array.length;i++ ) { 
+		if ( my_array[i] == array_element ) {
+			my_array.splice(i,1); 
+		}
+	}
+	return my_array;
+}
+exports.splice_by_element = splice_by_element; 
+
+/*
+quando si ha un valore booleano che non si sa se è di tipo booleano
+o di tipo stringa (cioè un booleano convertito in stringa 'true' o 'false')
+questa function la ritrasforma in booleano
+*/
+var bool_parse = function (my_bool_string) {
+	if ( !my_bool_string || my_bool_string == 'false' ) {
+		return false;
+	} else {
+		return true;
+	}
+}
+exports.bool_parse = bool_parse; 
+
+
+
 /*
 questa serve quando mi arriva un'istanza di un content, e devo popolarla per poterla salvare nell'istanza mongoose di un element.
 si basa sullo schema del model mongoose, e in base a quello popola solo i fields necessari
