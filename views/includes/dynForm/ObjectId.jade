@@ -41,7 +41,9 @@ if cardinality == 'multiple'
 
 #{cardinality}
 .formRow
-	h5.formLabel #{field}
+	span.adminIcon.datatypeIcon.floatLeft
+		img(src='#{icon}')
+	h5.formLabel #{field}:
 		if required
 			span.formError *
 	input(id='#{field}', name='#{field}', value='#{element[field] || ""}').size2
@@ -49,8 +51,6 @@ if cardinality == 'multiple'
 	//- a(onclick='openModal("/filterByModel/#{type_model}/#{encURI('/contents/'+req.params.modelId+'/1/select_'+field)}",1000)', target='_blank', title='#{field}: #{__i("select existent")}').adminButton.selectButton
 	a(onclick='openModal("/contents/#{type_model}/1/select_#{field}",1000)', target='_blank', title='#{field}: #{__i("select existent")}').adminButton.selectButton
 	
-	span.adminIcon.datatypeIcon
-		img(src='#{icon}')
 	
 	if description
 		p #{description}

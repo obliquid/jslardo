@@ -19,11 +19,11 @@ else
 			return true;
 		}
 .formRow
-	h5.formLabel #{field}
+	span.adminIcon.datatypeIcon.floatLeft
+		img(src='#{icon}')
+	h5.formLabel #{field}:
 		if required
 			span.formError *
 	input(id='#{field}', name='#{field}', value='#{element[field] || ""}').size2
-	span.adminIcon.datatypeIcon
-		img(src='#{icon}')
 	if description
 		p #{description}

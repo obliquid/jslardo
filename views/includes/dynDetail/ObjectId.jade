@@ -2,9 +2,13 @@
 	h5.detailLabel #{field}:
 		span.adminIcon.datatypeIcon.floatLeft
 			img(src='#{icon}')
-	h4.size2.floatRight #{content[field]}
-	if description
-		div.clear
-		span #{description}
+	//- h4.size2.floatRight #{content[field]}
+	h5.size2.floatRight
+		if content[field].refContents
+			!= content[field].refContents
+	//- 
+		if description
+			div.clear
+			p.floatRight #{description}
 	div.clear
 	

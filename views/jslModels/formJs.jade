@@ -133,7 +133,7 @@ script
 			//console.log('schemaJson:');
 			//console.log(schemaJson);
 			//normalizzo lo schema in modo da renderlo digeribile al tree
-			for (field in schemaJson) {
+			for ( var field in schemaJson) {
 				//a priori scardo i field di sistema di jslardo
 				if ( field == 'author' || field == 'created' || field == 'status' || field == 'jslModel' ) {
 					//skippo

@@ -66,9 +66,9 @@ function defineRoutes(app) {
 			//carico i mongoose models richiesti alla query
 			//console.log('/contents/:modelId/:page?/:callback? -> chiamo loadMongooseModelFromId con modelId = '+req.params.modelId);
 			app.jsl.jslModelController.loadMongooseModelFromId(app, req.params.modelId, function( modelName, fieldsToBePopulated ){
-				console.log('/contents/:modelId/:page?/:callback? -> finito di chiamare loadMongooseModelFromId con modelId = '+req.params.modelId);
-				console.log('fieldsToBePopulated:');
-				console.log(fieldsToBePopulated);
+				//console.log('/contents/:modelId/:page?/:callback? -> finito di chiamare loadMongooseModelFromId con modelId = '+req.params.modelId);
+				//console.log('fieldsToBePopulated:');
+				//console.log(fieldsToBePopulated);
 				//console.log('dove la metto qui dentro?');
 				//console.log(app.mongoose.Query);
 				//per via della paginazione, ogni query di list va preceduta da una query di count
@@ -77,7 +77,7 @@ function defineRoutes(app) {
 					function(err, total) {
 						if ( !err )
 						{
-							console.log('count succeded');
+							//console.log('count succeded');
 							fieldsToBePopulated.push('jslModel');
 							//procedo col find paginato
 							app.jsl['jslmodel_'+req.params.modelId].find(
@@ -92,8 +92,8 @@ function defineRoutes(app) {
 							.sort('_id', -1)
 							.run( function(err, contents) {
 								if (!err) {
-									console.log('find succeded:');
-									console.log(contents);
+									//console.log('find succeded:');
+									//console.log(contents);
 									//per tutti i content renderizzo il tpl e glielo appendo. sarà poi il tpl list principale,
 									//in un ciclo, a visualizzare i singoli tpl generati dinamicamente
 									renderDynViewList(app, req, res, contents, function(){
@@ -351,23 +351,23 @@ function defineRoutes(app) {
 				if ( err ) {
 					app.jsl.utils.errorPage(res, err, 'GET: content delete: failed finding models with a schema that references me');
 				} else {
-					console.log('trovati models che mi referenziano:');
-					console.log(models);
+					//console.log('trovati models che mi referenziano:');
+					//console.log(models);
 					//ciclo su ogni model
 					recurse();
 					function recurse() {
 						if ( models.length > 0 ) {
 							var model = models.pop();
-							console.log('######## considero il model:');
-							console.log(model);
+							//console.log('######## considero il model:');
+							//console.log(model);
 							var schema = JSON.parse(model.jslSchema);
 							//ciclo sui campi dello schema, e tutti quelli che trovo che referenziano il mio model, li updato
 							var toBeUpdatedFields = [];
-							for ( field in schema ) {
+							for ( var field in schema ) {
 								//skippo i field interni di jslardo
 								if ( field != 'jslModel' && field != 'author' && field != 'created' && field != 'status' ) {
-									console.log('###### considero il field:');
-									console.log(field);
+									//console.log('###### considero il field:');
+									//console.log(field);
 									//distinguo a seconda che sia array o singolo
 									if ( app.jsl.utils.is_array( schema[field] ) ) {
 										var fieldObj = schema[field][0];
@@ -375,28 +375,28 @@ function defineRoutes(app) {
 									else {
 										var fieldObj = schema[field];
 									}
-									console.log('con schema[field]:');
-									console.log(fieldObj);
+									//console.log('con schema[field]:');
+									//console.log(fieldObj);
 									if ( fieldObj.type == 'ObjectId' && fieldObj.ref == 'jslmodel_'+req.params.modelId ) {
-										console.log('============ !!! beccato il mio field, questo lo devo updatare');
+										//console.log('============ !!! beccato il mio field, questo lo devo updatare');
 										toBeUpdatedFields.push(field);
 									}
 								}
 							}
-							console.log('devo updatare questi fields:');
-							console.log(toBeUpdatedFields);
+							//console.log('devo updatare questi fields:');
+							//console.log(toBeUpdatedFields);
 							//ciclo su ogni field da updatare e ci faccio sopra la query di update
 							nestedRecurse();
 							function nestedRecurse() {
 								if ( toBeUpdatedFields.length > 0 ) {
 									var field = toBeUpdatedFields.pop();
-									console.log('###### considero il field da updatare:');
-									console.log(field);
+									//console.log('###### considero il field da updatare:');
+									//console.log(field);
 									//carico il modello mongoose
-									console.log('carico il modello mongoose per model.id = '+model.id);
+									//console.log('carico il modello mongoose per model.id = '+model.id);
 									app.jsl.jslModelController.loadMongooseModelFromId(app, model.id, function(modelName){
 										//trovo i contents da updatare (cioè quelli che referenziano il mio content da cancellare)
-										console.log('trovo i contents da updatare (cioè quelli che referenziano il mio content da cancellare)');
+										//console.log('trovo i contents da updatare (cioè quelli che referenziano il mio content da cancellare)');
 										//definisco le conditions della query
 										var conditions = {};
 										//in teoria questa condition vale sia per i field array che per quelli singoli, per come funziona mongoose
@@ -407,31 +407,31 @@ function defineRoutes(app) {
 												if ( err ) {
 													app.jsl.utils.errorPage(res, err, 'GET: content delete: failed getting related contents');
 												} else {
-													console.log('beccati questi contents da updatare in quanto referenziano il mio content da cancellare');
-													console.log(contents);
+													//console.log('beccati questi contents da updatare in quanto referenziano il mio content da cancellare');
+													//console.log(contents);
 													nestedNestedRecurse();
 													function nestedNestedRecurse() {
 														if ( contents.length > 0 ) {
 															var content = contents.pop();
-															console.log('#### sto per updatare il content: ');
-															console.log(content);
+															//console.log('#### sto per updatare il content: ');
+															//console.log(content);
 															//aggiorno il contenuto del content prima di risalvarlo
 															if ( app.jsl.utils.is_array( schema[field] ) ) {
-																console.log('il field è un array, quindi devo togliergli un elemento, e poi risalvarlo');
+																//console.log('il field è un array, quindi devo togliergli un elemento, e poi risalvarlo');
 																app.jsl.utils.splice_by_element(content[field],req.params.id);
-																console.log('ecco il content modificato pronto per essere updatato nel db:');
-																console.log(content);
+																//console.log('ecco il content modificato pronto per essere updatato nel db:');
+																//console.log(content);
 																content.save(function(err) {
 																	if (err) {
 																		app.jsl.utils.errorPage(res, err, "GET: content delete: error saving referencing content");
 																	} else {
-																		console.log('#### content modificato salvato!! nestedNestedRecurse()!');
+																		//console.log('#### content modificato salvato!! nestedNestedRecurse()!');
 																		nestedNestedRecurse();
 																	}
 																});
 															}
 															else {
-																console.log('il field è un singolo, quindi devo fare una query di unset');
+																//console.log('il field è un singolo, quindi devo fare una query di unset');
 																//non va: delete content[field];
 																//memmeno: content[field] = undefined;
 																var unset = {};//è l'oggetto di sort
@@ -441,14 +441,14 @@ function defineRoutes(app) {
 																	if (err) {
 																		app.jsl.utils.errorPage(res, err, "GET: content delete: error unsetting referencing content");
 																	} else {
-																		console.log('#### content unsettato!! nestedNestedRecurse()!');
+																		//console.log('#### content unsettato!! nestedNestedRecurse()!');
 																		nestedNestedRecurse();
 																	}
 																});
 															}
 														} else {
-															console.log('#### finito di updatare i content per il field: '+field);
-															console.log('###### nestedRecurse();!');
+															//console.log('#### finito di updatare i content per il field: '+field);
+															//console.log('###### nestedRecurse();!');
 															nestedRecurse();
 														}
 													}
@@ -457,8 +457,8 @@ function defineRoutes(app) {
 										);									
 									});
 								} else {
-									console.log('###### finito di updatare tutti i fields di questo model');
-									console.log('######## recurse()!');
+									//console.log('###### finito di updatare tutti i fields di questo model');
+									//console.log('######## recurse()!');
 									recurse();
 								}
 							}
@@ -536,7 +536,7 @@ function getContentInstance(app, element, next) {
 	var fieldsToBePopulated = [];
 	//console.log("cerco gli ObjectId in questo schema:");
 	//console.log(schema);
-	for ( field in schema ) {
+	for ( var field in schema ) {
 		if ( app.jsl.utils.is_array( schema[field] ) ) {
 			var fieldObj = schema[field][0];
 		} else {
@@ -705,7 +705,7 @@ function renderDynFormRecurse(app, req, res, schema,content,modelId,next) {
 	//implementazione non ricorsiva
 	//ciclo su tutti i field dello schema
 	var counter = 0;
-	for (field in schema) {
+	for ( var field in schema) {
 		if ( schema.hasOwnProperty(field) && typeof schema[field] !== 'function') {
 			//non devo mai renderizzare i field di sistema, quelli vengono trattati a parte
 			if ( field == 'author' || field == 'created' || field == 'status' || field == 'jslModel' ) {
@@ -788,19 +788,24 @@ dato uno schema e il suo contenuto, renderizza un template di view (list o detai
 function renderDynView(app, req, res, type, schema, content, next) {
 	var jade = require('jade');
 	var fs = require('fs');
-	var dynViewRendered = '';
+	var output = '';
 	//number of fields to be visualized for list type
 	var listFieldsNum = 2; 
 	//ciclo sui field del schema
 	var counter = 0;
-	for ( field in schema ) {
-		console.log('################################');
-		console.log('################################');
+	for ( var field in schema ) {
+		
+		console.log(field);
+		console.log(schema[field]);
 		console.log(content[field]);
-		console.log('################################');
-		console.log('################################');
+		
 		//se non ho content per questo field, skippo
-		if ( !app.jsl.utils.is_array( content[field] ) && content[field] !== false && ( content[field] === null || content[field] === undefined || content[field] == '' ) ) continue;
+		if ( !app.jsl.utils.is_array( content[field] ) && content[field] !== false && ( content[field] === null || content[field] === undefined || content[field] == '' ) ) {
+			//console.log('butto!');
+			continue;
+		}
+		if ( app.jsl.utils.is_array( content[field] ) && content[field].length == 0 ) continue;
+		
 		//skippo i field interni di jslardo
 		if ( field == 'author' || field == 'created' || field == 'status' || field == 'jslModel' ) continue;
 		//se sono in list mode, limito il numero di fields ritornati
@@ -810,78 +815,134 @@ function renderDynView(app, req, res, type, schema, content, next) {
 		var isArray = false;
 		if ( app.jsl.utils.is_array( schema[field] ) ) {
 			var fieldObj = schema[field][0];
+			//console.log('lo schema field è un array');
 			isArray = true;
 		} else {
 			var fieldObj = schema[field];
 		}
+		//solo nel caso del datatype ObjectId, invece di passare il content al tpl, prima
+		//renderizzo un blocco html con i vari ref contents, e poi lo appendo al content
+		//da passare al tpl
 		if ( fieldObj.type == 'ObjectId' ) {
-			var contentValue = content[field];
-			//se è un campo di tipo ObjectId devo ricorrere
+			var refOutput = '';
+			/*
 			console.log('ricorro sul campo '+field);
 			console.log('fieldObj:');
 			console.log(fieldObj);
-			console.log('contentValue:');
-			console.log(contentValue);
-			console.log('typeof contentValue:');
-			console.log(typeof contentValue);
+			console.log('content[field]:');
+			console.log(content[field]);
+			console.log('typeof content[field]:');
+			console.log(typeof content[field]);
+			if ( app.jsl.utils.is_array( content[field] ) ) {
+				console.log(field+' è indubbiamente un array, di lunghezza:');
+				console.log(content[field].length);
+			}
+			*/
+			
 			//non mi serve: var refModelId = fieldObj.ref.substr(9);
 			if ( isArray ) {
-				for ( var i=0; i < contentValue.length; i++) {
-					dynViewRendered += renderDynViewRefs(app,req,res,type,contentValue[i]);
+				for ( var i=0; i < content[field].length; i++) {
+					refOutput += renderDynViewRefs(app,req,res,type,content[field][i]);
 				}
 			} else {
 				//non voglio fare una query per avere lo schema,
 				//quindi butto fuori i field che ho nel content senza sapere
 				//il datatype.
-				dynViewRendered += renderDynViewRefs(app,req,res,type,contentValue);
+				refOutput += renderDynViewRefs(app,req,res,type,content[field]);
 			}
-		} else {
-			//questa potrebbe supportare un caching
-			if ( type == 'detail') {
-				var templateFilename = 'views/includes/dynDetail/'+fieldObj.type+'.jade';
-			} else if ( type == 'list') {
-				var templateFilename = 'views/includes/dynList/'+fieldObj.type+'.jade';
-			}
-			var dynView = fs.readFileSync(templateFilename, 'utf8');
-			//compilo il template
-			var dynViewCompiled = jade.compile(dynView.toString('utf8'), {filename: templateFilename});
-			var icon = '/images/pov/'+app.jsl.utils.datatypeByName(fieldObj.type).icon+'_40x30.png';
-			//popolo il template
-			dynViewRendered += dynViewCompiled({
-				field: field,
-				description: fieldObj.description,
-				icon: icon,
-				content: content,
-				encURI: function(content){ return encodeURIComponent(content) },
-				decURI: function(content){ return decodeURIComponent(content) },
-				esc: function(content){ return escape(content) },
-				uesc: function(content){ return unescape(content) },
-				__i: app.i18n.__,
-				trunc: app.jsl.utils.trunc
-			});
+			content[field]['refContents'] = refOutput;
 		}
+		//questa potrebbe supportare un caching
+		if ( type == 'detail') {
+			var templateFilename = 'views/includes/dynDetail/'+fieldObj.type+'.jade';
+		} else if ( type == 'list') {
+			var templateFilename = 'views/includes/dynList/'+fieldObj.type+'.jade';
+		}
+		var dynView = fs.readFileSync(templateFilename, 'utf8');
+		//compilo il template
+		var dynViewCompiled = jade.compile(dynView.toString('utf8'), {filename: templateFilename});
+		var icon = '/images/pov/'+app.jsl.utils.datatypeByName(fieldObj.type).icon+'_40x30.png';
+		//popolo il template
+		output += dynViewCompiled({
+			field: field,
+			description: fieldObj.description,
+			icon: icon,
+			content: content,
+			encURI: function(content){ return encodeURIComponent(content) },
+			decURI: function(content){ return decodeURIComponent(content) },
+			esc: function(content){ return escape(content) },
+			uesc: function(content){ return unescape(content) },
+			__i: app.i18n.__,
+			trunc: app.jsl.utils.trunc
+		});
 		counter++;
 	}
-	next(dynViewRendered);
+	next(output);
 }
 
+/*
+per i content referenziati visualizzo sempre solo il primo field utile non vuoto
+*/
 function renderDynViewRefs(app,req,res,type,content) {
 	//memorizzo il model e l'id che mi servono per generare il link al detail del mio content referenziato
+	var jade = require('jade');
+	var fs = require('fs');	
 	var contentId = content.id;
 	var modelId = content.jslModel;
 	var output = '';
-	for ( field in content ) {
+	//console.log('###### renderDynViewRefs(): considero il content.schema.paths:');
+	//console.log(content.schema.paths);
+	var found = false;
+	for ( var field in content.schema.paths ) {
+		if ( found ) break;
+		//console.log('### e dentro al content considero il field: '+field);
+		var fieldType = content.schema.paths[field].instance;
+		if (fieldType == 'ObjectID') fieldType = 'ObjectId'; //piccole differenze...
 		//se è del prototype, skippo
-		if ( !content.hasOwnProperty(field)) continue;
+		//no: if ( !content.hasOwnProperty(field)) continue;
 		//se non ho content per questo field, skippo
 		if ( content[field] !== false && ( content[field] === null || content[field] === undefined || content[field] == '' ) ) continue;
 		//skippo i field interni di jslardo
-		if ( field == 'author' || field == 'created' || field == 'status' || field == 'jslModel' ) continue;
+		if ( field == '_id' || field == 'author' || field == 'created' || field == 'status' || field == 'jslModel' ) continue;
+
+		//output del field
 		if ( type == 'detail') {
-			output += '<a href="/contents/'+modelId+'/'+contentId+'" class="elementButton" title="'+app.i18n.t(req,'detail')+'">'+field+': '+content[field]+'</a>';
-		} else {
-			output += '<div class="elementButton">'+field+': '+content[field]+'</div>';
+			output += '<a href="/contents/'+modelId+'/'+contentId+'" class="refLink" title="'+app.i18n.t(req,'detail')+'">'+content[field]+'</a>';
+		} else if ( type == 'list') {
+			output += content[field]+' ';
+		} else if ( type == 'form') {
+			output += content[field]+' ';
 		}
+
+		found = true;
+		
+		/* questa funziona, ricorre, ma serve qualcosa di più sintetico nell'output
+		//questa potrebbe supportare un caching
+		if ( type == 'detail') {
+			var templateFilename = 'views/includes/dynDetail/'+fieldType+'.jade';
+		} else if ( type == 'list') {
+			var templateFilename = 'views/includes/dynList/'+fieldType+'.jade';
+		}
+		var dynView = fs.readFileSync(templateFilename, 'utf8');
+		//compilo il template
+		var dynViewCompiled = jade.compile(dynView.toString('utf8'), {filename: templateFilename});
+		var icon = '/images/pov/'+app.jsl.utils.datatypeByName(fieldType).icon+'_40x30.png';
+		//popolo il template
+		output += dynViewCompiled({
+			field: field,
+			description: '',
+			icon: icon,
+			content: content,
+			encURI: function(content){ return encodeURIComponent(content) },
+			decURI: function(content){ return decodeURIComponent(content) },
+			esc: function(content){ return escape(content) },
+			uesc: function(content){ return unescape(content) },
+			__i: app.i18n.__,
+			trunc: app.jsl.utils.trunc
+		});
+		*/
+		
+		
 	}
 	return output;
 }
