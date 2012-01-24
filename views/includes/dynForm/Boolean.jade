@@ -23,10 +23,10 @@ else
 			span.formError *
 			
 	//- var field = field; //??
-	- var fieldValue = ( !element[field] || element[field] == '' || element[field] === undefined || element[field] == 'false' ) ? false : true;
+	- var fieldValue = ( !content[field] || content[field] == '' || content[field] === undefined || content[field] == 'false' ) ? false : true;
 	include ../formBoolean
 	
 	
-	//input(id='#{field}', name='#{field}', value='#{element[field] || ""}').size2
+	//input(id='#{field}', name='#{field}', value='#{content[field] || ""}').size2
 	if description
 		p #{description}

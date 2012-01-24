@@ -942,6 +942,73 @@ function drop_db_fields(app, modelId, schemaOld, schemaNew, next) {
 
 
 
+
+//ciclo su tutti i campi dello schema, e quelli che trovo vuoti nel form, li unsetto
+function unsetEmptyFields(app,req,res,content,contentData,next){
+	//trovato lo schema
+	var schema = JSON.parse(content.jslModel.jslSchema);
+	var contentId = content._id;
+	var modelId = content.jslModel._id;
+	/*
+	console.log('trovato lo schema!');
+	console.log(schema);
+	*/
+	//ciclo su ogni field, e cerco quelli di tipo ObjectId vuoti nel form
+	var toBeUnsettedFields = [];
+	for(var field in schema) {
+		//non devo mai popolare alcuni field interni di jslardo, perchè non vengono gestiti dal form
+		if ( field == 'status' || field == 'author' || field == 'created' || field == '_id' || field == 'jslModel' || field == 'created' ) {
+			//skippo
+		} else {
+			console.log('### considero il field: '+field);
+			console.log('content[field]: '+content[field]);
+			console.log('contentData[field]: '+contentData[field]);
+			if ( app.jsl.utils.is_array( schema[field] ) ) {
+				var fieldObj = schema[field][0];
+			} else {
+				var fieldObj = schema[field];
+			}
+			
+			console.log('schema[field].type: '+fieldObj.type);
+			//devo unsettare solo i field di tipo ref
+			if ( fieldObj.type == 'ObjectId' ) {
+				if (!contentData[field]) {
+					console.log('unsetto!');
+					//devo unsettare
+					toBeUnsettedFields.push(field);
+				}
+			}
+		}
+	}
+	loadMongooseModelFromId(app, modelId, function(modelName){
+		console.log('devo unsettare:');
+		console.log(toBeUnsettedFields);
+		recurse();
+		function recurse() {
+			if ( toBeUnsettedFields.length > 0 ) {
+				var field = toBeUnsettedFields.pop();
+				var unset = {};//è l'oggetto di sort
+				unset[field] = 1;
+				app.jsl[modelName].update({'_id':contentId},{ $unset : unset }, false, true  )
+				.run(function(err) {
+					if ( !err ) {
+						//console.log('###eliminato! adesso ricorro');
+						recurse();
+					} else {
+						console.log('unsetEmptyFields(): query error droppando il field: '+field+' - '+err);
+					}
+				});
+			} else {
+				//finito
+				next();
+			}
+		}
+	});
+}
+exports.unsetEmptyFields = unsetEmptyFields; 
+
+
+
 /*
 fa il parsing di un json e ne fornisce una rappresentazione in html
 schema è un json in stringa

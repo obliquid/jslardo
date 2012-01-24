@@ -78,6 +78,7 @@ function datatypeByName(name) {
 }
 exports.datatypeByName = datatypeByName;
 
+
 /* visualizza una pagina di errore e logga sulla console */
 function errorPage(res, errMsg, publicMsg, useLayout) {
 	if ( useLayout === undefined ) useLayout = true;
@@ -177,6 +178,19 @@ var splice_by_element = function (my_array,array_element) {
 }
 exports.splice_by_element = splice_by_element; 
 
+
+Array.prototype.remove= function(){
+    var what, a= arguments, L= a.length, ax;
+    while(L && this.length){
+        what= a[--L];
+        while((ax= this.indexOf(what))!= -1){
+            this.splice(ax, 1);
+        }
+    }
+    return this;
+}
+
+
 /*
 quando si ha un valore booleano che non si sa se è di tipo booleano
 o di tipo stringa (cioè un booleano convertito in stringa 'true' o 'false')
@@ -240,7 +254,12 @@ function populateContentModel(app, req, res, content, contentData, next) {
 						if ( is_array( schema[field] ) ) {
 							//è un array, per ora gestisco solo valori separati da virgola, perchè mi aspetto solo degli ObjectIds
 							//console.log(field+' è un array!');
-							if ( contentData[field] ) content[field] = contentData[field].split(',');
+							if ( contentData[field] ) {
+								content[field] = contentData[field].split(',');
+							} else {
+								//content[field] = null;
+								delete content[field]; //tanto non serve a un cazzo perchè mongodb non resetta il field
+							}
 							/*
 							//per ogni ObjectId devo istanziare la relativa istanza, e aggiungerla al mio content
 							var ObjectIds = contentData[field].split(',');
@@ -255,7 +274,12 @@ function populateContentModel(app, req, res, content, contentData, next) {
 							switch ( schema[field].type ) {
 								case 'ObjectId':
 									//nel caso degli ObjectId non assegno un field se non ha l'ObjectId definito
-									if ( contentData[field] ) content[field] = contentData[field];
+									if ( contentData[field] ) {
+										content[field] = contentData[field];
+									} else {
+										//content[field] = null;
+										delete content[field]; //tanto non serve a un cazzo perchè mongodb non resetta il field
+									}
 									break;
 								default:
 									//porcheria per gestire i valori boolean

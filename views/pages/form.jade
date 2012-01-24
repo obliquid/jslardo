@@ -63,6 +63,7 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 					div.jstreeColumn.floatRight
 						div#layoutTree.size2.jstree
 					div.clear
+					p #{__i('warning: every change to the layout is automatically saved')}
 					script(language='JavaScript', type='text/javascript', src='/javascripts/jq/jstree/jquery.jstree.js')
 					include formJs
 			

@@ -1,12 +1,12 @@
 # jslardo
 
 ## what is this?
-jslardo is a sort of a social cms. users will be able to register to the application, define their own models for data, and create/generate their own controllers and views to represent the data.
-code is in early stage, a few functionalities are implemented yet. come back in a few months!
+jslardo is a sort of a social cms, based on node.js and mongodb.
+users are able to register to the application, create their own models (mongoose schemas), views, controllers, websites and pages. all management is done without writing code, and all user contents (the data, but also models/views and controllers) are shareable between registered users.
 
 ## it's based upon?
 jslardo starts as a node.js express application, backed up by mongodb with mongoose.
-as a template engine jslardo uses jade.
+as a template engine jslardo internally uses jade.
 
 ## yet implemented functionalities
   - internationalization:
@@ -14,19 +14,17 @@ as a template engine jslardo uses jade.
   - sites management
   - pages management
   - divs management
-  - models management
-  - models fields management
+  - models (schemas) management
+    - runtime mongoose models reload at each change
   - contents management
-    - with automatic views generation
-  - users management:
+    - with automatic form generation
+  - users management
     - users can register, and modify their profile
-  - pagination:
-    - defined as a middleware in express
 
 ## installation
 see the wiki page for some more info. but, if you have node and npm already working, installing jslardo is as easy as
 ```
-npm install jslardo
+npm install jslardo -g
 ```
 
 ## license

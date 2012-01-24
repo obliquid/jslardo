@@ -154,9 +154,6 @@ function defineRoutes(app) {
 			fieldsToBePopulated.push('author');
 			app.jsl['jslmodel_'+req.params.modelId]
 			.findOne( conditions )
-			//QUI!! popolo il resto?
-			//.populate('author')
-			//.populate('jslModel')
 			.populateMulti(fieldsToBePopulated)
 			.run(function(err, content) {
 				//console.log(content);
@@ -267,9 +264,9 @@ function defineRoutes(app) {
 		app.jsl.jslModelController.loadMongooseModelFromId(app, req.params.modelId, function(modelName, fieldsToBePopulated){
 			//mi hanno passato l'id obbligatoriamente
 			//leggo il mio content dal db, e assegno il result al tpl
+			fieldsToBePopulated.push('jslModel');
 			app.jsl['jslmodel_'+req.params.modelId].findOne( { '_id': req.params.id } )
-			.populate('jslModel')
-			//QUI!!! devo popolare anche i fieldsToBePopulated? se no non caricarne nemmeno i models mongoose
+			.populateMulti(fieldsToBePopulated)
 			.run( function(err, content) {
 				if (!err)
 				{
@@ -323,8 +320,12 @@ function defineRoutes(app) {
 								if (err) {
 									app.jsl.utils.errorPage(res, err, "POST: content form (modify): error saving content");
 								} else {
-									//e rimando nel form
-									res.redirect('/contents/'+req.params.modelId+'/edit/'+content._id+'/success');
+									//siccome quella merda di mongo non mi resetta i campi dbref che gli arrivano vuoti dal form,
+									//devo unsettarli a mano
+									app.jsl.jslModelController.unsetEmptyFields(app,req,res,content,req.body,function(){
+										//e rimando nel form
+										res.redirect('/contents/'+req.params.modelId+'/edit/'+content._id+'/success');
+									});
 								}
 							});
 						});
@@ -491,16 +492,71 @@ function defineRoutes(app) {
 	//JSON ROUTES
 
 	//POST: content render dynamic form
-	//non ha controlli sui permessi, che vengono fatti invece solo in fase di save
-	app.post('/json/contents/renderDynForm/:modelId', app.jsl.perm.readStrucPermDefault, function(req, res, next){
+	app.post('/json/contents/renderDynForm/:id', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnJslModelId, function(req, res, next){
 		app.jsl.routes.routeInit(req);
 		
-		renderDynForm(app, req, res, req.params.modelId, function(renderedForm) { res.json(renderedForm); });
+		renderDynForm(app, req, res, req.params.id, function(renderedForm) { res.json(renderedForm); });
 		
 		
 		
 		//console.log(req.params);
 		//appendDiv(req, req.params.page, req.params.div, req.params.ord, function(){ res.json(); });
+	});	
+	
+
+	//POST: content render referenced contents
+	//come id vuole il modelId, per fare i controlli sui permessi
+	app.post('/json/contents/renderDynViewRefs/:id/:contentsIds/:type/:field', app.jsl.perm.readStrucPermDefault, function(req, res, next){
+		app.jsl.routes.routeInit(req);
+		//ciclo async su ogni id, e per ciascuno leggo il suo content, e poi renderizzo (sync) il suo pezzetto di template
+		var contentsIds = req.params.contentsIds.split(',');
+		var modelId = req.params.id;
+		var type = req.params.type;
+		var field = req.params.field;
+		var renderedView = '';
+		recurse();
+		function recurse() {
+			if ( contentsIds.length > 0 ) {
+				var contentId = contentsIds.shift();
+				//se sono superadmin vedo anche i non share
+				var conditions = ( req.session.user_id == 'superadmin' ) 
+				? 
+				{ '_id': contentId } 
+				: 
+				{ $or: [
+					{ '_id': contentId,  'status': 'share' },
+					{ '_id': contentId,  'author': req.session.user_id }
+				]};
+				
+				//carico il model di mongoose
+				app.jsl.jslModelController.loadMongooseModelFromId(app, modelId, function( modelName, fieldsToBePopulated ){
+					//fieldsToBePopulated.push('jslModel');
+					//fieldsToBePopulated.push('author');
+					app.jsl['jslmodel_'+modelId]
+					.findOne( conditions )
+					//.populateMulti(fieldsToBePopulated)
+					.run(function(err, content) {
+						//console.log(content);
+						if ( !err ) {
+							//la query può andare a buon fine anche se non esiste un content col mio id e status: share,
+							//in questo caso ritorna uno content null, quindi devo controllare se esiste lo content, altrimenti rimando in home
+							if ( content ) {
+								//ho trovato il content del mio element. posso renderizzarne l'output
+								renderedView += renderDynViewRefs(app,req,res,type,content,field);
+								recurse();
+							} else {
+								app.jsl.utils.errorPage(res, err, 'POST: content render referenced contents: no content found in db');
+							}
+						} else {
+							app.jsl.utils.errorPage(res, err, 'POST: content render referenced contents: failed getting content from db');
+						}
+					});
+				});
+			} else {
+				//finito
+				res.json(renderedView);
+			}
+		}
 	});	
 	
 
@@ -711,7 +767,7 @@ function renderDynFormRecurse(app, req, res, schema,content,modelId,next) {
 			if ( field == 'author' || field == 'created' || field == 'status' || field == 'jslModel' ) {
 				//skippo
 			} else {
-				
+				/* vecchia versione, ok ma non popolava refContents
 				//devo distinguere se si tratta di un field array o singolo
 				if ( app.jsl.utils.is_array(schema[field]) ) {
 					schema[field] = schema[field].pop();
@@ -721,27 +777,71 @@ function renderDynFormRecurse(app, req, res, schema,content,modelId,next) {
 				}
 				//console.log('considero il field: '+field+' che vale:');
 				//console.log(schema[field]);
+				*/
+				var isArray = false;
+				if ( app.jsl.utils.is_array( schema[field] ) ) {
+					var fieldObj = schema[field][0];
+					fieldObj.type_cardinality = 'multiple';
+					isArray = true;
+				} else {
+					var fieldObj = schema[field];
+					fieldObj.type_cardinality = 'single';
+				}
+				//solo nel caso del datatype ObjectId, prima di passare il content al tpl,
+				//renderizzo un blocco html con i vari ref contents, e poi lo appendo al content
+				//da passare al tpl
+				if ( fieldObj.type == 'ObjectId' ) {
+					//se non ho content per questo field, skippo
+					if (
+						!(
+							!app.jsl.utils.is_array( content[field] ) && ( content[field] === null || content[field] === undefined || content[field] == '' )
+							||
+							app.jsl.utils.is_array( content[field] ) && content[field].length == 0
+						)
+					)
+					{
+						var refOutput = '';
+						var refIds = '';
+						if ( isArray ) {
+							for ( var i=0; i < content[field].length; i++) {
+								refOutput += renderDynViewRefs(app,req,res,'form',content[field][i],field);
+								if ( i == 0 ) {
+									refIds = content[field][i]._id;
+								} else {
+									refIds += ',' + content[field][i]._id;
+								}
+								
+							}
+						} else {
+							refOutput = renderDynViewRefs(app,req,res,'form',content[field],field);
+							refIds = content[field]._id;
+						}
+						content[field]['refContents'] = refOutput;
+						content[field]['refIds'] = refIds;
+					}
+				}
 				//apro il relativo template
 				//questa potrebbe supportare un caching
-				var templateFilename = 'views/includes/dynForm/'+schema[field].type+'.jade';
+				var templateFilename = 'views/includes/dynForm/'+fieldObj.type+'.jade';
 				var dynForm = fs.readFileSync(templateFilename, 'utf8');
 				//compilo il template
 				//no so perchè ma il compile, oltre al contenuto del template, vuole anche il file altrimenti non vanno gli include
 				//forse perchè dal path assoluto del file capisce il path relativo per gli includes
 				var dynFormCompiled = jade.compile(dynForm.toString('utf8'), {filename: templateFilename});
-				var icon = '/images/pov/'+app.jsl.utils.datatypeByName(schema[field].type).icon+'_40x30.png';
+				var icon = '/images/pov/'+app.jsl.utils.datatypeByName(fieldObj.type).icon+'_40x30.png';
 				//se mi hanno passato un content popolo il template del form anche con quello, altrimenti popolo solo con il nome del field
-				if ( content ) {
+				if ( !content ) content = {};
+				//if ( content ) {
 					//popolo il template
 					dynFormRendered += dynFormCompiled({
 						field: field,
 						icon: icon,
 						counter: counter,
-						description: schema[field].description,
-						required: app.jsl.utils.bool_parse(schema[field].required),
-						cardinality: schema[field].type_cardinality,
-						element: content,
-						type_model: (schema[field].ref) ? schema[field].ref.substr(9) : '',
+						description: fieldObj.description,
+						required: app.jsl.utils.bool_parse(fieldObj.required),
+						cardinality: fieldObj.type_cardinality,
+						content: content,
+						type_model: (fieldObj.ref) ? fieldObj.ref.substr(9) : '',
 						encURI: function(content){ return encodeURIComponent(content) },
 						decURI: function(content){ return decodeURIComponent(content) },
 						esc: function(content){ return escape(content) },
@@ -752,17 +852,18 @@ function renderDynFormRecurse(app, req, res, schema,content,modelId,next) {
 						req: req,
 						res: res
 					});
+				/*
 				} else {
 					//popolo il template con un content vuoto
 					dynFormRendered += dynFormCompiled({
 						field: field,
 						icon: icon,
 						counter: counter,
-						description: schema[field].description,
-						required: app.jsl.utils.bool_parse(schema[field].required),
-						cardinality: schema[field].type_cardinality,
+						description: fieldObj.description,
+						required: app.jsl.utils.bool_parse(fieldObj.required),
+						cardinality: fieldObj.type_cardinality,
 						element: {},
-						type_model: (schema[field].ref) ? schema[field].ref.substr(9) : '',
+						type_model: (fieldObj.ref) ? fieldObj.ref.substr(9) : '',
 						encURI: function(content){ return encodeURIComponent(content) },
 						decURI: function(content){ return decodeURIComponent(content) },
 						esc: function(content){ return escape(content) },
@@ -774,6 +875,7 @@ function renderDynFormRecurse(app, req, res, schema,content,modelId,next) {
 						res: res
 					});
 				}
+				*/
 				counter++;
 			}
 		}
@@ -820,7 +922,7 @@ function renderDynView(app, req, res, type, schema, content, next) {
 		} else {
 			var fieldObj = schema[field];
 		}
-		//solo nel caso del datatype ObjectId, invece di passare il content al tpl, prima
+		//solo nel caso del datatype ObjectId, prima di passare il content al tpl,
 		//renderizzo un blocco html con i vari ref contents, e poi lo appendo al content
 		//da passare al tpl
 		if ( fieldObj.type == 'ObjectId' ) {
@@ -842,13 +944,13 @@ function renderDynView(app, req, res, type, schema, content, next) {
 			//non mi serve: var refModelId = fieldObj.ref.substr(9);
 			if ( isArray ) {
 				for ( var i=0; i < content[field].length; i++) {
-					refOutput += renderDynViewRefs(app,req,res,type,content[field][i]);
+					refOutput += renderDynViewRefs(app,req,res,type,content[field][i],field);
 				}
 			} else {
 				//non voglio fare una query per avere lo schema,
 				//quindi butto fuori i field che ho nel content senza sapere
 				//il datatype.
-				refOutput += renderDynViewRefs(app,req,res,type,content[field]);
+				refOutput += renderDynViewRefs(app,req,res,type,content[field],field);
 			}
 			content[field]['refContents'] = refOutput;
 		}
@@ -883,10 +985,10 @@ function renderDynView(app, req, res, type, schema, content, next) {
 /*
 per i content referenziati visualizzo sempre solo il primo field utile non vuoto
 */
-function renderDynViewRefs(app,req,res,type,content) {
+function renderDynViewRefs(app,req,res,type,content,parentField) {
 	//memorizzo il model e l'id che mi servono per generare il link al detail del mio content referenziato
-	var jade = require('jade');
-	var fs = require('fs');	
+	//var jade = require('jade');
+	//var fs = require('fs');	
 	var contentId = content.id;
 	var modelId = content.jslModel;
 	var output = '';
@@ -894,7 +996,7 @@ function renderDynViewRefs(app,req,res,type,content) {
 	//console.log(content.schema.paths);
 	var found = false;
 	for ( var field in content.schema.paths ) {
-		if ( found ) break;
+		if ( found ) break; //butto fuori solo il primo
 		//console.log('### e dentro al content considero il field: '+field);
 		var fieldType = content.schema.paths[field].instance;
 		if (fieldType == 'ObjectID') fieldType = 'ObjectId'; //piccole differenze...
@@ -911,7 +1013,7 @@ function renderDynViewRefs(app,req,res,type,content) {
 		} else if ( type == 'list') {
 			output += content[field]+' ';
 		} else if ( type == 'form') {
-			output += content[field]+' ';
+			output += '<li id="id_'+contentId+'" class="innerCont size2"><span>'+content[field]+'</span><a onclick="dropContent_'+parentField+'(this)" class="adminButton deleteButton"></a></li>';
 		}
 
 		found = true;

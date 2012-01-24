@@ -10,6 +10,28 @@ var is_array = function (value) {
 	return Object.prototype.toString.apply(value) === '[object Array]'; //questo va anche per array definiti in altre windows o frame
 };
 
+var in_array = function (arr,obj) {
+    return (arr.indexOf(obj) != -1);
+}
+
+Array.prototype.remove= function(){
+	//alert('beppe!');
+	var index = this.indexOf(arguments[0]);
+	this.splice(index, 1);
+	return this;
+	/*
+    var what, a= arguments, L= a.length, ax;
+    while(L && this.length){
+        what= a[--L];
+        while((ax= this.indexOf(what))!= -1){
+            this.splice(ax, 1);
+        }
+    }
+    return this;
+	*/
+}
+
+
 
 
 /* JQUERY PLUGINS */

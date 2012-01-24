@@ -18,35 +18,106 @@ else
 			return true;
 		}
 
+//- da qui in poi script specifici di ObjectId rispetto agli altri datatype
 if cardinality == 'single'
 	script
-		function select_#{field}(elementId) {
-			//- alert('chiamato! con elementId = '+elementId);
+		function select_#{field}(contentId) {
+			//- alert('chiamato! con contentId = '+contentId);
 			//- aggiorno il form
-			$('#'+'#{field}').val(elementId);
+			$('#'+'#{field}').val(contentId);
+			//- aggiorno la list view
+			renderDynForm_#{field}();
 		}
 if cardinality == 'multiple'
 	script
-		function select_#{field}(elementId) {
-			//- alert('chiamato! con elementId = '+elementId);
+		function select_#{field}(contentId) {
+			//- alert('chiamato! con contentId = '+contentId);
 			//- aggiorno il form
 			if ( !$('#'+'#{field}').val() ) {
-				$('#'+'#{field}').val(elementId);
+				$('#'+'#{field}').val(contentId);
 			} else {
-				var actualElements = $('#'+'#{field}').val().split(',');
-				actualElements.push(elementId);
-				$('#'+'#{field}').val(actualElements.join(','));
+				var contentIds = $('#'+'#{field}').val().split(',');
+				//- se esiste già non lo aggiungo
+				if (!in_array(contentIds,contentId)) {
+					contentIds.push(contentId);
+					$('#'+'#{field}').val(contentIds.join(','));
+				}
 			}
+			//- aggiorno la list view
+			renderDynForm_#{field}();
 		}
 
-#{cardinality}
+script
+	function renderDynForm_#{field}() {
+		var contents = $('#'+'#{field}').val();
+		//- per default vuoto i refContents. poi se mi torna un contenuto via ajax, li ripopolo
+		$('#refContents_'+'#{field}').empty();
+		if ( !contents ) {
+			//senza nessun id specificato, skippo
+		} else {
+			$.ajax({
+				url: '/json/contents/renderDynViewRefs/#{type_model}/'+$('#'+'#{field}').val()+'/form/'+'#{field}',
+				type: 'POST',
+				dataType: 'json',
+				data: {},
+				complete: function() {
+					//console.log('process complete');
+				},
+				success: function(renderedForm) {
+					//console.log('process sucess: ricevuto form renderizzato: '+renderedForm);
+					//console.log(renderedForm);
+					//console.log('refresh');
+					//refresh del form
+					$('#refContents_'+'#{field}').html(renderedForm);
+				},
+				error: function() {
+					console.log('ajax error calling: /json/contents/renderDynFormRefs/');
+				}
+			});				
+		}
+	}
+
+	function dropContent_#{field}(me) {
+		var contentItem = $(me).parent();
+		var contentId = contentItem.attr('id').substr(3);
+		var contentIds = $('#'+'#{field}').val().split(',');
+		//- tolgo dal form
+		contentIds.remove(contentId);
+		$('#'+'#{field}').val(contentIds.join(','));
+		//tolgo dalla view
+		contentItem.remove();
+	}
+
+	function sortContent_#{field}() {
+		var contentIds = [];
+		var contents = $('#refContents_'+'#{field}').children();
+		for ( var i = 0; i < contents.length; i++ ) {
+			contentIds.push( $(contents[i]).attr('id').substr(3) );
+		}
+		$('#'+'#{field}').val(contentIds.join(','));
+	}
+
+
 .formRow
 	span.adminIcon.datatypeIcon.floatLeft
 		img(src='#{icon}')
 	h5.formLabel #{field}:
 		if required
 			span.formError *
-	input(id='#{field}', name='#{field}', value='#{element[field] || ""}').size2
+	if content[field] && content[field].refContents
+		textarea(id='#{field}', name='#{field}').invisible #{content[field].refIds || ""}
+		ul(id='refContents_#{field}').size2.floatRight
+			!= content[field].refContents
+		div.clear
+	else
+		textarea(id='#{field}', name='#{field}').invisible
+		ul(id='refContents_#{field}').size2.floatRight
+		div.clear
+	script
+		$('#refContents_'+'#{field}').dragsort({ dragEnd: function() { sortContent_#{field}(); }, placeHolderTemplate: '<li class="innerContOutline"></li>' });
+	
+	
+	
 	a(title='#{field}: #{__i("create new")}').adminButton.addButton
 	//- a(onclick='openModal("/filterByModel/#{type_model}/#{encURI('/contents/'+req.params.modelId+'/1/select_'+field)}",1000)', target='_blank', title='#{field}: #{__i("select existent")}').adminButton.selectButton
 	a(onclick='openModal("/contents/#{type_model}/1/select_#{field}",1000)', target='_blank', title='#{field}: #{__i("select existent")}').adminButton.selectButton

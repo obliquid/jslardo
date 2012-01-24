@@ -430,6 +430,7 @@ textarea,
 .outerCont,
 .outerContMinimal,
 .innerCont,
+.innerContOutline,
 .adminIcon,
 .formSuccess,
 .linkSelected,
@@ -493,6 +494,13 @@ textarea:hover,
 {
 	text-shadow: rgba(0, 0, 0, 0.5) 0px 1px 0px;
 }
+
+
+/* dotted border */
+.innerContOutline {
+	border: 2px dotted #666666;
+}
+
 
 /* display */
 
@@ -604,7 +612,8 @@ textarea:hover,
 	background-repeat:repeat;
 }
 
-.innerCont
+.innerCont,
+.innerContOutline
 {
 	display: block;
 	background-image:url('../images/bg/nero20perc.png');
@@ -619,6 +628,11 @@ textarea:hover,
 	margin-top: 5px;
 	overflow: hidden;
 }
+.innerContOutline {
+	background-image:none;
+	padding: 1px;
+}
+
 
 .headerCont
 {

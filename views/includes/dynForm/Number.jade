@@ -28,6 +28,6 @@ else
 	h5.formLabel #{field}:
 		if required
 			span.formError *
-	input(id='#{field}', name='#{field}', value='#{element[field] || ""}').size2
+	input(id='#{field}', name='#{field}', value='#{content[field] || ""}').size2
 	if description
 		p #{description}

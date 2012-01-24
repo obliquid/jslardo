@@ -57,6 +57,7 @@ form(onsubmit='return validate_elementForm()').size4
 		h5.formLabel #{__i('name')}
 			span.formError *
 		input(id='name', name='name', value='#{element.name || ""}').size3
+		p  #{__i('do not use spaces or special chars')}
 	.formRow
 		h5.formLabel #{__i('type')}
 			span.formError *
