@@ -16,6 +16,8 @@ as a template engine jslardo internally uses jade.
   - divs management
   - models (schemas) management
     - runtime mongoose models reload at each change
+	- fielads can also be DBRefs to other models created by users (array or single value fields supported)
+	- automatic update of contents and schemas at each user interaction to maintain full coherence in database
   - contents management
     - with automatic form generation
   - users management
