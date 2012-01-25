@@ -482,7 +482,7 @@ function normalizeMongooseModel(app, jsonSchema) {
 		"Date":Date,
 		"Boolean":Boolean,
 		"ObjectId":app.mongoose.Schema.ObjectId
-	}
+	};
 	/*
 	ricordarsi che mongoose supporta questi tipi
 	app.mongoose.Schema=
@@ -1027,13 +1027,14 @@ function drawSchema(schema, app) {
 			} else {
 				if ( typeof jsonChunk[field] === 'object' ) {
 					//si tratta di un field che ha come contenuto un object on un array
-					output += '<tr><td valign="top" align="right"><h5>'+field+'</h5></td><td>';
 					//vedo se è un array o un singolo
 					if ( app.jsl.utils.is_array( jsonChunk[field] ) ) {
-						recurse(jsonChunk[field][0]);
+						var fieldObj = jsonChunk[field][0];
 					} else {
-						recurse(jsonChunk[field]);
+						var fieldObj = jsonChunk[field];
 					}
+					output += '<tr><td valign="top" align="right"><h5>'+fieldObj.name_full+'</h5></td><td>';
+					recurse(fieldObj);
 					output += '</td></tr>';
 				} else {
 					//il mio field ha un contenuto normale

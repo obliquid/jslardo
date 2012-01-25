@@ -51,9 +51,10 @@ jQuery.fn.center = function () {
 //open modal iframe popup
 function openModal(src, width) {
 	if ( !width ) width = 700;
-	var elementId = 'orcodio';
+	//var elementId = 'orcodio';
 	var originalYScroll = window.pageYOffset;
-	var modalFrame = $.modal('<iframe id="'+ elementId +'" src="' + src + '" width="' + width + '" onload="centerModal(this,' + originalYScroll + ')" style="border:0">', {
+	//var modalFrame = $.modal('<iframe id="'+ elementId +'" src="' + src + '" width="' + width + '" onload="centerModal(this,' + originalYScroll + ')" style="border:0">', {
+	var modalFrame = $.modal('<iframe src="' + src + '" width="' + width + '" onload="centerModal(this,' + originalYScroll + ')" style="border:0">', {
 		closeHTML:'',
 		containerCss:{
 			backgroundColor:"#fff",
@@ -77,6 +78,60 @@ function centerModal(f, originalYScroll) {
 	$('#simplemodal-container').height(f.contentWindow.document.body.scrollHeight);
 	$('#simplemodal-container').center();
 }
+
+
+function nameuniquize(stringDirty) {
+	var allowedChars  = [
+		"a",
+		"b",
+		"c",
+		"d",
+		"e",
+		"f",
+		"g",
+		"h",
+		"i",
+		"j",
+		"k",
+		"l",
+		"m",
+		"n",
+		"o",
+		"p",
+		"q",
+		"r",
+		"s",
+		"t",
+		"u",
+		"v",
+		"w",
+		"x",
+		"y",
+		"z",
+		"0",
+		"1",
+		"2",
+		"3",
+		"4",
+		"5",
+		"6",
+		"7",
+		"8",
+		"9",
+		"_",
+		"-"
+	];
+	var nameuniquizedString = '';
+	for(var i=0; i<stringDirty.length; i++) {
+		var dirtyChar = stringDirty.charAt(i).toLowerCase();
+		if (dirtyChar == ' ') dirtyChar = '_';
+		if ( in_array(allowedChars,dirtyChar) ) {
+			nameuniquizedString += dirtyChar;
+		}
+	}
+	return nameuniquizedString;
+}
+//exports.nameuniquize = nameuniquize;
 
 
 //data() selector

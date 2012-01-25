@@ -42,10 +42,11 @@ function defineRoutes(app) {
 	
 	//GET: field form (modify) //quando entro in un form da un link (GET) e non ci arrivo dal suo stesso submit (caso POST)
 	//il parametro id è obbligatorio, ed è inteso come l'id del model cui appartiene questo field. serve per controllare i permessi
-	app.get('/fields/edit/:id/:name/:type/:type_model/:type_cardinality/:required/:description?', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnJslModelId, function(req, res, next){
+	app.get('/fields/edit/:id/:name/:name_full/:type/:type_model/:type_cardinality/:required/:description?', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnJslModelId, function(req, res, next){
 		app.jsl.routes.routeInit(req);
 		//costruisco l'oggetto per popolare il form
 		var element = {
+			name_full: req.params.name_full,
 			name: req.params.name,
 			old_name: req.params.name, //questa mi serve per memorizzare il nome originario del field
 			type: req.params.type,

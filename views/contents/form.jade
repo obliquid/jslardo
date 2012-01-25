@@ -69,19 +69,28 @@ form(id='elementForm', method='post', action='/#{elementName}s/#{req.params.mode
 	include ../includes/formSubmitTop
 	div.size4.floatLeft
 		div.mainColLeft
-			.formRow
-				h5.formLabel #{__i('model')}
-					span.formError *
-				select(id='jslModel', name='jslModel', onchange='renderDynForm()', disabled='disabled')
-					option(value='') -
-					each combo_jslModel in combo_jslModels
-						//- if String(combo_jslModel._id) == String(element.jslModel._id)
-						if combo_jslModel._id == req.params.modelId
-							option(value='#{combo_jslModel._id}',selected='true') #{combo_jslModel.name}
-						else
-							option(value='#{combo_jslModel._id}') #{combo_jslModel.name}
-			hr
-			h4 #{__i('content')}
+			select(id='jslModel', name='jslModel', onchange='renderDynForm()', disabled='disabled').invisible
+				option(value='') -
+				each combo_jslModel in combo_jslModels
+					//- if String(combo_jslModel._id) == String(element.jslModel._id)
+					if combo_jslModel._id == req.params.modelId
+						option(value='#{combo_jslModel._id}',selected='true') #{combo_jslModel.name}
+					else
+						option(value='#{combo_jslModel._id}') #{combo_jslModel.name}
+			//-
+				.formRow
+					h5.formLabel #{__i('model')}
+						span.formError *
+					select(id='jslModel', name='jslModel', onchange='renderDynForm()', disabled='disabled')
+						option(value='') -
+						each combo_jslModel in combo_jslModels
+							//- if String(combo_jslModel._id) == String(element.jslModel._id)
+							if combo_jslModel._id == req.params.modelId
+								option(value='#{combo_jslModel._id}',selected='true') #{combo_jslModel.name}
+							else
+								option(value='#{combo_jslModel._id}') #{combo_jslModel.name}
+				hr
+				h4 #{__i('content')}
 			.dynForm
 				if dynForm
 					!= dynForm
@@ -90,5 +99,7 @@ form(id='elementForm', method='post', action='/#{elementName}s/#{req.params.mode
 		div.mainColRight
 			include ../includes/formStatus
 	div.clear
+	if callback
+		input(id='callback', name='callback', value='#{callback}', type='hidden')
 	include ../includes/formSubmitBottom
 

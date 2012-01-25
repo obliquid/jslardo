@@ -1,10 +1,14 @@
-h3 #{__i('contents')}
-	img(src='/images/pov/icon_core_content_60x45.png').floatLeft
+if elements[0]
+	h3 #{elements[0].jslModel.name}
+		img(src='/images/pov/icon_core_content_60x45.png').floatLeft
+else
+	h3 #{__i('contents')}
+		img(src='/images/pov/icon_core_content_60x45.png').floatLeft
+
 hr
 include ../includes/paginationTop
 include ../includes/filterAllOrMine
 if !callback
-	//- include ../includes/filterByModel
 	include ../includes/listCrudbox
 
 each element,i in elements
@@ -16,8 +20,10 @@ each element,i in elements
 			- var href = '/'+elementName+'s/'+req.params.modelId+'/'+element._id;
 			- var onclick = '';
 		a(onclick='window.parent.#{onclick};window.parent.$.modal.close();', href='#{href}').elemGrid.outerCont
-			if element.jslModel
-				h5 #{element.jslModel.name}
+			//-
+				if element.jslModel
+					h5 #{element.jslModel.name}
+			h5 #{element.jslModel.name}
 			div.innerCont
 				.dynView
 					if element.dynView

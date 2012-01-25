@@ -11,6 +11,16 @@ script
 			alert("#{__i('jslSchema is required')}");
 			return false;
 		}
+		
+		//- cerco field di tipo ObjectId che hanno un model non impostato
+		var schema = schemaToTree();
+		for ( var i=0; i< schema.data.length; i++ ) {
+			var field = schema.data[i].metadata;
+			if ( field.type == 'ObjectId' && field.type_model == 'none' ) {
+				alert("#{__i('model is not defined for field')}: "+field.name_full);
+				return false;
+			}
+		}
 	}
 
 
@@ -37,9 +47,9 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 							h6 #{__i('add new fields to schema')}:
 							div#elementsTree.size2.jstree.jstreeDatatypes
 							hr
-							h6 #{__i('schema json version')}:
+							h6 #{__i('json version')}:
 							textarea(id='jslSchema', name='jslSchema', readonly='readonly').size2.code #{element.jslSchema || ""}
-							p #{__i('this must be a valid mongoose schema')}
+							p.textMini #{__i('this is a valid mongoose schema')}
 					//- tree con lo schema
 					div.jstreeColumn.floatRight
 						div#schemaTree.size2.jstree

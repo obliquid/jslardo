@@ -188,7 +188,7 @@ function defineRoutes(app) {
 	});
 	
 	//GET: content form (new)
-	app.get('/contents/:modelId/edit/new', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermCreate, function(req, res, next){
+	app.get('/contents/:modelId/edit/new/:callback?', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermCreate, function(req, res, next){
 		app.jsl.routes.routeInit(req);
 		//è un NEW, renderizzo il form, ma senza popolarlo
 		//(devo ovviamente popolare solo il combo con i miei models)
@@ -201,11 +201,20 @@ function defineRoutes(app) {
 			if ( req.params.modelId != '' && req.params.modelId != undefined )
 			{
 				content.jslModel = req.params.modelId;
+				if ( req.params.callback ) {
+					var layout = 'layoutPopup';
+					var callback = req.params.callback;
+				} else {
+					var layout = true;
+					var callback = '';
+				}
 				//essendo definito il model, posso popolare il dynForm, che altrimenti resterebbe vuoto in attesa che venga scelto un model
 				//pre-renderizzo il blocco di form relativo al contanuto dinamico
 				renderDynForm(app, req, res, content.jslModel, function(renderedForm) {
 					//renderizzo il form finale senza il dynForm
 					res.render('contents/form', { 
+						layout: layout,
+						callback: callback,
 						title: app.i18n.t(req,'create new content'),
 						elementName: 'content',
 						element: content,
@@ -217,6 +226,8 @@ function defineRoutes(app) {
 			} else {
 				//renderizzo il form finale senza il dynForm
 				res.render('contents/form', { 
+					layout: layout,
+					callback: callback,
 					title: app.i18n.t(req,'create new content'),
 					elementName: 'content',
 					element: content,
@@ -247,7 +258,11 @@ function defineRoutes(app) {
 				{
 					//ho creato con successo il mio content nuovo
 					//e rimando nel form
-					res.redirect('/contents/'+req.params.modelId+'/edit/'+my_content.id+'/success');
+					if ( req.body.callback ) {
+						res.redirect('/contents/'+req.params.modelId+'/edit/'+my_content.id+'/success/'+req.body.callback);
+					} else {
+						res.redirect('/contents/'+req.params.modelId+'/edit/'+my_content.id+'/success');
+					}
 				}
 				else
 				{
@@ -258,7 +273,7 @@ function defineRoutes(app) {
 	});	
 	
 	//GET: content form (modify) //quando entro in un form da un link (GET) e non ci arrivo dal suo stesso submit (caso POST)
-	app.get('/contents/:modelId/edit/:id/:msg?', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnContentId, function(req, res, next){
+	app.get('/contents/:modelId/edit/:id/:msg?/:callback?', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnContentId, function(req, res, next){
 		app.jsl.routes.routeInit(req);
 		//carico i model di mongoose
 		app.jsl.jslModelController.loadMongooseModelFromId(app, req.params.modelId, function(modelName, fieldsToBePopulated){
@@ -276,13 +291,22 @@ function defineRoutes(app) {
 							//pre-renderizzo il blocco di form relativo al contanuto dinamico
 							renderDynForm(app, req, res, req.params.modelId, function(renderedForm) {
 								//ora che ho anche il blocco di form dinamico, posso renderizzare il form finale
-								res.render('contents/form', { 
+								if ( req.params.callback ) {
+									var callback = req.params.callback;
+									var layout = 'layoutPopup';
+								} else {
+									var callback = false;
+									var layout = true;
+								}
+								res.render('contents/form', {
+									layout: layout,
 									title: app.i18n.t(req,'modify content'),
 									elementName: 'content',
 									element: content,
 									msg: req.params.msg,
 									dynForm: renderedForm,
-									combo_jslModels: jslModels
+									combo_jslModels: jslModels,
+									callback: callback
 								});	
 							}, jslModels, content);
 						});
@@ -324,7 +348,12 @@ function defineRoutes(app) {
 									//devo unsettarli a mano
 									app.jsl.jslModelController.unsetEmptyFields(app,req,res,content,req.body,function(){
 										//e rimando nel form
-										res.redirect('/contents/'+req.params.modelId+'/edit/'+content._id+'/success');
+										if ( req.body.callback ) {
+											res.redirect('/contents/'+req.params.modelId+'/edit/'+content._id+'/success/'+req.body.callback);
+										} else {
+											res.redirect('/contents/'+req.params.modelId+'/edit/'+content._id+'/success');
+										}
+										
 									});
 								}
 							});
@@ -831,51 +860,29 @@ function renderDynFormRecurse(app, req, res, schema,content,modelId,next) {
 				var icon = '/images/pov/'+app.jsl.utils.datatypeByName(fieldObj.type).icon+'_40x30.png';
 				//se mi hanno passato un content popolo il template del form anche con quello, altrimenti popolo solo con il nome del field
 				if ( !content ) content = {};
-				//if ( content ) {
-					//popolo il template
-					dynFormRendered += dynFormCompiled({
-						field: field,
-						icon: icon,
-						counter: counter,
-						description: fieldObj.description,
-						required: app.jsl.utils.bool_parse(fieldObj.required),
-						cardinality: fieldObj.type_cardinality,
-						content: content,
-						type_model: (fieldObj.ref) ? fieldObj.ref.substr(9) : '',
-						encURI: function(content){ return encodeURIComponent(content) },
-						decURI: function(content){ return decodeURIComponent(content) },
-						esc: function(content){ return escape(content) },
-						uesc: function(content){ return unescape(content) },
-						__i: app.i18n.__,
-						trunc: app.jsl.utils.trunc,
-						app: app,
-						req: req,
-						res: res
-					});
-				/*
-				} else {
-					//popolo il template con un content vuoto
-					dynFormRendered += dynFormCompiled({
-						field: field,
-						icon: icon,
-						counter: counter,
-						description: fieldObj.description,
-						required: app.jsl.utils.bool_parse(fieldObj.required),
-						cardinality: fieldObj.type_cardinality,
-						element: {},
-						type_model: (fieldObj.ref) ? fieldObj.ref.substr(9) : '',
-						encURI: function(content){ return encodeURIComponent(content) },
-						decURI: function(content){ return decodeURIComponent(content) },
-						esc: function(content){ return escape(content) },
-						uesc: function(content){ return unescape(content) },
-						__i: app.i18n.__,
-						trunc: app.jsl.utils.trunc,
-						app: app,
-						req: req,
-						res: res
-					});
-				}
-				*/
+				//appendo sempre al content il name_full del field
+				content.fieldNameFull = fieldObj.name_full;
+				
+				//popolo il template
+				dynFormRendered += dynFormCompiled({
+					field: field,
+					icon: icon,
+					counter: counter,
+					description: fieldObj.description,
+					required: app.jsl.utils.bool_parse(fieldObj.required),
+					cardinality: fieldObj.type_cardinality,
+					content: content,
+					type_model: (fieldObj.ref) ? fieldObj.ref.substr(9) : '',
+					encURI: function(content){ return encodeURIComponent(content) },
+					decURI: function(content){ return decodeURIComponent(content) },
+					esc: function(content){ return escape(content) },
+					uesc: function(content){ return unescape(content) },
+					__i: app.i18n.__,
+					trunc: app.jsl.utils.trunc,
+					app: app,
+					req: req,
+					res: res
+				});
 				counter++;
 			}
 		}
@@ -954,6 +961,8 @@ function renderDynView(app, req, res, type, schema, content, next) {
 			}
 			content[field]['refContents'] = refOutput;
 		}
+		//appendo sempre al content il name_full del field
+		content.fieldNameFull = fieldObj.name_full;
 		//questa potrebbe supportare un caching
 		if ( type == 'detail') {
 			var templateFilename = 'views/includes/dynDetail/'+fieldObj.type+'.jade';
@@ -1013,12 +1022,16 @@ function renderDynViewRefs(app,req,res,type,content,parentField) {
 		} else if ( type == 'list') {
 			output += content[field]+' ';
 		} else if ( type == 'form') {
-			output += '<li id="id_'+contentId+'" class="innerCont size2"><span>'+content[field]+'</span><a onclick="dropContent_'+parentField+'(this)" class="adminButton deleteButton"></a></li>';
+			output += '<li id="id_'+contentId+'" class="innerCont size2">';
+			output += '<span>'+content[field]+'</span>';
+			output += '<a onclick="dropContent_'+parentField+'(this)" class="adminButton unlinkButton" title="'+app.i18n.t(req,'deselect')+'"></a>';
+			output += '<a onclick="modifyContent_'+parentField+'(this)" class="adminButton modifyButton" title="'+app.i18n.t(req,'modify')+'"></a>';
+			output += '</li>';
 		}
 
 		found = true;
 		
-		/* questa funziona, ricorre, ma serve qualcosa di più sintetico nell'output
+		/* questa funziona, ricorre, ma serve qualcosa di più custom nell'output
 		//questa potrebbe supportare un caching
 		if ( type == 'detail') {
 			var templateFilename = 'views/includes/dynDetail/'+fieldType+'.jade';

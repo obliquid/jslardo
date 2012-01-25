@@ -40,13 +40,13 @@
 
 h1, h2, h3, h4, h5, h6, a, input, select, textarea, .jstree
 {
-	font-family: Arial, Helvetica, sans-serif;
+	/* font-family: Arial, Helvetica, sans-serif; */
 	font-family: TitlesFont, Arial, Helvetica, sans-serif;
 }
 
 html, body, p, span
 {
-	font-family: Arial, Helvetica, sans-serif;
+	/* font-family: Arial, Helvetica, sans-serif; */
 	font-family: TextsFont, Arial, Helvetica, sans-serif;
 }
 
@@ -176,11 +176,20 @@ input, select
 {
 	height: 26px; /* più 4 di padding fa 30 */
 }
+input[type="radio"] {
+	height: 12px;
+} 
 textarea
 {
 	height: 120px;
 }
-
+input.disabled:hover {
+	background-color: transparent;
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	cursor: default;
+}
 
 
 /* lists */
@@ -303,8 +312,7 @@ a.outerCont:hover
 }
 .adminButton,
 .adminIcon,
-#vakata-contextmenu
-{
+#vakata-contextmenu {
 	background-color: #E57200;
 }
 
@@ -315,12 +323,24 @@ a.outerCont:hover
 }
 
 
+/* dark grey for texts */
+input.disabled,
+input.disabled:hover {
+	color: #666666;
+}
+
 /* light grey for backgrounds */
 .paginationButton,
 .elementButton
 {
 	background-color: #9C9C9C;
 }
+.innerContOutline,
+.formRow
+{
+	border: 2px dotted #9C9C9C;
+}
+
 
 
 
@@ -472,7 +492,7 @@ textarea,
 }
 
 /* text shadow */
-h1, h2, h3, h4, h5, h6, p, html, body, a, input, select, textarea
+h1, h2, h3, h4, h5, h6, p, html, body, a, input, input.disabled:hover, select, textarea
 {
 	text-shadow: rgba(255,255,255, 0.9) 0px 1px 0px;
 }
@@ -493,12 +513,6 @@ textarea:hover,
 .linkSelected
 {
 	text-shadow: rgba(0, 0, 0, 0.5) 0px 1px 0px;
-}
-
-
-/* dotted border */
-.innerContOutline {
-	border: 2px dotted #666666;
 }
 
 
@@ -763,10 +777,22 @@ textarea:hover,
 .dynForm,
 .dynView {
 }
+.formRow
+{
+  /* background-image:url('../images/bg/bianco50perc.png'); */
+  background-image:url('../images/bg/bianco50perc_diag.png');
+  min-height: 34px;
+}
 .refLink {
 	line-height: 35px;
 }
-
+.refsContainer {
+	margin: 0px;
+	margin-bottom: 5px;
+	padding: 0px;
+	position: relative;
+	right: 10px;
+}
 
 /* crud buttons */
 
@@ -825,6 +851,11 @@ textarea:hover,
 	background-image:url('../images/pov/icon_delete_20x15.png');
 }
 
+.unlinkButton
+{
+	background-image:url('../images/pov/icon_unlink_20x15.png');
+}
+
 .backButton
 {
 	background-image:url('../images/pov/icon_pagination_prev10pages_frontend_20x20.png');
@@ -843,6 +874,11 @@ textarea:hover,
 .selectButton
 {
 	background-image:url('../images/pov/icon_core_get_20x15.png');
+}
+
+.setButton
+{
+	background-image:url('../images/pov/icon_core_set_20x15.png');
 }
 
 .privateButton
@@ -1002,16 +1038,15 @@ textarea:hover,
 {
 	position: absolute;
 	top: 30px;
-	left: 300px;
+	right: 0px;
 }
 
-.filterBySite,
-.filterByModel
+.filterBySite
 /* questi 2 hanno la stessa posizione perchè non compaiono mai assieme */
 {
 	position: absolute;
 	top: 30px;
-	left: 450px;
+	right: 170px;
 }
 
 

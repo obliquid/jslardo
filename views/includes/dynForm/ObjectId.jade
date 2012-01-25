@@ -77,6 +77,20 @@ script
 		}
 	}
 
+	function modifyContent_#{field}(me) {
+		var contentItem = $(me).parent();
+		var contentId = contentItem.attr('id').substr(3);
+		openModal('/contents/#{type_model}/edit/'+contentId+'/null/select_#{field}',1000);//- okkio al doppio slash, vuol dire che passo il parametro msg vuoto
+		/*
+		var contentIds = $('#'+'#{field}').val().split(',');
+		//- tolgo dal form
+		contentIds.remove(contentId);
+		$('#'+'#{field}').val(contentIds.join(','));
+		//tolgo dalla view
+		contentItem.remove();
+		*/
+	}
+
 	function dropContent_#{field}(me) {
 		var contentItem = $(me).parent();
 		var contentId = contentItem.attr('id').substr(3);
@@ -101,12 +115,12 @@ script
 .formRow
 	span.adminIcon.datatypeIcon.floatLeft
 		img(src='#{icon}')
-	h5.formLabel #{field}:
+	h5.formLabel #{content.fieldNameFull}:
 		if required
 			span.formError *
 	if content[field] && content[field].refContents
 		textarea(id='#{field}', name='#{field}').invisible #{content[field].refIds || ""}
-		ul(id='refContents_#{field}').size2.floatRight
+		ul(id='refContents_#{field}').size2.floatRight.refsContainer
 			!= content[field].refContents
 		div.clear
 	else
@@ -115,13 +129,7 @@ script
 		div.clear
 	script
 		$('#refContents_'+'#{field}').dragsort({ dragEnd: function() { sortContent_#{field}(); }, placeHolderTemplate: '<li class="innerContOutline"></li>' });
-	
-	
-	
-	a(title='#{field}: #{__i("create new")}').adminButton.addButton
-	//- a(onclick='openModal("/filterByModel/#{type_model}/#{encURI('/contents/'+req.params.modelId+'/1/select_'+field)}",1000)', target='_blank', title='#{field}: #{__i("select existent")}').adminButton.selectButton
-	a(onclick='openModal("/contents/#{type_model}/1/select_#{field}",1000)', target='_blank', title='#{field}: #{__i("select existent")}').adminButton.selectButton
-	
-	
+	a(onclick='openModal("/contents/#{type_model}/edit/new/select_#{field}",1000)', title='#{__i("create new")}').adminButton.addButton
+	a(onclick='openModal("/contents/#{type_model}/1/select_#{field}",1000)', title='#{__i("select existent")}').adminButton.selectButton
 	if description
 		p #{description}

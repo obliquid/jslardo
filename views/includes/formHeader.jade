@@ -1,5 +1,8 @@
-h3 #{title}
-- if (typeof msg !== 'undefined' && msg == 'success' )
+if element.jslModel
+	h3 #{__i('modify')} #{element.jslModel.name}
+else
+	h3 #{title}
+if (typeof msg !== 'undefined' && msg == 'success' )
 	hr
 	h4.formSuccess.size2 #{__i('successfully saved')}!
 hr

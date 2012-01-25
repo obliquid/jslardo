@@ -1,11 +1,12 @@
-h3 #{__i(elementName)}
+//- esce 'content': h3 #{__i(elementName)}
+h3 #{element.jslModel.name}
 	img(src='/images/pov/icon_core_content_60x45.png').floatLeft
 include ../includes/detailCrudbox
 a(href='/jslModels/#{element.jslModel._id}', title='#{__i('model for this content')}').floatLeft.elementButton.buttonJslModels #{__i('model')}
 hr
 div.size4.floatLeft
 	div.mainColLeft
-		h1 #{element.jslModel.name}
+		//- non serve più: h1 #{element.jslModel.name}
 		.dynView
 			if dynView
 				!= dynView

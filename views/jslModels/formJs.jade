@@ -70,50 +70,52 @@ script
 		var fields = $('#schemaTree').children().children();
 		//console.log('treeToSchema fields: ');
 		//console.log(fields);
-		for ( var i=0; i<fields.length; i++ ) {
-			var field = $(fields[i]).data();
-			//console.log(field);
-			//distinguo a seconda del type
-			switch ( field.type ) {
-				case 'ObjectId':
-					var fieldObj = { 'type': 'ObjectId', 'ref': 'jslmodel_'+field.type_model, 'required': field.required, 'description': field.description };
-					break;
-				default:
-					var fieldObj = { 'type': field.type, 'required': field.required, 'description': field.description };
-					//schemaJson[field.name] = fieldObj;
-					break;
+		if ( fields.length > 0 ) {
+			for ( var i=0; i<fields.length; i++ ) {
+				var field = $(fields[i]).data();
+				//console.log(field);
+				//distinguo a seconda del type
+				switch ( field.type ) {
+					case 'ObjectId':
+						var fieldObj = { 'type': 'ObjectId', 'ref': 'jslmodel_'+field.type_model, 'required': field.required, 'name_full': field.name_full, 'description': field.description };
+						break;
+					default:
+						var fieldObj = { 'type': field.type, 'required': field.required, 'name_full': field.name_full, 'description': field.description };
+						//schemaJson[field.name] = fieldObj;
+						break;
+				}
+				//considero la cardinality, e assegno all'array
+				if ( field.type_cardinality == 'multiple' ) {
+					schemaJson[field.name] = [ fieldObj ];
+				} else {
+					schemaJson[field.name] = fieldObj;
+				}
+				
 			}
-			//considero la cardinality, e assegno all'array
-			if ( field.type_cardinality == 'multiple' ) {
-				schemaJson[field.name] = [ fieldObj ];
-			} else {
-				schemaJson[field.name] = fieldObj;
-			}
-			
+			//via ajax mi faccio dare i campi interni di jslardo che ogni schema deve avere
+			$.ajax({
+				url: '/json/fields/addInternalFields',
+				type: 'POST', 
+				dataType: 'json',
+				dataType: 'json',
+				//'data' è l'oggetto che vene mandato in POST allo script in 'url'
+				data: schemaJson, //questo viene passato a getInternalFields, che me lo ritorna popolato con i field interni obbligatori
+				complete: function() {
+					//console.log('process complete');
+				},
+				success: function(result) {
+					schemaJson = result;
+					//console.log('treeToSchema ritorna: ');
+					//console.log(schemaJson);
+					next( schemaJson );
+				},
+				error: function() {
+					console.log('ajax error calling: /json/fields/getInternalFields');
+				}
+			});								
+		} else {
+			next( schemaJson );
 		}
-		//via ajax mi faccio dare i campi interni di jslardo che ogni schema deve avere
-		$.ajax({
-			url: '/json/fields/addInternalFields',
-			type: 'POST', 
-			dataType: 'json',
-			data: {},
-			dataType: 'json',
-			//questa function deve ritornare un oggetto, che vene mandato in POST allo script in 'url'
-			//in pratica dopo il return di questa function, viene chiamato l'url remoto
-			data: schemaJson, //questo viene passato a getInternalFields, che me lo ritorna popolato con i field interni obbligatori
-			complete: function() {
-				//console.log('process complete');
-			},
-			success: function(result) {
-				schemaJson = result;
-				//console.log('treeToSchema ritorna: ');
-				//console.log(schemaJson);
-				next( schemaJson );
-			},
-			error: function() {
-				console.log('ajax error calling: /json/fields/getInternalFields');
-			}
-		});								
 	}
 	
 	/*
@@ -156,8 +158,8 @@ script
 							'attr' : { 'rel' : schemaJson[field].type },
 							'metadata' : {
 								'name' : field,
+								'name_full' : schemaJson[field].name_full,
 								'type' : schemaJson[field].type,
-								//'type_model' : schemaJson[field].type_model,
 								'type_model' : ( schemaJson[field].ref ) ? schemaJson[field].ref.substr(9) : '',
 								'type_cardinality' : type_cardinality,
 								'description' : schemaJson[field].description,
@@ -191,6 +193,7 @@ script
 		//console.log(field);
 		linkDom.parent().attr('rel',field.type);
 		linkDom.parent().data('name',field.name);
+		linkDom.parent().data('name_full',field.name_full);
 		linkDom.parent().data('type',field.type);
 		linkDom.parent().data('type_model',field.type_model);
 		linkDom.parent().data('type_cardinality',field.type_cardinality);
@@ -231,6 +234,8 @@ script
 					'icon'				: false,
 					'action'			: function (obj) {
 						//devo rimuovere l'elemento dal dom
+						//prima chiedo conferma
+						if (!confirm('#{__i("deleting a field also delete all contents stored for (only) that field. continue?")}')) return false;
 						var liDom = $('#schemaTree li:data(name='+$(obj).data().name+')');
 						liDom.remove();
 						//poi riassegno tutto aggiornato al textarea
@@ -256,7 +261,7 @@ script
 		//console.log($('#schemaTree').jstree('get_json'));
 		// Display an external page using an iframe
 		if ( !jsonDiv.type_model ) jsonDiv.type_model = 'none'; //devo assegnare un valore di default perchè la route se lo aspetta nei params
-		var src = '/fields/edit/'+'#{element._id}'+'/'+jsonDiv.name+'/'+jsonDiv.type+'/'+jsonDiv.type_model+'/'+jsonDiv.type_cardinality+'/'+jsonDiv.required+'/'+jsonDiv.description;
+		var src = '/fields/edit/'+'#{element._id}'+'/'+jsonDiv.name+'/'+jsonDiv.name_full+'/'+jsonDiv.type+'/'+jsonDiv.type_model+'/'+jsonDiv.type_cardinality+'/'+jsonDiv.required+'/'+jsonDiv.description;
 		openModal(src);
 		/*
 		$.modal('<iframe src="' + src + '" height="502" width="700" style="border:0">', {
@@ -313,6 +318,7 @@ script
 			//console.log('newFieldName:'+newFieldName);
 			
 			objJson.name = newFieldName;
+			objJson.name_full = newFieldName;
 		}
 
 		
@@ -337,7 +343,7 @@ script
 			liDom.data('isNew', false);
 			var linkDom = liDom.children('a');
 			var linkIconDom = linkDom.children('ins');
-			linkDom.html(objJson.name);
+			linkDom.html(objJson.name);//qui sarebbe bello visualizzare name_full, ma non so se da qualche altra parte poi cerco in base a questo name
 			linkDom.prepend(linkIconDom);
 		}
 		
@@ -365,6 +371,7 @@ script
 			'attr' : { 'rel' : datatypes[i].name },
 			'metadata' : {
 				'name' : '', //viene definito runtime quando si copia dentro ad uno schema
+				'name_full' : '', //viene definito runtime quando si copia dentro ad uno schema
 				'type' : datatypes[i].name,
 				'type_model' : 'none',
 				'type_cardinality' : 'single',

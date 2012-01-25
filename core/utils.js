@@ -42,27 +42,27 @@ name: sempre maiuscolo, per i tipi semplici è anche il datatype javascript
 var datatypes = [
 	{
 		name: 'String', //this is a string
-		label: 'Stringazza', //this is a string
+		label: 'text', //this is a string
 		icon: 'icon_data_string' //this is the radix name of images to be used, with images like: /images/pov/icon_data_string_20x15.png
 	},
 	{
 		name: 'Number',
-		label: 'Numberone',
+		label: 'number',
 		icon: 'icon_data_double'
 	},
 	{
 		name: 'Boolean',
-		label: 'Booleano',
+		label: 'yes/no',
 		icon: 'icon_data_flag'
 	},
 	{
 		name: 'Date',
-		label: 'Date and time',
+		label: 'date and time',
 		icon: 'icon_data_date'
 	},
 	{
 		name: 'ObjectId',
-		label: 'Modello',
+		label: 'model',
 		icon: 'icon_core_jslModel'
 	}
 ];
@@ -149,7 +149,7 @@ function populateModel(model, modelData) {
 exports.populateModel = populateModel;
 
 function trunc(string,length) {
-	if ( string.length > length ) {
+	if ( string && string.length > length ) {
 		return string.substr(0,length)+'...';
 	} else {
 		return string;
@@ -178,7 +178,7 @@ var splice_by_element = function (my_array,array_element) {
 }
 exports.splice_by_element = splice_by_element; 
 
-
+/* removes an element from an array by content */
 Array.prototype.remove= function(){
     var what, a= arguments, L= a.length, ax;
     while(L && this.length){

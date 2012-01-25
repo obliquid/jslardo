@@ -93,5 +93,9 @@
 	"add new divs to layout": "add new divs to layout",
 	"link": "link",
 	"copy": "copy",
-	"divs from page": "divs from page"
+	"divs from page": "divs from page",
+	"deselect": "deselect",
+	"select": "select",
+	"role": "role",
+	"keywords": "keywords"
 }

@@ -1,7 +1,7 @@
 script
 	function validate_elementForm() {
 		//- il nome è obbligatorio
-		if( $('#name').val() == '' )
+		if( $('#name').val() == '' || $('#name_full').val() == '' )
 		{
 			alert("#{__i('name is required')}");
 			return false;
@@ -14,22 +14,27 @@ script
 			var linkDom = liDom.children('a');
 			//console.log(linkDom);
 			if ( linkDom.length > 0 ) {
-				alert("#{__i('a field already exists with name')}: "+$('#name').val());
+				alert("#{__i('a field already exists with unique name')}: "+$('#name').val());
 				return false;
 			}
 		}
 		//- se si sta cambiando il nome -> warning sulla perdita dati
 		if( $('#name').val() != $('#old_name').val() && $('#old_name').val().substr(0,8) != 'newfield' )
 		{
-			if (!confirm('#{__i("renaming the field means to loose all data saved for this field. continue?")}')) return false;
+			if (!confirm('#{__i("renaming the field means to loose all contents saved for (only) this field. continue?")}')) return false;
 		}
 		//- se si sta cambiando type -> warning sulla perdita dati
 		if( $('#type').val() != $('#old_type').val() )
 		{
-			if (!confirm('#{__i("changing type means to loose all data saved for this field (unless changing from Number to String). continue?")}')) return false;
+			if (!confirm('#{__i("changing type means to loose all contents saved for (only) this field (unless changing from Number to String). continue?")}')) return false;
+		}
+		//- se si sta cambiando cardinality -> warning sulla perdita dati
+		if( $('#type_cardinality').val() != $('#old_type_cardinality').val() )
+		{
+			if (!confirm('#{__i("changing cardinality means to loose all contents saved for (only) this field. continue?")}')) return false;
 		}
 		//- alert($('#type_model').val());
-		window.parent.saveField( { 'old_name': $('#old_name').val(), 'name': $('#name').val(), 'type': $('#type').val(), 'type_model': $('#type_model').val(), 'type_cardinality': $('#type_cardinality').val(), 'description': $('#description').val(), 'required': $('input[name="required"]:checked').val() } );
+		window.parent.saveField( { 'old_name': $('#old_name').val(), 'name': $('#name').val(), 'name_full': $('#name_full').val(), 'type': $('#type').val(), 'type_model': $('#type_model').val(), 'type_cardinality': $('#type_cardinality').val(), 'description': $('#description').val(), 'required': $('input[name="required"]:checked').val() } );
 		window.parent.$.modal.close();
 		return false;
 	}
@@ -42,9 +47,18 @@ script
 		}
 	}
 	
+	function nameChanged() {
+		$('#name').val( nameuniquize( $('#name_full').val() ) );
+	}
+	
 	$(document).ready(function() {
 		//se questo form è stato aperto su type='ObjectId' devo visualizzare da subito il combo coi models
 		typeChanged();
+		
+		//attivo il change event sul name
+		$('#name_full').keyup(function() {
+			nameChanged();
+		});
 	});
 	
 
@@ -56,8 +70,11 @@ form(onsubmit='return validate_elementForm()').size4
 	.formRow
 		h5.formLabel #{__i('name')}
 			span.formError *
-		input(id='name', name='name', value='#{element.name || ""}').size3
-		p  #{__i('do not use spaces or special chars')}
+		input(id='name_full', name='name_full', value='#{element.name_full || ""}').size3
+		h6.formLabel #{__i('unique name')}
+			span.formError *
+		input(id='name', name='name', value='#{element.name || ""}',readonly='readonly').size3.disabled
+		p  #{__i('this field is auto-generated and is the name used in database schema and in queries')}
 	.formRow
 		h5.formLabel #{__i('type')}
 			span.formError *

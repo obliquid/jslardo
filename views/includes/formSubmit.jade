@@ -1,9 +1,12 @@
 input(name='id', value='#{element._id || ""}', type='hidden')
-if elementName == 'content'
+if (typeof(callback) != 'undefined') && callback && element._id
+	- var onclick = callback+'("'+element._id+'")';
+	a(onclick='window.parent.#{onclick};window.parent.$.modal.close();', title='#{__i('select')}').adminButton.setButton.floatLeft
+if ((typeof(callback) == 'undefined') || !callback) && elementName == 'content'
 	a(href='/#{elementName}s/#{req.params.modelId}', title='#{__i('view all')}').paginationButton.allButton
 	if ( element._id )
 		a(href='/#{elementName}s/#{req.params.modelId}/#{element._id}', title='#{__i('view')}').paginationButton.viewButton
-else
+else if ((typeof(callback) == 'undefined') || !callback)
 	a(href='/#{elementName}s', title='#{__i('view all')}').paginationButton.allButton
 	if ( element._id )
 		a(href='/#{elementName}s/#{element._id}', title='#{__i('view')}').paginationButton.viewButton
