@@ -36,13 +36,13 @@ var connectTimeout = require('connect-timeout');
 //var app = module.exports = express.createServer();
 var app = express.createServer();
 
-
 //configurazioni comuni dell'app 
 app.configure(function(){
 	app.set('views', __dirname + '/views');
 	app.set('view engine', 'jade');
 	app.use(express.logger({ format: '\x1b[1m:method\x1b[0m \x1b[33m:url\x1b[0m :response-time ms' })); //attivo il logger di Express
-	app.use(express.bodyParser()); //serve a popolare la variabile req.body (per esempio con tutto ciò che gli arriva in POST dai form)
+	app.use(express.bodyParser({uploadDir:'./public/uploads'})); //serve a popolare la variabile req.body (per esempio con tutto ciò che gli arriva in POST dai form)
+	//app.use(express.bodyParser()); //serve a popolare la variabile req.body (per esempio con tutto ciò che gli arriva in POST dai form)
 	app.use(express.cookieParser());
 	app.use(express.session({ secret: 'topsecret' }));
 	app.use(connectTimeout({ time: 120000 })); //2 minuti
@@ -110,6 +110,78 @@ app.configure(function(){
 	app.jsl.fieldController.defineRoutes(app);
 	app.jsl.jslModelController = require('./controllers/jslModel');
 	app.jsl.jslModelController.defineRoutes(app);
+
+
+
+
+	/*
+	i data types supportati.
+	nota: non devono mai essere enumerati esplicitamente, ma sempre leggendo questo oggetto: app.jsl.datatypes
+	
+	convenzioni:
+	name: sempre maiuscolo
+	
+	*/
+	  
+	app.jsl.datatypes = [
+		{
+			name: 'String', //this is a string
+			label: 'text', //this is a string
+			type: String, //this must be a valid javascript object representing the type of the datatype
+			icon: 'icon_data_string' //this is the radix name of images to be used, with images like: /images/pov/icon_data_string_20x15.png
+		},
+		{
+			name: 'Number',
+			label: 'number',
+			type: Number,
+			icon: 'icon_data_double'
+		},
+		{
+			name: 'Boolean',
+			label: 'yes/no',
+			type: Boolean,
+			icon: 'icon_data_flag'
+		},
+		{
+			name: 'Date',
+			label: 'date and time',
+			type: Date,
+			icon: 'icon_data_date'
+		},
+		{
+			name: 'Image',
+			label: 'image',
+			type: [ new app.mongoose.Schema({
+				'file_name': 	{ type: String },
+				'file_path': 	{ type: String },
+				'file_type': 	{ type: String },
+				'file_size': 	{ type: Number },
+				'width': 		{ type: Number },
+				'height': 		{ type: Number }
+			}) ],
+			icon: 'icon_data_image'
+		},
+		{
+			name: 'ObjectId',
+			label: 'model',
+			type: app.mongoose.Schema.ObjectId,
+			icon: 'icon_core_jslModel'
+		}
+		
+	];
+	app.jsl.datatypes.stringify = function() {
+		return JSON.stringify(app.jsl.datatypes);
+	}
+	
+	app.jsl.datatypeByName = function(name) {
+		for (var i=0; i<app.jsl.datatypes.length; i++) {
+			if ( app.jsl.datatypes[i].name == name ) return app.jsl.datatypes[i];
+		}
+	}
+
+
+
+
 
 	//Static Helpers
 	app.helpers({

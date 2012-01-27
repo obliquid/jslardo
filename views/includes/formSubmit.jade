@@ -10,4 +10,5 @@ else if ((typeof(callback) == 'undefined') || !callback)
 	a(href='/#{elementName}s', title='#{__i('view all')}').paginationButton.allButton
 	if ( element._id )
 		a(href='/#{elementName}s/#{element._id}', title='#{__i('view')}').paginationButton.viewButton
-input(type='submit', title='#{__i('save')}', value='#{__i('save')}').adminButton.saveButton
+
+input(id='formSubmit', type='submit', title='#{__i('save')}', value='#{__i('save')}').adminButton.saveButton

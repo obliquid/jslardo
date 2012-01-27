@@ -65,7 +65,7 @@ script
 
 img(src='/images/pov/icon_core_content_60x45.png').floatLeft
 include ../includes/formHeader
-form(id='elementForm', method='post', action='/#{elementName}s/#{req.params.modelId}/edit/#{element._id || ""}', onsubmit='return validate_elementForm()' )
+form(id='elementForm', method='post', enctype='multipart/form-data', action='/#{elementName}s/#{req.params.modelId}/edit/#{element._id || ""}', onsubmit='return validate_elementForm()' )
 	include ../includes/formSubmitTop
 	div.size4.floatLeft
 		div.mainColLeft

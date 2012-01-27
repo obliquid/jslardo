@@ -30,53 +30,6 @@
 // VARIE
 
 
-/*
-i data types supportati.
-non devono mai essere enumerti esplicitamente, ma sempre leggendo questo oggetto: app.jsl.utils.datatypes
-
-convenzioni:
-name: sempre maiuscolo, per i tipi semplici è anche il datatype javascript
-
-*/
-  
-var datatypes = [
-	{
-		name: 'String', //this is a string
-		label: 'text', //this is a string
-		icon: 'icon_data_string' //this is the radix name of images to be used, with images like: /images/pov/icon_data_string_20x15.png
-	},
-	{
-		name: 'Number',
-		label: 'number',
-		icon: 'icon_data_double'
-	},
-	{
-		name: 'Boolean',
-		label: 'yes/no',
-		icon: 'icon_data_flag'
-	},
-	{
-		name: 'Date',
-		label: 'date and time',
-		icon: 'icon_data_date'
-	},
-	{
-		name: 'ObjectId',
-		label: 'model',
-		icon: 'icon_core_jslModel'
-	}
-];
-datatypes.stringify = function() {
-	return JSON.stringify(datatypes);
-}
-exports.datatypes = datatypes;
-
-function datatypeByName(name) {
-	for (var i=0; i<datatypes.length; i++) {
-		if ( datatypes[i].name == name ) return datatypes[i];
-	}
-}
-exports.datatypeByName = datatypeByName;
 
 
 /* visualizza una pagina di errore e logga sulla console */

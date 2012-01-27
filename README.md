@@ -3,6 +3,7 @@
 ## what is this?
 jslardo is a sort of a social cms, based on node.js and mongodb.
 users are able to register to the application, create their own models (mongoose schemas), views, controllers, websites and pages. all management is done without writing code, and all user contents (the data, but also models/views and controllers) are shareable between registered users.
+NOTE: jslardo is on heavy development, keep updated frequently and be patient with bugs and not yet implemented functionalities.
 
 ## it's based upon?
 jslardo starts as a node.js express application, backed up by mongodb with mongoose.
@@ -29,10 +30,14 @@ see the wiki page for some more info. but, if you have node and npm already work
 npm install jslardo -g
 ```
 
+## demo
+we have a test installation of jslardo that should be aligned to master repository revision: http://84.33.51.50/
+to create contents you must first register.
+
 ## license
 Copyright (C) 2011 Federico Carrara (federico@obliquid.it)
 
-For more information http://obliquid.org/
+For more information on our agency: http://obliquid.org/
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

@@ -326,6 +326,23 @@ function defineRoutes(app) {
 	//il controllo sull'unicità del nome di ogni field viene fatto nel client
 	app.post('/contents/:modelId/edit/:id', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnContentId, function(req, res, next){
 		app.jsl.routes.routeInit(req);
+		
+		//console.log(req.body);
+		//console.log(req.files);
+		/*
+		req.form.complete(function(err, fields, files){
+			if (err) {
+			  console.log(err);
+			} else {
+				console.log(files);
+				console.log(fields);
+				console.log(req.body);
+				console.log(req.files);
+				console.log(req.fields);
+			}
+		});
+		*/
+		
 		//carico i model di mongoose
 		app.jsl.jslModelController.loadMongooseModelFromId(app, req.params.modelId, function(modelName, fieldsToBePopulated){
 			//prima trovo il mio content da modificare nel db
@@ -366,6 +383,7 @@ function defineRoutes(app) {
 				}
 			);
 		}, false, true);
+		
 	});
 	
 	//GET: content delete
@@ -857,7 +875,7 @@ function renderDynFormRecurse(app, req, res, schema,content,modelId,next) {
 				//no so perchè ma il compile, oltre al contenuto del template, vuole anche il file altrimenti non vanno gli include
 				//forse perchè dal path assoluto del file capisce il path relativo per gli includes
 				var dynFormCompiled = jade.compile(dynForm.toString('utf8'), {filename: templateFilename});
-				var icon = '/images/pov/'+app.jsl.utils.datatypeByName(fieldObj.type).icon+'_40x30.png';
+				var icon = '/images/pov/'+app.jsl.datatypeByName(fieldObj.type).icon+'_40x30.png';
 				//se mi hanno passato un content popolo il template del form anche con quello, altrimenti popolo solo con il nome del field
 				if ( !content ) content = {};
 				//appendo sempre al content il name_full del field
@@ -904,9 +922,9 @@ function renderDynView(app, req, res, type, schema, content, next) {
 	var counter = 0;
 	for ( var field in schema ) {
 		
-		console.log(field);
-		console.log(schema[field]);
-		console.log(content[field]);
+		//console.log(field);
+		//console.log(schema[field]);
+		//console.log(content[field]);
 		
 		//se non ho content per questo field, skippo
 		if ( !app.jsl.utils.is_array( content[field] ) && content[field] !== false && ( content[field] === null || content[field] === undefined || content[field] == '' ) ) {
@@ -972,7 +990,7 @@ function renderDynView(app, req, res, type, schema, content, next) {
 		var dynView = fs.readFileSync(templateFilename, 'utf8');
 		//compilo il template
 		var dynViewCompiled = jade.compile(dynView.toString('utf8'), {filename: templateFilename});
-		var icon = '/images/pov/'+app.jsl.utils.datatypeByName(fieldObj.type).icon+'_40x30.png';
+		var icon = '/images/pov/'+app.jsl.datatypeByName(fieldObj.type).icon+'_40x30.png';
 		//popolo il template
 		output += dynViewCompiled({
 			field: field,
@@ -1041,7 +1059,7 @@ function renderDynViewRefs(app,req,res,type,content,parentField) {
 		var dynView = fs.readFileSync(templateFilename, 'utf8');
 		//compilo il template
 		var dynViewCompiled = jade.compile(dynView.toString('utf8'), {filename: templateFilename});
-		var icon = '/images/pov/'+app.jsl.utils.datatypeByName(fieldType).icon+'_40x30.png';
+		var icon = '/images/pov/'+app.jsl.datatypeByName(fieldType).icon+'_40x30.png';
 		//popolo il template
 		output += dynViewCompiled({
 			field: field,

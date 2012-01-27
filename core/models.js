@@ -134,6 +134,9 @@ function defineModels(mongoose, app, next) {
 		'created': { type: Date, required: true }
 	});
 	mongoose.model('jslModel', JslModel);
+
+
+
 	
 	
 	//Schema debug

@@ -475,35 +475,6 @@ exports.getJslModels = getJslModels;
 function normalizeMongooseModel(app, jsonSchema) {
 	//console.log('normalizeMongooseModel con jsonSchema:');
 	//console.log(jsonSchema);
-	//QUI!!! questo va mergiato dentro a app.jsl.utils.datatypes e poi va usato quello
-	var typeMappings  = {
-		"String":String, 
-		"Number":Number,
-		"Date":Date,
-		"Boolean":Boolean,
-		"ObjectId":app.mongoose.Schema.ObjectId
-	};
-	/*
-	ricordarsi che mongoose supporta questi tipi
-	app.mongoose.Schema=
-	{ [Function: Schema]
-	  interpretAsType: [Function],
-	  Types: 
-	   { String: [Function: SchemaString],
-		 Number: [Function: SchemaNumber],
-		 Boolean: [Function: SchemaBoolean],
-		 DocumentArray: [Function: DocumentArray],
-		 Array: [Function: SchemaArray],
-		 Buffer: [Function: SchemaBuffer],
-		 Date: [Function: SchemaDate],
-		 ObjectId: [Function: ObjectId],
-		 Mixed: [Function: Mixed]
-	  },
-	  ObjectId: [Function: ObjectId] }
-	*/
-	
-
-
 	/*
 	ciclo sui field del mio schema, e sostituisco i datatype che sono dichiarati
 	come stringhe con il loro relativo datatype javascript corretto
@@ -520,8 +491,11 @@ function normalizeMongooseModel(app, jsonSchema) {
 			var fieldObj = jsonSchema[field];
 		}
 		var fieldType = fieldObj.type;
-		if ( typeMappings[fieldType] ) {
-			fieldObj.type = typeMappings[fieldType];
+		app.jsl.datatypeByName(fieldType)
+		//if ( typeMappings[fieldType] ) {
+		if ( app.jsl.datatypeByName(fieldType) ) {
+			//fieldObj.type = typeMappings[fieldType];
+			fieldObj.type = app.jsl.datatypeByName(fieldType).type;
 			
 			//correggo il valore required che è booleano ma mi arriva come stringa
 			fieldObj.required = app.jsl.utils.bool_parse(fieldObj.required);
@@ -531,6 +505,12 @@ function normalizeMongooseModel(app, jsonSchema) {
 			console.error("normalizeMongooseModel(): invalid type - "+fieldType+" - specified for field: ", field);
 		}
 	}
+	
+	
+	//console.log(app.mongoose.modelSchemas.div.paths.children);
+	//console.log(app.mongoose);
+	
+	
 	/* non serve più
 	//aggiungo sempre come campo anche l'id dell'element cui è legato questo modello dinamico
 	jsonSchema.element = app.mongoose.Schema.ObjectId;
@@ -540,7 +520,7 @@ function normalizeMongooseModel(app, jsonSchema) {
 		var normalizedModel = new app.mongoose.Schema(jsonSchema);
 		return normalizedModel;
 	} catch( err ) {
-		console.log('normalizeMongooseModel(): ho fallito chiamando app.mongoose.Schema(jsonSchema)');
+		console.log('normalizeMongooseModel(): ho fallito chiamando app.mongoose.Schema(jsonSchema): '+err);
 		return false;
 	}
 }
@@ -960,20 +940,20 @@ function unsetEmptyFields(app,req,res,content,contentData,next){
 		if ( field == 'status' || field == 'author' || field == 'created' || field == '_id' || field == 'jslModel' || field == 'created' ) {
 			//skippo
 		} else {
-			console.log('### considero il field: '+field);
-			console.log('content[field]: '+content[field]);
-			console.log('contentData[field]: '+contentData[field]);
+			//console.log('### considero il field: '+field);
+			//console.log('content[field]: '+content[field]);
+			//console.log('contentData[field]: '+contentData[field]);
 			if ( app.jsl.utils.is_array( schema[field] ) ) {
 				var fieldObj = schema[field][0];
 			} else {
 				var fieldObj = schema[field];
 			}
 			
-			console.log('schema[field].type: '+fieldObj.type);
+			//console.log('schema[field].type: '+fieldObj.type);
 			//devo unsettare solo i field di tipo ref
 			if ( fieldObj.type == 'ObjectId' ) {
 				if (!contentData[field]) {
-					console.log('unsetto!');
+					//console.log('unsetto!');
 					//devo unsettare
 					toBeUnsettedFields.push(field);
 				}
@@ -981,8 +961,8 @@ function unsetEmptyFields(app,req,res,content,contentData,next){
 		}
 	}
 	loadMongooseModelFromId(app, modelId, function(modelName){
-		console.log('devo unsettare:');
-		console.log(toBeUnsettedFields);
+		//console.log('devo unsettare:');
+		//console.log(toBeUnsettedFields);
 		recurse();
 		function recurse() {
 			if ( toBeUnsettedFields.length > 0 ) {
@@ -1044,7 +1024,7 @@ function drawSchema(schema, app) {
 						case 'type':
 							//trovo l'icona da usare per il mio datatype
 							//if ( jsonChunk[field] == 'ObjectId' ) jsonChunk[field] = 'Model';
-							var datatype = app.jsl.utils.datatypeByName(jsonChunk[field]);
+							var datatype = app.jsl.datatypeByName(jsonChunk[field]);
 							//output
 							output += '<td colspan="2"><div class="innerCont"><img class="floatLeft" src="/images/pov/'+datatype.icon+'_40x30.png"/>&nbsp;<span>'+jsonChunk[field]+'</span></div></td>';
 							break;

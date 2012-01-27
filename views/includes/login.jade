@@ -1,10 +1,11 @@
 div.outerCont
-	h4 #{__i('access')}
+	if session.loggedIn
+		h4 #{ session.email }
+	else 
+		h4 #{__i('access')}
 	div.innerCont
 		form(method='post', action='/signin')
 			if session.loggedIn
-				h4 #{ session.email }
-				hr
 				a(href='/signout') #{__i('sign out')}
 				if session.user_id == 'superadmin'
 					span #{__i('super admin mode')}!

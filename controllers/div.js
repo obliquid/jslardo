@@ -161,42 +161,27 @@ function defineRoutes(app) {
 	//qui ci entro quando dal form faccio un submit ma non è definito l'id, altrimenti andrei nella route POST di modify
 	app.post('/divs/edit', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermCreate, function(req, res, next){
 		app.jsl.routes.routeInit(req);
-		//////prima verifico se il dominio non è già stato usato
-		////app.jsl.div.findOne(
-			////{ 'domain': req.body.domain },
-			////function(err, div) {
-				////if ( div ) 
-				////{
-					//////domain già usato
-					////app.jsl.utils.errorPage(res, err, "already exists div with domain: "+req.body.domain);
-				////}
-				////else
-				////{
-					//////domain libero
-					//creo nuovo div
-					var my_div = new app.jsl.div();
-					//popolo il mio div con quanto mi arriva dal form
-					app.jsl.utils.populateModel(my_div, req.body);
-					//assegno l'author (non gestito dal form ma impostato automaticamente)
-					my_div.author = req.session.user_id;
-					//inizializzo la data di creazione (che non è gestita dal form)
-					my_div.created = new Date();
-					//salvo il nuovo div
-					my_div.save(function (err) {
-						if (!err) 
-						{
-							//ho creato con successo il mio div nuovo
-							//e rimando nel form
-							res.redirect('/divs/edit/'+my_div.id+'/success');
-						}
-						else
-						{
-							app.jsl.utils.errorPage(res, err, "POST: div form: saving div");
-						}
-					});
-				////}
-			////}
-		////);	
+		//creo nuovo div
+		var my_div = new app.jsl.div();
+		//popolo il mio div con quanto mi arriva dal form
+		app.jsl.utils.populateModel(my_div, req.body);
+		//assegno l'author (non gestito dal form ma impostato automaticamente)
+		my_div.author = req.session.user_id;
+		//inizializzo la data di creazione (che non è gestita dal form)
+		my_div.created = new Date();
+		//salvo il nuovo div
+		my_div.save(function (err) {
+			if (!err) 
+			{
+				//ho creato con successo il mio div nuovo
+				//e rimando nel form
+				res.redirect('/divs/edit/'+my_div.id+'/success');
+			}
+			else
+			{
+				app.jsl.utils.errorPage(res, err, "POST: div form: saving div");
+			}
+		});
 	});	
 	
 	//GET: div form (modify) //quando entro in un form da un link (GET) e non ci arrivo dal suo stesso submit (caso POST)
@@ -234,30 +219,14 @@ function defineRoutes(app) {
 				if (!err)
 				{
 					//ho trovato lo div da modificare
-					//////prima di popolare lo div controllo che, se l'div sta cambiando domain, non scelga un'domain già usata
-					//////(in patica cerco uno div che abbia la mia stessa domain, ma un id differente: se lo trovo, vuol dire che la domain è già stata usata)
-					////app.jsl.div.findOne(
-						////{ 'domain': req.body.domain, '_id': { $ne : req.body.id } },
-						////function(err, divSameDomain) {
-							////if ( divSameDomain ) 
-							////{
-								//////domain già usata
-								////app.jsl.utils.errorPage(res, err, "already exists div with domain: "+req.body.domain);
-							////}
-							////else
-							////{
-								//////la nuova domain è valida, posso procedere
-								//popolo il mio div con quanto mi arriva dal form
-								app.jsl.utils.populateModel(div, req.body);
-								//console.log('sto per salvare sto div:');
-								//console.log(div);
-								//salvo lo div modificato e rimando nel form
-								div.save(function(err) {
-									res.redirect('/divs/edit/'+div.id+'/success');
-								});
-							////}
-						////}
-					////);
+					//popolo il mio div con quanto mi arriva dal form
+					app.jsl.utils.populateModel(div, req.body);
+					//console.log('sto per salvare sto div:');
+					//console.log(div);
+					//salvo lo div modificato e rimando nel form
+					div.save(function(err) {
+						res.redirect('/divs/edit/'+div.id+'/success');
+					});
 				}
 				else
 				{

@@ -29,7 +29,7 @@ script
 			if (!confirm('#{__i("changing type means to loose all contents saved for (only) this field (unless changing from Number to String). continue?")}')) return false;
 		}
 		//- se si sta cambiando cardinality -> warning sulla perdita dati
-		if( $('#type_cardinality').val() != $('#old_type_cardinality').val() )
+		if( $('#type').val() == 'ObjectId' && $('#type_cardinality').val() != $('#old_type_cardinality').val() )
 		{
 			if (!confirm('#{__i("changing cardinality means to loose all contents saved for (only) this field. continue?")}')) return false;
 		}
@@ -112,6 +112,7 @@ form(onsubmit='return validate_elementForm()').size4
 	hr
 	input(type='hidden', id='old_name', name='old_name', value='#{element.old_name || ""}')
 	input(type='hidden', id='old_type', name='old_type', value='#{element.old_type || ""}')
+	input(type='hidden', id='old_type_cardinality', name='old_type_cardinality', value='#{element.old_type_cardinality || ""}')
 			
 	input(type='submit', title='#{__i('set')}', value='#{__i('set')}').adminButton.saveButton
 

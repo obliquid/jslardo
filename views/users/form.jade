@@ -11,6 +11,12 @@ script
 			alert("#{__i('email is required')}");
 			return false;
 		}
+		var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+		if( !emailPattern.test($('#email').val()) )
+		{
+			alert("#{__i('email is not valid')}");
+			return false;
+		}
 		if( $('#password').val() == '' )
 		{
 			alert("#{__i('password is required')}");
@@ -32,7 +38,8 @@ img(src='/images/pov/icon_core_role_60x45.png').floatLeft
 include ../includes/formHeader
 
 form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmit='return validate_elementForm()' )
-	include ../includes/formSubmitTop
+	//- non visualizzo il submitTop perchè ho il qaptcha su quello Bottom
+		include ../includes/formSubmitTop
 	div.size4.floatLeft
 		div.mainColLeft
 			h4 #{__i('your profile')}
@@ -48,7 +55,7 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 				h5.formLabel email
 				span.formError *
 				input(id='email', name='email', value='#{element.email || ""}').size3
-				p #{__i('email is also used as username')}
+				p #{__i('email is also used to signin')}
 			//- se è un nuovo utente, è obbligatorio inserire la pw
 			//- se è un modify, la pw viene inserita solo per cambiarla
 			if (typeof element._id === 'undefined' || element._id == '' )
@@ -95,3 +102,17 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 
 	include ../includes/formSubmitBottom
 
+	//- solo nel caso degli user il tasto save è bloccato da un captcha
+	p.floatLeft #{__i('security note: this form is locked! to unlock it just slide to the right the cursor below:')}
+	div.clear
+	div.QapTcha
+	div.clear
+
+	script(language='JavaScript', type='text/javascript', src='/javascripts/jq/jquery-ui.js')
+	script(language='JavaScript', type='text/javascript', src='/javascripts/jq/jquery.ui.touch.js')
+	script(language='JavaScript', type='text/javascript', src='/javascripts/jq/qaptcha/QapTcha.jquery.js')
+	script
+		$(document).ready(function() {
+			// Simple call
+			$('.QapTcha').QapTcha({txtLock:'#{__i('locked')}',txtUnlock:'#{__i('unlocked: now you can save')}'});
+		});

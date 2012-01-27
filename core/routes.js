@@ -67,7 +67,7 @@ function defineRoutes(app) {
 				req.headers.host == app.jsl.config.ip+":"+app.jsl.config.port
 			)
 			{
-				//è stato richiesto il sito di admin, posso procedere nel processare le route
+				//è stato richiesto il sito di admin, posso procedere nel processare le route di admin
 				next();
 			}
 			else
@@ -259,6 +259,34 @@ function defineRoutes(app) {
 		//alla fine ricarico la pagina da cui arrivavo
 		res.redirect('back');
 	});
+	
+	//POST: qaptcha specific route
+	app.post('/qaptcha', function(req, res) {
+		app.jsl.routes.routeInit(req);
+		console.log(req.body);
+		var response = {};
+		response['error'] = false;
+			
+		if(req.body.action && req.body.qaptcha_key)
+		{
+			req.session.qaptcha_key = false;	
+			
+			if(req.body.action == 'qaptcha')
+			{
+				req.session.qaptcha_key = req.body.qaptcha_key;
+			}
+			else
+			{
+				response['error'] = true;
+			}
+		}
+		else
+		{
+			response['error'] = true;
+		}
+		res.json( response );
+	});
+	
 	
 	
 	/*

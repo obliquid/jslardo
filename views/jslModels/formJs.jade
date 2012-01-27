@@ -12,7 +12,7 @@ script
 	//popolo allowedTypes
 	var valid_children = [];
 	var types = {};
-	var datatypes = !{app.jsl.utils.datatypes.stringify()};
+	var datatypes = !{app.jsl.datatypes.stringify()};
 	for ( var i = 0; i < datatypes.length; i++ ) {
 		valid_children.push( datatypes[i].name );
 		types[datatypes[i].name] = {
@@ -364,7 +364,7 @@ script
 
 	//definisco il json per popolare questo tree
 	var treeJson = []; //è json_data.data
-	var datatypes = !{app.jsl.utils.datatypes.stringify()};
+	var datatypes = !{app.jsl.datatypes.stringify()};
 	for ( var i = 0; i < datatypes.length; i++ ) {
 		treeJson.push({ 
 			'data' : datatypes[i].label,

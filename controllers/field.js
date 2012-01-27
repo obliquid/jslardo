@@ -68,7 +68,7 @@ function defineRoutes(app) {
 				elementName: 'field',
 				element: element,
 				msg: req.params.msg,
-				combo_types: app.jsl.utils.datatypes,
+				combo_types: app.jsl.datatypes,
 				combo_models: jslModels
 			});	
 		});
