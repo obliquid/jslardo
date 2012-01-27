@@ -1,0 +1,29 @@
+script
+	function validate_dynForm_#{counter} () {
+		//- considero valida qualunque stringa non nulla
+		return true;
+	}
+if required
+	script
+		function required_dynForm_#{counter} () {
+			if ( !$('#'+'#{field}').val() ) {
+				alert("#{field} is required");
+				return false;				
+			}
+			return true;
+		}
+else
+	script
+		//- deve sempre essere presente
+		function required_dynForm_#{counter} () {
+			return true;
+		}
+.formRow
+	span.adminIcon.datatypeIcon.floatLeft
+		img(src='#{icon}')
+	h5.formLabel #{content.fieldNameFull}:
+		if required
+			span.formError *
+	input(id='#{field}', type='file', name='#{field}', value='#{content[field] || ""}').size2
+	if description
+		p #{description}
