@@ -215,10 +215,6 @@ function defineRoutes(app) {
 					my_page.author = req.session.user_id;
 					//inizializzo la data di creazione (che non è gestita dal form)
 					my_page.created = new Date();
-					//tolgo eventuali trailing slashes dalla route
-					while( my_page.route.substr( my_page.route.length -1 ) == '/' ) {
-						my_page.route = my_page.route.substr( 0, my_page.route.length -1 );
-					}
 					//salvo il nuovo page
 					my_page.save(function (err) {
 						if (!err) 
@@ -297,6 +293,14 @@ function defineRoutes(app) {
 								//la nuova route è valida, posso procedere
 								//popolo il mio page con quanto mi arriva dal form
 								app.jsl.utils.populateModel(page, req.body);
+								//tolgo eventuali slashes dalla route
+								page.route = page.route.replace("/", "");
+								/*
+								while( my_page.route.substr( my_page.route.length -1 ) == '/' ) {
+									my_page.route = my_page.route.substr( 0, my_page.route.length -1 );
+								}
+								*/
+								
 								//salvo lo page modificato e rimando nel form
 								page.save(function(err) {
 									res.redirect('/pages/edit/'+page.id+'/success');

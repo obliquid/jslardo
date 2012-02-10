@@ -108,7 +108,11 @@ function setSignedOut(req)
 /* hashing delle password */
 function hashPw(req, password)
 {
-	return req.app.jsl.crypto.createHash('sha1').update(password).digest('hex');
+	if (password) {
+		return req.app.jsl.crypto.createHash('sha1').update(password).digest('hex');
+	} else {
+		return '';
+	}
 }
 
 

@@ -43,13 +43,13 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 						span.formError *
 					//- tree con i datatypes e i miei models
 					div.jstreeColumn.floatRight
-						if session.user_id != 'superadmin'
-							h6 #{__i('add new fields to schema')}:
-							div#elementsTree.size2.jstree.jstreeDatatypes
-							hr
-							h6 #{__i('json version')}:
-							textarea(id='jslSchema', name='jslSchema', readonly='readonly').size2.code #{element.jslSchema || ""}
-							p.textMini #{__i('this is a valid mongoose schema')}
+						//- if session.user_id != 'superadmin'
+						h6 #{__i('add new fields to schema')}:
+						div#elementsTree.size2.jstree.jstreeDatatypes
+						hr
+						h6 #{__i('json version')}:
+						textarea(id='jslSchema', name='jslSchema', readonly='readonly').size2.code #{element.jslSchema || ""}
+						p.textMini #{__i('this is a valid mongoose schema')}
 					//- tree con lo schema
 					div.jstreeColumn.floatRight
 						div#schemaTree.size2.jstree

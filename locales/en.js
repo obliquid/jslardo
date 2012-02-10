@@ -136,5 +136,7 @@
 	"back": "back",
 	"deselect": "deselect",
 	"unique name is auto-generated and is the name used in database schema and in queries": "unique name is auto-generated and is the name used in database schema and in queries",
-	"do not use trailing slashes": "do not use trailing slashes"
+	"do not use trailing slashes": "do not use trailing slashes",
+	"mail to": "mail to",
+	"do not use slashes inside a route. they will be removed": "do not use slashes inside a route. they will be removed"
 }

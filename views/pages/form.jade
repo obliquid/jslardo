@@ -36,7 +36,7 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 				span /
 				input(id='route', name='route', value='#{element.route || ""}').size3
 				p #{__i('note: leaving blank means that you refer to the root page of the site, the page that is visualized when a user only specifies the site domain')}
-				p #{__i('do not use trailing slashes')}
+				p #{__i('do not use slashes inside a route. they will be removed')}
 			//- se è un new, non visualizzo la parte del layout, perchè deve essere stato tutto salvato almeno una volta per avere l'id
 			if element._id != '' && element._id != undefined
 				.formRow
