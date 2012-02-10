@@ -25,7 +25,7 @@ as a template engine jslardo internally uses jade.
     - users can register, and modify their profile
 
 ## try it
-we have an installation of jslardo that should be aligned to master repository revision: http://weadmin.it/
+we have a public installation of jslardo that should be aligned to master repository revision: http://weadmin.it/
 (to create contents you must first register)
 
 ## installation
