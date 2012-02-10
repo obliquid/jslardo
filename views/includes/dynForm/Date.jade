@@ -26,7 +26,7 @@ else
 	h5.formLabel #{content.fieldNameFull}:
 		if required
 			span.formError *
-	input(id='#{field}', name='#{field}', value='#{content[field] || ""}').size2
+	input(id='#{field}', name='#{field}', value='#{content[field+"_for_datepicker"] || ""}').size2
 	if description
 		p #{description}
 

@@ -133,5 +133,7 @@
 	"required": "required",
 	"set": "set",
 	"error": "error",
-	"back": "back"
+	"back": "back",
+	"deselect": "deselect",
+	"unique name is auto-generated and is the name used in database schema and in queries": "unique name is auto-generated and is the name used in database schema and in queries"
 }

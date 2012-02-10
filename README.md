@@ -30,9 +30,9 @@ see the wiki page for some more info. but, if you have node and npm already work
 npm install jslardo -g
 ```
 
-## demo
-we have a test installation of jslardo that should be aligned to master repository revision: http://84.33.51.50/
-to create contents you must first register.
+## try it
+we have an installation of jslardo that should be aligned to master repository revision: http://weadmin.it/
+(to create contents you must first register)
 
 ## license
 Copyright (C) 2011 Federico Carrara (federico@obliquid.it)

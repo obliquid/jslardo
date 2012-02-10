@@ -158,7 +158,29 @@ var bool_parse = function (my_bool_string) {
 }
 exports.bool_parse = bool_parse; 
 
+/*
+converte le date che arrivano da mongodb in date compatibili con il datepicker usato nel frontend
+*/
+var mongo_to_datepicker = function(mongoDate) {
+	//console.log(mongoDate);
+	var jsDate = new Date(mongoDate);
+	var d = zeroPad(jsDate.getDate(),2);
+	var m = zeroPad(jsDate.getMonth()+1,2);
+	var y = jsDate.getFullYear();
+	var h = zeroPad(jsDate.getHours(),2);
+	var mn = zeroPad(jsDate.getMinutes(),2);
+	var s = zeroPad(jsDate.getSeconds(),2);
+	var pickerDate = y+'-'+m+'-'+d+'T'+h+':'+mn+':'+s;
+	//console.log(pickerDate);
+	return pickerDate;
+}
+exports.mongo_to_datepicker = mongo_to_datepicker; 
 
+function zeroPad(num, places) {
+  var zero = places - num.toString().length + 1;
+  return Array(+(zero > 0 && zero)).join("0") + num;
+}
+exports.zeroPad = zeroPad; 
 
 /*
 questa serve quando mi arriva un'istanza di un content, e devo popolarla per poterla salvare nell'istanza mongoose di un element.
@@ -253,89 +275,6 @@ function populateContentModel(app, req, res, content, contentData, next) {
 						console.log(content[field]);
 						*/
 					}
-				}
-				/*
-				console.log('###### populateContentModel alla fine:');
-				console.log('content:');
-				console.log(content);
-				console.log('contentData:');
-				console.log(contentData);
-				*/
-				//finito di popolare
-				next();
-				
-				
-				
-			} else {
-				console.log("populateContentModel(): element not found");
-			}	
-		} else {
-			console.log("populateContentModel(): failed query to retrieve element");
-		}	
-			
-	});	
-	//var jsonSchema = JSON.parse(contentData.jsonModel.jslSchema);
-	//console.log('jsonSchema:');
-	//console.log(jsonSchema);
-}
-function quarantinePopulateContentModel(app, req, res, content, contentData, next) {
-	/*
-	console.log('###### populateContentModel:');
-	console.log('content:');
-	console.log(content);
-	console.log('contentData:');
-	console.log(contentData);
-	*/
-	//popolo element per trovare lo schema (element non ha la sua property jslModel popolata, e lo schema sta in element.jslModel.jslSchema)
-	app.jsl.element.findOne( { '_id': content.element } )
-	.populate('jslModel')
-	.run( function(err, elementPopulated) {
-		if (!err)
-		{
-			if ( elementPopulated ) {
-				//trovato lo schema
-				var schema = JSON.parse(elementPopulated.jslModel.jslSchema);
-				/*
-				console.log('trovato lo schema!');
-				console.log(schema);
-				*/
-				//ciclo su ogni field, e popolo solo quelli nell'content
-				for(var field in schema) {
-					/*
-					console.log('### considero il field: '+field);
-					console.log('content[field]: '+content[field]);
-					console.log('contentData[field]: '+contentData[field]);
-					*/
-					//prima distinguo a seconda che sia un field array o a valore singolo
-					if ( is_array( schema[field] ) ) {
-						//è un array, per ora gestisco solo valori separati da virgola, perchè mi aspetto solo degli ObjectIds
-						//console.log(field+' è un array!');
-						if ( contentData[field] ) content[field] = contentData[field].split(',');
-						/*
-						//per ogni ObjectId devo istanziare la relativa istanza, e aggiungerla al mio content
-						var ObjectIds = contentData[field].split(',');
-						for ( var i = 0; i < ObjectIds.length; i++ ) {
-							content[field].push( ObjectIds[i] );
-						}
-						*/
-					} else {
-						//non è un array, fisso il suo valore
-						//console.log(field+' è un single!');
-						//distinguo a seconda del datatype
-						switch ( schema[field].type ) {
-							case 'ObjectId':
-								//nel caso degli ObjectId non assegno un field se non ha l'ObjectId definito
-								if ( contentData[field] ) content[field] = contentData[field];
-								break;
-							default:
-								content[field] = contentData[field];
-								break;
-						}
-					}
-					/*
-					console.log('dopo assegnamento content['+field+']: ');
-					console.log(content[field]);
-					*/
 				}
 				/*
 				console.log('###### populateContentModel alla fine:');

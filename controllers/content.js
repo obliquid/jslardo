@@ -867,6 +867,20 @@ function renderDynFormRecurse(app, req, res, schema,content,modelId,next) {
 						content[field]['refIds'] = refIds;
 					}
 				}
+				//solo nel caso dei Date devo riformattare la data in modo gradito al datepicker del form
+				//non sovrascrivo il field originario perchè non riesco in nessun modo, sono costretto
+				//a creare un field parallelo con la data riformattata per il datepicker
+				if ( fieldObj.type == 'Date' ) {
+					//content[field] = app.jsl.utils.mongo_to_datepicker(content[field]);
+					//console.log('prima');
+					//console.log(content);
+					//console.log(content[field+'_for_datepicker']);
+					content[field+'_for_datepicker'] =  app.jsl.utils.mongo_to_datepicker(content[field]);
+					//console.log('dopo');
+					//console.log(content);
+					//console.log(content[field+'_for_datepicker']);
+				}
+				
 				//apro il relativo template
 				//questa potrebbe supportare un caching
 				var templateFilename = 'views/includes/dynForm/'+fieldObj.type+'.jade';
