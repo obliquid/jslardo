@@ -24,15 +24,15 @@ as a template engine jslardo internally uses jade.
   - users management
     - users can register, and modify their profile
 
+## try it
+we have an installation of jslardo that should be aligned to master repository revision: http://weadmin.it/
+(to create contents you must first register)
+
 ## installation
 see the wiki page for some more info. but, if you have node and npm already working, installing jslardo is as easy as
 ```
 npm install jslardo -g
 ```
-
-## try it
-we have an installation of jslardo that should be aligned to master repository revision: http://weadmin.it/
-(to create contents you must first register)
 
 ## license
 Copyright (C) 2011 Federico Carrara (federico@obliquid.it)
