@@ -28,8 +28,9 @@ div.headerCont
 				a(href='/users').floatLeft.elementButtonSelected.buttonUsers #{__i('users')}
 			else
 				a(href='/users').floatLeft.elementButton.buttonUsers #{__i('users')}
-			if session.currentPage == 'roles'
-				a(href='/roles').floatLeft.elementButtonSelected.buttonRoles #{__i('roles')}
-			else
-				a(href='/roles').floatLeft.elementButton.buttonRoles #{__i('roles')}
+			//-
+				if session.currentPage == 'roles'
+					a(href='/roles').floatLeft.elementButtonSelected.buttonRoles #{__i('roles')}
+				else
+					a(href='/roles').floatLeft.elementButton.buttonRoles #{__i('roles')}
 		div.clear
