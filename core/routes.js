@@ -168,7 +168,7 @@ function defineRoutes(app) {
 												}
 												else
 												{
-													app.jsl.utils.errorPage(res, err, "page not found on this site: "+req.url, false);
+													app.jsl.utils.errorPage(res, err, "page not found (or private) on this site: "+req.url, false);
 													//non ho trovato la pagina, procedo, potrebbe essere stato richiesto un file statico
 													//next();
 												}
@@ -181,7 +181,7 @@ function defineRoutes(app) {
 								}
 								else
 								{
-									app.jsl.utils.errorPage(res, err, "site not found on this server: "+req.headers.host, false);
+									app.jsl.utils.errorPage(res, err, "site not found (or private) on this server: "+req.headers.host, false);
 								}
 							}
 							else

@@ -4,7 +4,7 @@ if element.author
 	.outerContMinimal
 		h6  #{__i('author')}: 
 		p 
-			if element.author.status == 'public'
+			if element.author.status == 'public' || session.user_id == 'superadmin'
 				a(href='/users/#{element.author._id}', title='#{__i('view')}').elementButton.buttonUsers #{element.author.name}
 			else
 				| private

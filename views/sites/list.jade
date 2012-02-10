@@ -7,8 +7,8 @@ include ../includes/listCrudbox
 
 each element,i in elements
 	div.floatLeft.size1
-		//- ok ma linka al dettaglio del sito invece che alle sue pagine a(href='/#{elementName}s/#{element._id}').elemGrid.outerCont
-		a(href='/filterBySite/#{element._id}/#{encURI('/pages/')}', title='#{__i('all pages for this site')}').elemGrid.outerCont
+		//ok ma linka alle pagine invece che al dettaglio: a(href='/filterBySite/#{element._id}/#{encURI('/pages/')}', title='#{__i('all pages for this site')}').elemGrid.outerCont
+		a(href='/#{elementName}s/#{element._id}').elemGrid.outerCont
 			h5 #{element.title} 
 			div.innerCont
 				span.textMini #{__i('domain')}: 

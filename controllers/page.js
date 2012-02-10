@@ -513,29 +513,47 @@ exports.unlinkDiv = unlinkDiv;
 
 function render(req, res, page) {
 	//algoritmo ricorsivo che fa 2 cose:
-	//prima la query ricorsiva che mette in un array tutti i partial con relativi dati da renderizzare
+	//prima la query ricorsiva che mette in un array tutti i partial (blocchi di codice jade, con all'interno variabili) con relativi dati da renderizzare
 	var divs = [
 		{
-			'partial' : 'pippo', //sarà: '/page/json/render/:moduleDiv'
-			'data' : { 'variabile': 'valore'}
+			'partial' : 'h1  #{data.myVar},  #{data.myVar2}', //inteso come codice jade; sarà: '/page/json/render/:moduleDiv'
+			'data' : {
+				'myVar': 'the header',
+				'myVar2': 'some more text'
+			}
 		},
 		{
-			'partial' : 'caio',
-			'data' : { 'altra_variabile': 'valore Bis'}
+			'partial' : 'h6  #{data.myVar3},  #{data.myVar4}', //inteso come codice jade; sarà: '/page/json/render/:moduleDiv'
+			'data' : {
+				'myVar3': 'I am a span',
+				'myVar4': 'indeed'
+			}
 		}
 	];
 	
 
+	//poi ciclo su ogni div, e renderizzo il partial jade in una relativa stringa html, con anche le variabili compilate col proprio valore
+	//in pratica uso il compilatore di jade direttamente, e non attraverso il solito res.render()
+	var jade = require('jade');
+	for (var i=0; i<divs.length; i++) {
+		var jadechunk = divs[i].partial;
+		var jadetemplate = jade.compile(jadechunk.toString('utf8'));
+		divs[i].content = jadetemplate({
+			data: divs[i].data
+		});
+		
+	}
 
 
-
+	/*
 	//usare jade dinamicamente
 	var jade = require('jade');
-	var jadechunk = "span #{minchia}!";
+	var jadechunk = "h1 #{myVar}!";
 	var jadetemplate = jade.compile(jadechunk.toString('utf8'));
 	var jadeoutput = jadetemplate({
-		minchia: 'sabbri'
-	});	
+		myVar: 'myValue'
+	});
+	*/
 
 
 
@@ -549,8 +567,7 @@ function render(req, res, page) {
 		'layout': 'layoutRender', 
 		'page': page,
 		'divs': divs,
-		'debug': 'pagina: '+page.route+" del sito: "+page.site.domain+" con layout: "+jadechunk+" che renderizzato viene: "+jadeoutput,
-		'debug2': jadeoutput
+		'debug': 'will render the page - '+page.route+" - from the site - "+page.site.domain+" - "
 	});
 	
 	

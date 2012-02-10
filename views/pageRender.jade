@@ -1,6 +1,10 @@
+h1 this is the page renderer. it's under development. what follows is for debug purpose only. sorry, stay updated...
+hr
 h3 #{debug}
-!=debug2
+hr
 div
 	ul
 	each div in divs
-		li #{div.partial} / #{div.data.variabile} 
+		li
+			!=div.content
+			span / #{div.partial} / #{div.data} 

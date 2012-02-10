@@ -135,5 +135,6 @@
 	"error": "error",
 	"back": "back",
 	"deselect": "deselect",
-	"unique name is auto-generated and is the name used in database schema and in queries": "unique name is auto-generated and is the name used in database schema and in queries"
+	"unique name is auto-generated and is the name used in database schema and in queries": "unique name is auto-generated and is the name used in database schema and in queries",
+	"do not use trailing slashes": "do not use trailing slashes"
 }

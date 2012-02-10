@@ -7,8 +7,8 @@ include ../includes/listCrudbox
 
 each element,i in elements
 	div.floatLeft.size1
-		//- ok ma va al dettaglio a(href='/#{elementName}s/#{element._id}').elemGrid.outerCont
-		a(href='/contents/#{element._id}', title='#{__i('contents for this model')}').elemGrid.outerCont
+		//- ok ma va ai relativi contents di ogni model: a(href='/contents/#{element._id}', title='#{__i('contents for this model')}').elemGrid.outerCont
+		a(href='/#{elementName}s/#{element._id}').elemGrid.outerCont
 			h5 #{element.name}
 			//-
 				div.innerCont
