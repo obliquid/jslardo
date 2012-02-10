@@ -1,6 +1,6 @@
 div.outerCont
 	if session.loggedIn
-		h4 #{ trunc(session.email,10) }
+		h4 #{ trunc(session.email,15) }
 	else 
 		h4 #{__i('access')}
 	div.innerCont
