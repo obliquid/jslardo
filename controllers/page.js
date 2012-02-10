@@ -215,6 +215,10 @@ function defineRoutes(app) {
 					my_page.author = req.session.user_id;
 					//inizializzo la data di creazione (che non è gestita dal form)
 					my_page.created = new Date();
+					//tolgo eventuali trailing slashes dalla route
+					while( my_page.route.substr( my_page.route.length -1 ) == '/' ) {
+						my_page.route = my_page.route.substr( 0, my_page.route.length -1 );
+					}
 					//salvo il nuovo page
 					my_page.save(function (err) {
 						if (!err) 

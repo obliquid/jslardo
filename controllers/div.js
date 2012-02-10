@@ -377,6 +377,11 @@ function defineRoutes(app) {
 
 	
 
+	//POST: json div list (case no page id passed)
+	app.post('/json/divs/divChildren//:param?', app.jsl.perm.readStrucPermDefault, function(req, res, next){
+		app.jsl.routes.routeInit(req);
+		res.json( [] );
+	});
 	//POST: json div list 
 	app.post('/json/divs/divChildren/:page/:param?', app.jsl.perm.readStrucPermDefault, function(req, res, next){
 		app.jsl.routes.routeInit(req);
@@ -386,7 +391,8 @@ function defineRoutes(app) {
 		//devo distinguere due casi: se in POST mi hanno passato un oggetto, quello ha la precedenza sui params passati in GET
 		//nello specifico l'oggetto in POST mi viene passato quando voglio i children di un altro div,
 		//mentre i params in GET mi servono per avere i divs di una pagina
-		if ( typeof req.body === 'object') {
+		if ( typeof req.body === 'object' && !app.jsl.utils.is_empty(req.body) ) {
+			//console.log('ho l oggetto in post, trovo i figli di un div');
 			//ho l'oggetto in post, trovo i figli di un div
 			var conditions = ( req.session.user_id == 'superadmin' ) 
 			? 
@@ -454,6 +460,7 @@ function defineRoutes(app) {
 		else {
 			//ho solo i paramas in get, trovo i divs di una pagina
 			//leggo i div dal db
+			//console.log('ho solo i paramas in get, trovo i divs di una pagina');
 			var conditions = ( req.session.user_id == 'superadmin' ) 
 			? 
 			{} 

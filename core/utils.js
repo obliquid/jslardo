@@ -143,6 +143,15 @@ Array.prototype.remove= function(){
     return this;
 }
 
+/* says if an object is empty, i.e.: obj = {} */
+function is_empty(obj) {
+    for(var prop in obj) {
+        if(obj.hasOwnProperty(prop))
+            return false;
+    }
+    return true;
+}
+exports.is_empty = is_empty;
 
 /*
 quando si ha un valore booleano che non si sa se è di tipo booleano
