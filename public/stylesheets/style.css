@@ -730,6 +730,7 @@ textarea:hover,
 .logoLabel
 {
 	margin: 0px;
+	letter-spacing: -4px;
 }
 
 /* element in a grid view */
