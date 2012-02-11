@@ -150,8 +150,10 @@ h6
 	margin: 0px;
 	margin-bottom: 5px;
 }
-
-
+pre {
+	font-family:monospace;
+	overflow:auto;
+}
 
 
 
@@ -348,7 +350,22 @@ input.disabled:hover {
 	border: 2px dotted #9C9C9C;
 }
 
-
+/* colors used for status */
+.redBg,
+.privateBg
+{
+	background-color: #ED2024;
+}
+.blueBg,
+.publicBg
+{
+	background-color: #3953A4;
+}
+.greenBg,
+.shareBg
+{
+	background-color: #69BD45;
+}
 
 
 
@@ -460,6 +477,7 @@ textarea,
 .innerCont,
 .innerContOutline,
 .adminIcon,
+.statusIcon,
 .formSuccess,
 .linkSelected,
 .formRow, .detailRow, .jstree, #vakata-contextmenu,
@@ -667,8 +685,7 @@ textarea:hover,
 	margin: 0px;
 	padding: 5px 0px;
 }
-.footerCont,
-.headerAdminCont
+.footerCont
 {
 	background-image:url('../images/bg/ombraBottom.png');
 	background-repeat:repeat-x;
@@ -676,6 +693,15 @@ textarea:hover,
 	margin: 0px;
 	padding: 0px;
 	padding-top: 10px;
+}
+.headerAdminCont
+{
+	background-image:url('../images/bg/ombraTop.png');
+	background-repeat:repeat-x;
+	background-position:center bottom;
+	margin: 0px;
+	padding: 0px;
+	padding-bottom: 5px;
 }
 .headerAdminCont
 {
@@ -785,7 +811,6 @@ textarea:hover,
   margin-bottom: 10px;
 }
 
-
 /* DYNAMIC CONTENT RELATED */
 .dynForm,
 .dynView {
@@ -834,6 +859,14 @@ textarea:hover,
 {
 	background-color: #aaaaaa;
 	cursor: default;
+}
+.statusIcon
+{
+	width: 20px;
+	height: 20px;
+	display: inline-block;
+	background-repeat:no-repeat;
+	background-position:center;
 }
 .datatypeIcon {
 	width: 50px;

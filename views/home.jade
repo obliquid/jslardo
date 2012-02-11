@@ -1,3 +1,4 @@
+
 h1 #{__i('...because lardo is good')}
 hr
 h3 
@@ -7,3 +8,34 @@ p #{__i('more info on')}
 	a(href='https://github.com/obliquid/jslardo', target='_blank') github
 p #{__i('created by')}
 	a(href='http://obliquid.org', target='_blank') obliquid
+
+//-
+	div.size2.floatLeft
+		h3
+			#{__i('a social cms')}
+		ul
+			li
+				h5 #{__i('create your models:')}
+					pre.code.innerCont.
+						{
+							"title": {
+								"type": "String",
+								"required":"true",
+								"name_full":"title",
+								"description":""
+							},
+							"authors": [ {
+								"type":"ObjectId",
+								"ref":"jslmodel_4f22870d4eaa51dd0f00005e",
+								"required":"false",
+								"name_full":"authors",
+								"description":""
+							} ]
+						}						
+							
+	div.size2.floatLeft
+		p #{__i('more info on')}
+			a(href='https://github.com/obliquid/jslardo', target='_blank') github
+		p #{__i('created by')}
+			a(href='http://obliquid.org', target='_blank') obliquid
+	div.clear

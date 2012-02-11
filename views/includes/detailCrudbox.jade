@@ -10,5 +10,6 @@ if session.user_id == 'superadmin' || ( session.user_id == element.author._id &&
 	else
 		a(href='/#{elementName}s/edit/#{element._id}', title='#{__i(elementName)}: #{__i('modify')}').adminButton.modifyButton
 		a(title='#{__i(elementName)}: #{__i('delete')}', onclick='if(confirm(\'#{__i("delete for sure?")}\')) window.location = "/#{elementName}s/delete/#{element._id}";').adminButton.deleteButton
-	if element.status == 'private'
-		div(title='private').adminIcon.privateButton
+	//-
+		if element.status == 'private'
+			div(title='private').adminIcon.privateButton

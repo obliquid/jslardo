@@ -138,5 +138,17 @@
 	"unique name is auto-generated and is the name used in database schema and in queries": "unique name is auto-generated and is the name used in database schema and in queries",
 	"do not use trailing slashes": "do not use trailing slashes",
 	"mail to": "mail to",
-	"do not use slashes inside a route. they will be removed": "do not use slashes inside a route. they will be removed"
+	"do not use slashes inside a route. they will be removed": "do not use slashes inside a route. they will be removed",
+	"elements": "elements",
+	"a social cms": "a social cms",
+	"create new model": "create new model",
+	"can be viewed only by you": "can be viewed only by you",
+	"can be viewed only by you, and is published in your sites": "can be viewed only by you, and is published in your sites",
+	"viewed by everyone, and shareable": "viewed by everyone, and shareable",
+	"create new page": "create new page",
+	"you are visible by other users": "you are visible by other users",
+	"you are invisible": "you are invisible",
+	"create your models:": "create your models:",
+	"right now no validation email is sent to your email address, but maybe will happen in the future": "right now no validation email is sent to your email address, but maybe will happen in the future",
+	"if you want to register, right now no validation email is sent to your email address, but maybe will happen in the future": "if you want to register, right now no validation email is sent to your email address, but maybe will happen in the future"
 }

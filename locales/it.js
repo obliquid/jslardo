@@ -96,5 +96,12 @@
 	"retype": "retype",
 	"security note: this form is locked! to unlock it just slide to the right the cursor below:": "security note: this form is locked! to unlock it just slide to the right the cursor below:",
 	"locked": "locked",
-	"unlocked: now you can save": "unlocked: now you can save"
+	"unlocked: now you can save": "unlocked: now you can save",
+	"a social cms": "a social cms",
+	"create your models:": "create your models:",
+	"divs": "divs",
+	"div": "div",
+	"auto generate inline styles": "auto generate inline styles",
+	"render as a table": "render as a table",
+	"children": "children"
 }

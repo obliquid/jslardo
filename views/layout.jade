@@ -4,9 +4,9 @@ html
 		include includes/layoutHeadersCommon
 	body
 		include includes/header
+		include includes/headerAdmin
 		div.bodyCont
 			div.body.size6!= body //- la variabile body contiene il template principale della pagina (unescaped, altrimenti visualizza i tag html)
 		//- if session.loggedIn
-		//- include includes/headerAdmin
 		include includes/footer
 	

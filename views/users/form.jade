@@ -56,6 +56,7 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 				span.formError *
 				input(id='email', name='email', value='#{element.email || ""}').size3
 				p #{__i('email is also used to signin')}
+				span.textMini #{__i('right now no validation email is sent to your email address, but maybe will happen in the future')}
 			//- se è un nuovo utente, è obbligatorio inserire la pw
 			//- se è un modify, la pw viene inserita solo per cambiarla
 			if (typeof element._id === 'undefined' || element._id == '' )
@@ -81,23 +82,31 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 						span.formError *
 					input(type='password', id='retype_new_password', name='retype_new_password').size3
 					
-			//- nota: non si può usare 	'include ../includes/formStatus' perchè lo status degli user ha solo public e private
+	//- nota: non si può usare 	'include ../includes/formStatus' perchè lo status degli user ha solo public e private
 	div.size2.floatLeft
 		div.mainColRight
 			.formRow
-				h5.formLabel #{__i('status')}
+				h5.formLabel &nbsp;#{__i('status')}
 					span.formError *
+				div.clear
 				if (element.status != 'private' )
-					input(type='radio', name='status', value='public', checked=true) 
+					input(type='radio', name='status', value='public', title='#{__i("you are visible by other users")}', checked=true) 
 				else
-					input(type='radio', name='status', value='public') 
-				span #{__i('public')}
+					input(type='radio', name='status', value='public', title='#{__i("you are visible by other users")}') 
+				span #{__i('public')}&nbsp;
+				div.publicBg.privateButton.statusIcon.floatRight
 				br
+				span.textMini #{__i('you are visible by other users')}
+				hr
 				if (element.status == 'private' )
-					input(type='radio', name='status', value='private', checked=true) 
+					input(type='radio', name='status', value='private', title='#{__i("you are invisible")}', checked=true)
 				else
-					input(type='radio', name='status', value='private') 
-				span #{__i('private')}
+					input(type='radio', name='status', value='private', title='#{__i("you are invisible")}')
+				span #{__i('private')}&nbsp;
+				div.privateBg.privateButton.statusIcon.floatRight
+				br
+				span.textMini #{__i('you are invisible')}
+				
 	div.clear
 
 	include ../includes/formSubmitBottom
