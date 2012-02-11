@@ -1,41 +1,127 @@
-
-h1 #{__i('...because lardo is good')}
-hr
-h3 
-	#{__i('jslardo is a social cms')}
-hr
-p #{__i('more info on')}
-	a(href='https://github.com/obliquid/jslardo', target='_blank') github
-p #{__i('created by')}
-	a(href='http://obliquid.org', target='_blank') obliquid
-
 //-
-	div.size2.floatLeft
-		h3
-			#{__i('a social cms')}
-		ul
-			li
-				h5 #{__i('create your models:')}
-					pre.code.innerCont.
-						{
-							"title": {
-								"type": "String",
-								"required":"true",
-								"name_full":"title",
-								"description":""
-							},
-							"authors": [ {
-								"type":"ObjectId",
-								"ref":"jslmodel_4f22870d4eaa51dd0f00005e",
-								"required":"false",
-								"name_full":"authors",
-								"description":""
-							} ]
-						}						
-							
-	div.size2.floatLeft
+		h1 #{__i('...because lardo is good')}
+		hr
+		h3 
+			#{__i('jslardo is a social cms')}
+		hr
 		p #{__i('more info on')}
 			a(href='https://github.com/obliquid/jslardo', target='_blank') github
 		p #{__i('created by')}
 			a(href='http://obliquid.org', target='_blank') obliquid
-	div.clear
+
+h3
+	#{__i('a social cms')}
+hr
+div.size2.floatLeft
+	ul.rightBorder
+		li
+			h5 #{__i('create your models')}
+			ul
+				li
+					span.textMini #{__i('create valid mongoose models with drag and drop gui')}
+					pre.outerContMinimal.code.
+						"book": {
+							"title": {
+								"type": "String",
+								"required":"true"
+							},
+							"authors": [ {
+								"type":"ObjectId",
+								"ref":"jslmodel_4f22870d4eaa51dd0f00005e",
+								"required":"false"
+							} ]
+						}
+				li
+					span.textMini #{__i('DBRef like relations (1:1 and 1:N) are supported')}
+		hr
+		li
+			h5 #{__i('create your contents')}
+			ul
+				li
+					span.textMini #{__i('insert contents for your models through runtime generated forms')}
+		hr
+		li
+			h5 #{__i('create your sites')}
+			ul
+				li
+					span.textMini #{__i('create pages from scratch with drag and drop gui')}
+				li
+					span.textMini #{__i('and publish your contents')}
+div.size2.floatLeft
+	ul.rightBorder
+		li
+			h5 #{__i('share what you want')}
+			ul
+				li
+					span.textMini #{__i('every model, content, or site, can be shared with other users')}
+				li
+					span.textMini #{__i('or can be marked as private and no one will be able to see it')}
+		hr
+		li
+			h5 #{__i("it's open source")}
+			ul
+				li
+					span.textMini #{__i("jslardo cms is released under a GPL v.3 licence")}
+				li
+					span.textMini #{__i("so if you don't want to save your data on this server, you can set up your own server, for your own users")}
+				li
+					span.textMini #{__i("and since it's open source, any involvement or suggestion is appreciated")}
+		hr
+		li
+			h5 #{__i("it's at an early stage")}
+			ul
+				li
+					span.textMini #{__i("expect that only a few sections of the application are completed and stable")}
+				li
+					span.textMini #{__i("so update frequently")}
+	
+div.size2.floatLeft
+	ul
+		li
+			h5 #{__i('links')}
+			ul
+				li
+					span #{__i('more info on')}
+						a(href='https://github.com/obliquid/jslardo', target='_blank') github
+				li
+					span #{__i('created by')}
+						a(href='http://obliquid.org', target='_blank') obliquid
+	hr
+	ul
+		li
+			h5 #{__i('feedback')}
+	style
+		.disqus_moduleBox a
+		{
+			padding: 0px;
+			margin: 0px;
+			background: transparent;
+			text-shadow: none;
+			text-decoration: none;
+		}
+		.disqus_moduleBox a:hover
+		{
+			padding: 0px;
+			margin: 0px;
+			background: transparent;
+			color: #aaaaaa;
+			text-decoration: none;
+		}
+	div(id="disqus_thread").outerContMinimal
+	script
+		/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+		var disqus_shortname = 'obliquid'; // required: replace example with your forum shortname
+		// The following are highly recommended additional parameters. Remove the slashes in front to use.
+		// var disqus_identifier = 'unique_dynamic_id_1234';
+		// var disqus_url = 'http://example.com/permalink-to-page.html';
+		/* * * DON'T EDIT BELOW THIS LINE * * */
+		(function() {
+			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+	noscript Please enable JavaScript to view the
+		a(href="http://disqus.com/?ref_noscript") comments powered by Disqus.
+	a(href="http://disqus.com").dsq-brlink blog comments powered by
+		span.logo-disqus Disqus
+div.clear

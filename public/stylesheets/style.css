@@ -150,10 +150,6 @@ h6
 	margin: 0px;
 	margin-bottom: 5px;
 }
-pre {
-	font-family:monospace;
-	overflow:auto;
-}
 
 
 
@@ -198,15 +194,11 @@ input.disabled:hover {
 
 ul
 {
-	padding: 0px;
+	padding-left: 10px;
 }
 
 li
 {
-	margin-bottom: 8px;
-	display: list-item; 
-	list-style-image: url('../images/pov/icon_core_object_10x8_black.png'); 
-	list-style-position: inside;
 }
 
 
@@ -349,6 +341,9 @@ input.disabled:hover {
 {
 	border: 2px dotted #9C9C9C;
 }
+.rightBorder {
+	border-right: 2px dotted #9C9C9C;
+}
 
 /* colors used for status */
 .redBg,
@@ -369,7 +364,7 @@ input.disabled:hover {
 
 
 
-/* commont texts formatting */
+/* common texts formatting */
 
 .textMini
 {
@@ -377,8 +372,11 @@ input.disabled:hover {
 }
 
 .code {
+	font-family:monospace;
+	font-weight:bold;
 	font-size:14px;
-	font-family: "Courier New", Courier, monospace;
+	overflow:auto;
+	/* font-family: "Courier New", Courier, monospace; */
 }
 
 
@@ -574,8 +572,11 @@ textarea:hover,
 	clear: both;
 }
 
-
-
+/* columns */
+.rightBorder {
+	margin-right: 20px;
+	padding-right: 10px;
+}
 
 
 
@@ -757,6 +758,10 @@ textarea:hover,
 {
 	margin: 0px;
 	letter-spacing: -4px;
+}
+.code {
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
 /* element in a grid view */
