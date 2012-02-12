@@ -157,5 +157,6 @@
 	"div": "div",
 	"auto generate inline styles": "auto generate inline styles",
 	"render as a table": "render as a table",
-	"children": "children"
+	"children": "children",
+	"comments": "comments"
 }
