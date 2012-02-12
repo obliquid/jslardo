@@ -129,5 +129,14 @@
 	"super admin mode": "super admin mode",
 	"user": "user",
 	"every model, content, or site and page, can be shared with other users": "every model, content, or site and page, can be shared with other users",
-	"under development, not yet available": "under development, not yet available"
+	"under development, not yet available": "under development, not yet available",
+	"create new model": "create new model",
+	"successfully saved": "successfully saved",
+	"model of these contents": "model of these contents",
+	"content": "content",
+	"yes": "yes",
+	"no": "no",
+	"create new content": "create new content",
+	"model is required": "model is required",
+	"you will loose current form data, continue?": "you will loose current form data, continue?"
 }

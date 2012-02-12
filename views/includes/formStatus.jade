@@ -2,7 +2,7 @@
 	h5.formLabel &nbsp;#{__i('status')}
 		span.formError *
 	div.clear
-	if ( element.status != 'public' && element.status != 'share' ) 
+	if (element.status == 'private' )
 		input(type='radio', name='status', value='private', title='#{__i("can be viewed only by you")}', checked=true)
 	else
 		input(type='radio', name='status', value='private', title='#{__i("can be viewed only by you")}')
@@ -20,7 +20,7 @@
 	br
 	span.textMini #{__i('can be viewed only by you, and is published in your sites')}
 	hr
-	if (element.status == 'share' )
+	if ( element.status != 'public' && element.status != 'private' ) 
 		input(type='radio', name='status', value='share', title='#{__i("viewed by everyone, and shareable")}', checked=true) 
 	else
 		input(type='radio', name='status', value='share', title='#{__i("viewed by everyone, and shareable")}') 
