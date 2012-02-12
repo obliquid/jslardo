@@ -42,7 +42,7 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 		include ../includes/formSubmitTop
 	div.size4.floatLeft
 		div.mainColLeft
-			h4 #{__i('your profile')}
+			h4.alignLeft #{__i('your profile')}
 			.formRow
 				h5.formLabel #{__i('name')}
 					span.formError *
@@ -86,6 +86,8 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 				.medium_padding
 					include ../includes/disclaimer
 					p.formError #{__i('by clicking the SAVE button you implicitly declare to have read and accepted everything stated in this disclaimer')}
+					hr
+					p.formError #{__i('and... remember to unlock slider to save!')}
 	//- nota: non si può usare 	'include ../includes/formStatus' perchè lo status degli user ha solo public e private
 	div.size2.floatLeft
 		div.mainColRight

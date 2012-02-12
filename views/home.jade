@@ -9,8 +9,9 @@
 		p #{__i('created by')}
 			a(href='http://obliquid.org', target='_blank') obliquid
 
-h3
-	#{__i('a social cms')}
+h3.floatLeft #{__i('a social cms.')}
+h4(style='margin-top: 18px;').floatRight #{__i('sort of.')}
+div.clear
 hr
 div.size2.floatLeft
 	ul.rightBorder
@@ -33,20 +34,27 @@ div.size2.floatLeft
 						}
 				li
 					span #{__i('DBRef like relations (1:1 and 1:N) are supported')}
+				li
+					span #{__i('jslardo runtime reloads mongoose models and update mongodb collections as you change your models schemas')}
 		hr
 		li
 			h5 #{__i('create your contents')}
 			ul
 				li
 					span #{__i('insert contents for your models through runtime generated forms')}
+				li
+					span #{__i('DBRef like relations are also managed in generated forms, with drag and drop ordering of related contents')}
 		hr
 		li
 			h5 #{__i('create your sites')}
 			ul
 				li
+					span #{__i('start a new site: realtime third level subdomains assignment')}
+				li
 					span #{__i('create pages from scratch with drag and drop gui')}
 				li
-					span #{__i('and publish your contents')}
+					span *#{__i('and publish your contents')}
+			span.textMini * not yet implemented
 div.size2.floatLeft
 	ul.rightBorder
 		li

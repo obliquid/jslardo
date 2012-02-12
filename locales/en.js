@@ -112,5 +112,20 @@
 	"unlocked: now you can save": "unlocked: now you can save",
 	"warning: by clicking save you declare to have read and accepted the following disclaimer": "warning: by clicking save you declare to have read and accepted the following disclaimer",
 	"by clicking the SAVE button you implicitly declare to have read and accepted everything stated in this disclaimer": "by clicking the SAVE button you implicitly declare to have read and accepted everything stated in this disclaimer",
-	"we take no responsibility, of any kind, on your data. just use this site for testing please": "we take no responsibility, of any kind, on your data. just use this site for testing please"
+	"we take no responsibility, of any kind, on your data. just use this site for testing please": "we take no responsibility, of any kind, on your data. just use this site for testing please",
+	"dude, remember to unlock slider to save!": "dude, remember to unlock slider to save!",
+	"and... remember to unlock slider to save!": "and... remember to unlock slider to save!",
+	"a social cms. sort of": "a social cms. sort of",
+	"a social cms. sort of...": "a social cms. sort of...",
+	"a social cms.": "a social cms.",
+	"sort of...": "sort of...",
+	"sort of.": "sort of.",
+	"jslardo runtime reloads mongoose models and update mongodb collections as you change their stucture": "jslardo runtime reloads mongoose models and update mongodb collections as you change their stucture",
+	"jslardo runtime reloads mongoose models and update mongodb collections as you change your models schemas": "jslardo runtime reloads mongoose models and update mongodb collections as you change your models schemas",
+	"DBRef like relations are also managed in generated forms, with drag and drop ordering of related contents": "DBRef like relations are also managed in generated forms, with drag and drop ordering of related contents",
+	"realtime third level subdomains management": "realtime third level subdomains management",
+	"start a new site: realtime third level subdomains assignment": "start a new site: realtime third level subdomains assignment",
+	"anything (models, contents, sites, pages, even users) saved on this server could be deleted without any warning. this could be required by structural changes in jslardo source code, or by unappealable decision of the site owners": "anything (models, contents, sites, pages, even users) saved on this server could be deleted without any warning. this could be required by structural changes in jslardo source code, or by unappealable decision of the site owners",
+	"super admin mode": "super admin mode",
+	"user": "user"
 }
