@@ -184,5 +184,7 @@
 	"or can be marked as private and no one will be able to see it": "or can be marked as private and no one will be able to see it",
 	"create valid mongoose models with drag and drop gui": "create valid mongoose models with drag and drop gui",
 	"links": "links",
-	"feedback": "feedback"
+	"feedback": "feedback",
+	"it's an ongoing project": "it's an ongoing project",
+	"roadmap is long, so update frequently": "roadmap is long, so update frequently"
 }

@@ -710,7 +710,7 @@ textarea:hover,
 }
 .bodyCont
 {
-	background-image:url('../images/bg/nero15perc.png');
+	background-image:url('../images/bg/nero10perc.png');
 	background-repeat:repeat;
 	margin: 0px;
 	padding: 0px;
@@ -737,6 +737,12 @@ textarea:hover,
 {
 	margin: 0 auto;
 	padding-top: 10px;
+	padding-bottom: 10px;
+}
+.feedback
+{
+	margin: 0 auto;
+	padding-top: 5px;
 	padding-bottom: 10px;
 }
 .body
