@@ -306,6 +306,7 @@ a.outerCont:hover
 
 
 /* corporate color B (orange) */
+.warning,
 .formError,
 .QapTcha .dropError
 {
@@ -443,6 +444,7 @@ textarea,
 /* medium padding */
 .medium_padding
 {
+	padding: 10px;
 }
 
 /* medium margin */
@@ -578,7 +580,14 @@ textarea:hover,
 	padding-right: 10px;
 }
 
+/* aligns */
 
+.alignLeft {
+	text-align: left;
+}
+.alignRight {
+	text-align: right;
+}
 
 
 

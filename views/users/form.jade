@@ -81,7 +81,11 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 					h5.formLabel #{__i('retype password')}
 						span.formError *
 					input(type='password', id='retype_new_password', name='retype_new_password').size3
-					
+			hr
+			.outerCont.alignLeft
+				.medium_padding
+					include ../includes/disclaimer
+					p.formError #{__i('by clicking the SAVE button you implicitly declare to have read and accepted everything stated in this disclaimer')}
 	//- nota: non si può usare 	'include ../includes/formStatus' perchè lo status degli user ha solo public e private
 	div.size2.floatLeft
 		div.mainColRight
