@@ -127,5 +127,7 @@
 	"start a new site: realtime third level subdomains assignment": "start a new site: realtime third level subdomains assignment",
 	"anything (models, contents, sites, pages, even users) saved on this server could be deleted without any warning. this could be required by structural changes in jslardo source code, or by unappealable decision of the site owners": "anything (models, contents, sites, pages, even users) saved on this server could be deleted without any warning. this could be required by structural changes in jslardo source code, or by unappealable decision of the site owners",
 	"super admin mode": "super admin mode",
-	"user": "user"
+	"user": "user",
+	"every model, content, or site and page, can be shared with other users": "every model, content, or site and page, can be shared with other users",
+	"under development, not yet available": "under development, not yet available"
 }
