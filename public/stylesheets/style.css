@@ -344,7 +344,9 @@ input.disabled:hover {
 {
 	border: 2px dotted #9C9C9C;
 }
-.rightBorder {
+.rightBorder,
+.mainColLeft
+{
 	border-right: 2px dotted #9C9C9C;
 }
 

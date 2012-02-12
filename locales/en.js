@@ -153,5 +153,9 @@
 	"type": "type",
 	"this is an explanation on how to compile this field, and will be shown only in the form": "this is an explanation on how to compile this field, and will be shown only in the form",
 	"required": "required",
-	"set": "set"
+	"set": "set",
+	"div": "div",
+	"auto generate inline styles": "auto generate inline styles",
+	"render as a table": "render as a table",
+	"children": "children"
 }

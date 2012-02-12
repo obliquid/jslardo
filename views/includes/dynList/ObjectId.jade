@@ -1,5 +1,4 @@
-span.textMini #{trunc(content.fieldNameFull,20)}:
-//- h6(title='#{content[field]}') #{trunc(content[field],15)}
+span.textMini #{trunc(content.fieldNameFull,30)}:
 h6(title='#{content[field].refContents}')
 	if content[field].refContents
-		!= trunc(content[field].refContents,15)
+		!= trunc(content[field].refContents,25)
