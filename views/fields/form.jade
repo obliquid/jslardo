@@ -6,6 +6,12 @@ script
 			alert("#{__i('name is required')}");
 			return false;
 		}
+		//- blocco le keywords riservate
+		if( checkReservedWord($('#name').val()) ) {
+			alert($('#name').val()+" #{__i('is a reserved word, please choose a different name')}");
+			return false; 
+		}
+		
 		//- se si sta cambiando il nome, non si può usare un nome già usato
 		if( $('#name').val() != $('#old_name').val() )
 		{

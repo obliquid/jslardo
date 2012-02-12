@@ -80,60 +80,6 @@ function centerModal(f, originalYScroll) {
 }
 
 
-function nameuniquize(stringDirty) {
-	var allowedChars  = [
-		"a",
-		"b",
-		"c",
-		"d",
-		"e",
-		"f",
-		"g",
-		"h",
-		"i",
-		"j",
-		"k",
-		"l",
-		"m",
-		"n",
-		"o",
-		"p",
-		"q",
-		"r",
-		"s",
-		"t",
-		"u",
-		"v",
-		"w",
-		"x",
-		"y",
-		"z",
-		"0",
-		"1",
-		"2",
-		"3",
-		"4",
-		"5",
-		"6",
-		"7",
-		"8",
-		"9",
-		"_",
-		"-"
-	];
-	var nameuniquizedString = '';
-	for(var i=0; i<stringDirty.length; i++) {
-		var dirtyChar = stringDirty.charAt(i).toLowerCase();
-		if (dirtyChar == ' ') dirtyChar = '_';
-		if ( in_array(allowedChars,dirtyChar) ) {
-			nameuniquizedString += dirtyChar;
-		}
-	}
-	return nameuniquizedString;
-}
-//exports.nameuniquize = nameuniquize;
-
-
 //data() selector
 (function($){
  
@@ -195,7 +141,82 @@ function nameuniquize(stringDirty) {
 })(jQuery);
 
 
+/* other functions */
 
+
+function nameuniquize(stringDirty) {
+	var allowedChars  = [
+		"a",
+		"b",
+		"c",
+		"d",
+		"e",
+		"f",
+		"g",
+		"h",
+		"i",
+		"j",
+		"k",
+		"l",
+		"m",
+		"n",
+		"o",
+		"p",
+		"q",
+		"r",
+		"s",
+		"t",
+		"u",
+		"v",
+		"w",
+		"x",
+		"y",
+		"z",
+		"0",
+		"1",
+		"2",
+		"3",
+		"4",
+		"5",
+		"6",
+		"7",
+		"8",
+		"9",
+		"_",
+		"-"
+	];
+	var nameuniquizedString = '';
+	for(var i=0; i<stringDirty.length; i++) {
+		var dirtyChar = stringDirty.charAt(i).toLowerCase();
+		if (dirtyChar == ' ') dirtyChar = '_';
+		if ( in_array(allowedChars,dirtyChar) ) {
+			nameuniquizedString += dirtyChar;
+		}
+	}
+	return nameuniquizedString;
+}
+
+
+
+function checkReservedWord(word) {
+	var reserved = [
+		'model',
+		'name_full',
+		'required',
+		'author',
+		'created',
+		'status',
+		'id',
+		'_id',
+		'string',
+		'number',
+		'boolean',
+		'date',
+		'image',
+		'objectid'
+	];
+	return in_array(reserved,word.toLowerCase());
+}
 
 
 

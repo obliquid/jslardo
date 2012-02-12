@@ -138,5 +138,20 @@
 	"no": "no",
 	"create new content": "create new content",
 	"model is required": "model is required",
-	"you will loose current form data, continue?": "you will loose current form data, continue?"
+	"you will loose current form data, continue?": "you will loose current form data, continue?",
+	"modify content": "modify content",
+	"model for this content": "model for this content",
+	"mail to": "mail to",
+	"modify field": "modify field",
+	"is a reserved word, please choose a different name": "is a reserved word, please choose a different name",
+	"a field already exists with unique name": "a field already exists with unique name",
+	"renaming the field means to loose all contents saved for (only) this field. continue?": "renaming the field means to loose all contents saved for (only) this field. continue?",
+	"changing type means to loose all contents saved for (only) this field (unless changing from Number to String). continue?": "changing type means to loose all contents saved for (only) this field (unless changing from Number to String). continue?",
+	"changing cardinality means to loose all contents saved for (only) this field. continue?": "changing cardinality means to loose all contents saved for (only) this field. continue?",
+	"unique name": "unique name",
+	"unique name is auto-generated and is the name used in database schema and in queries": "unique name is auto-generated and is the name used in database schema and in queries",
+	"type": "type",
+	"this is an explanation on how to compile this field, and will be shown only in the form": "this is an explanation on how to compile this field, and will be shown only in the form",
+	"required": "required",
+	"set": "set"
 }
