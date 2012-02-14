@@ -181,9 +181,7 @@ app.configure(function(){
 				'file_path': 	{ type: String },
 				'file_type': 	{ type: String },
 				'file_size': 	{ type: Number },
-				'file_date':	{ type: Date },
-				'width': 		{ type: Number },
-				'height': 		{ type: Number }
+				'file_date':	{ type: Date }
 			}) ],
 			icon: 'icon_data_image'
 		},
