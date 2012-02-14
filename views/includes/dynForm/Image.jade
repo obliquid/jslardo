@@ -8,7 +8,7 @@ if required
 		function required_dynForm_#{counter} () {
 			if ( !$('#'+'#{field}').val() ) {
 				alert("#{field} is required");
-				return false;				
+				return false;
 			}
 			return true;
 		}
@@ -24,6 +24,20 @@ else
 	h5.formLabel #{content.fieldNameFull}:
 		if required
 			span.formError *
-	input(id='#{field}', type='file', name='#{field}', value='#{content[field] || ""}').size2
+	if content[field] && content[field][0] && content[field][0].file_name && content[field][0].file_path
+		div.formSubRow.size2
+			span.floatLeft #{__i('file preview')}:
+			a(href='/#{content[field][0].file_path}#{content[field][0].file_name}', target='_blank', title='zoom').floatRight
+				!= getImg(app, content[field][0].file_path, content[field][0].file_name,150,0,'imageDetail')
+			div.clear
+		div.formSubRow.size2
+			span.floatLeft #{__i('delete file')}:
+			div.adminIcon.deleteButton.floatRight
+			input(id='#{field}_delete', type='checkbox', name='#{field}_delete', value=false).floatRight
+			div.clear
+		input(id='#{field}', type='file', name='#{field}', value='#{content[field][0].file_name || ""}').size2
+	else
+		input(id='#{field}', type='file', name='#{field}', value='').size2
+	
 	if description
 		p #{description}

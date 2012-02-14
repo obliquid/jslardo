@@ -254,6 +254,10 @@ hr
 {
 	width: 80px;
 }
+.sizeHalfAndQuarter
+{
+	width: 120px;
+}
 .size1
 {
 	width: 160px;
@@ -345,7 +349,8 @@ input.disabled:hover {
 	border: 2px dotted #9C9C9C;
 }
 .rightBorder,
-.mainColLeft
+.mainColLeft,
+.contentListColumn
 {
 	border-right: 2px dotted #9C9C9C;
 }
@@ -483,6 +488,7 @@ textarea,
 .adminIcon,
 .statusIcon,
 .formSuccess,
+.formSubRow,
 .linkSelected,
 .formRow, .detailRow, .jstree, #vakata-contextmenu,
 #simplemodal-container,
@@ -490,7 +496,9 @@ textarea,
 .simplemodal-data,
 .elementButton,
 .QapTcha .bgSlider,
-.QapTcha .dropSuccess
+.QapTcha .dropSuccess,
+.imageDetail,
+.imageList
 {
 	border-radius: 14px; 
 	-moz-border-radius: 14px; 
@@ -563,12 +571,14 @@ textarea:hover,
 
 /* floats */
 
-.floatLeft
+.floatLeft,
+.contentListColumn
 {
 	float: left;
 }
 
-.floatRight
+.floatRight,
+.formSubRow
 {
 	float: right;
 }
@@ -582,6 +592,12 @@ textarea:hover,
 .rightBorder {
 	margin-right: 20px;
 	padding-right: 10px;
+}
+.contentListColumn {
+	display: inline-block;
+	width: 90px;
+	margin-right: 5px;
+	overflow: hidden;
 }
 
 /* aligns */
@@ -670,7 +686,8 @@ textarea:hover,
 }
 
 .innerCont,
-.innerContOutline
+.innerContOutline,
+.formSubRow
 {
 	display: block;
 	background-image:url('../images/bg/nero20perc.png');
@@ -793,8 +810,8 @@ textarea:hover,
 .elemGridAdminCont
 {
 	position: absolute;
-	bottom: 3px;
-	right: 3px;
+	top: 7px;
+	right: 5px;
 	
 }
 
@@ -845,6 +862,10 @@ textarea:hover,
   background-image:url('../images/bg/bianco50perc_diag.png');
   min-height: 34px;
 }
+.formSubRow {
+	margin: 2px;
+	padding: 5px;
+}
 .refLink {
 	line-height: 35px;
 }
@@ -854,6 +875,13 @@ textarea:hover,
 	padding: 0px;
 	position: relative;
 	right: 10px;
+}
+
+/* datatypes related */
+.imageDetail,
+.imageList
+{
+	
 }
 
 /* crud buttons */

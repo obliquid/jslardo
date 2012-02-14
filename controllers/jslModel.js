@@ -950,9 +950,15 @@ function unsetEmptyFields(app,req,res,content,contentData,next){
 			}
 			
 			//console.log('schema[field].type: '+fieldObj.type);
-			//devo unsettare solo i field di tipo ref
+			//per ora unsetto solo per i field di tipo ref, e per quelli con file uploadati
 			if ( fieldObj.type == 'ObjectId' ) {
 				if (!contentData[field]) {
+					//console.log('unsetto!');
+					//devo unsettare
+					toBeUnsettedFields.push(field);
+				}
+			} else if ( fieldObj.type == 'Image' ) {
+				if (contentData[field+'_delete']=='on') {
 					//console.log('unsetto!');
 					//devo unsettare
 					toBeUnsettedFields.push(field);

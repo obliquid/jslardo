@@ -251,7 +251,7 @@ function defineRoutes(app) {
 		my_content.created = new Date();
 		//popolo il mio content con quanto mi arriva dal form
 		//////app.jsl.utils.populateModel(my_content, req.body);
-		app.jsl.utils.populateContentModel(app, req, res, my_content, req.body, function(){
+		app.jsl.utils.populateContentModel(app, req, res, my_content, req.body, req.files, function(){
 			//salvo il nuovo content
 			my_content.save(function (err) {
 				if (!err) 
@@ -326,21 +326,11 @@ function defineRoutes(app) {
 	//il controllo sull'unicità del nome di ogni field viene fatto nel client
 	app.post('/contents/:modelId/edit/:id', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnContentId, function(req, res, next){
 		app.jsl.routes.routeInit(req);
-		
-		//console.log(req.body);
-		//console.log(req.files);
 		/*
-		req.form.complete(function(err, fields, files){
-			if (err) {
-			  console.log(err);
-			} else {
-				console.log(files);
-				console.log(fields);
-				console.log(req.body);
-				console.log(req.files);
-				console.log(req.fields);
-			}
-		});
+		console.log('req.body:');
+		console.log(req.body);
+		console.log('req.files:');
+		console.log(req.files);
 		*/
 		
 		//carico i model di mongoose
@@ -355,8 +345,10 @@ function defineRoutes(app) {
 					{
 						//ho recuperato dal db con successo il mio content da modificare
 						//popolo il mio content con quanto mi arriva dal form
-						app.jsl.utils.populateContentModel(app, req, res, content, req.body, function(){
-							//salvo il content modificato
+						app.jsl.utils.populateContentModel(app, req, res, content, req.body, req.files, function(){
+							//console.log('content');
+							//console.log(content);
+							//salvo il content modoficato
 							content.save(function(err) {
 								if (err) {
 									app.jsl.utils.errorPage(res, err, "POST: content form (modify): error saving content");
@@ -911,6 +903,7 @@ function renderDynFormRecurse(app, req, res, schema,content,modelId,next) {
 					uesc: function(content){ return unescape(content) },
 					__i: app.i18n.__,
 					trunc: app.jsl.utils.trunc,
+					getImg: app.jsl.utils.getImg,
 					app: app,
 					req: req,
 					res: res
@@ -931,7 +924,7 @@ function renderDynView(app, req, res, type, schema, content, next) {
 	var fs = require('fs');
 	var output = '';
 	//number of fields to be visualized for list type
-	var listFieldsNum = 2; 
+	var listFieldsNum = 3; 
 	//ciclo sui field del schema
 	var counter = 0;
 	for ( var field in schema ) {
@@ -1016,7 +1009,11 @@ function renderDynView(app, req, res, type, schema, content, next) {
 			esc: function(content){ return escape(content) },
 			uesc: function(content){ return unescape(content) },
 			__i: app.i18n.__,
-			trunc: app.jsl.utils.trunc
+			trunc: app.jsl.utils.trunc,
+			getImg: app.jsl.utils.getImg,
+			app: app,
+			req: req,
+			res: res
 		});
 		counter++;
 	}

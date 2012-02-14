@@ -1,5 +1,6 @@
-span.textMini #{trunc(content.fieldNameFull,30)}:
-if content[field]
-	h6 #{__i('yes')}
-else
-	h6 #{__i('no')}
+div.contentListColumn
+	span.textMini #{trunc(content.fieldNameFull,12)}:
+	if content[field]
+		h6 #{__i('yes')}
+	else
+		h6 #{__i('no')}

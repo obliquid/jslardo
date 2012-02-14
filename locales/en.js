@@ -158,5 +158,11 @@
 	"auto generate inline styles": "auto generate inline styles",
 	"render as a table": "render as a table",
 	"children": "children",
-	"comments": "comments"
+	"comments": "comments",
+	"create new": "create new",
+	"select existent": "select existent",
+	"deselect": "deselect",
+	"detail": "detail",
+	"file preview": "file preview",
+	"delete file": "delete file"
 }

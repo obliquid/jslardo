@@ -151,11 +151,37 @@ app.configure(function(){
 		{
 			name: 'Image',
 			label: 'image',
+			/*
+			req.files:
+			{ foto: 
+				{ 	size: 760,
+					path: 'public/uploads/b89e47bbef608847129906e6b875c7a5',
+					name: 'package.json',
+					type: 'application/octet-stream',
+					lastModifiedDate: Mon, 13 Feb 2012 02:42:55 GMT,
+					_writeStream: 
+					{ 	path: 'public/uploads/b89e47bbef608847129906e6b875c7a5',
+						fd: 14,
+						writable: false,
+						flags: 'w',
+						encoding: 'binary',
+						mode: 438,
+						busy: false,
+						_queue: [],
+						drainable: true
+					},
+					length: [Getter],
+					filename: [Getter],
+					mime: [Getter]
+				}
+			}
+			*/
 			type: [ new app.mongoose.Schema({
 				'file_name': 	{ type: String },
 				'file_path': 	{ type: String },
 				'file_type': 	{ type: String },
 				'file_size': 	{ type: Number },
+				'file_date':	{ type: Date },
 				'width': 		{ type: Number },
 				'height': 		{ type: Number }
 			}) ],
@@ -190,7 +216,8 @@ app.configure(function(){
 		esc: function(content){ return escape(content) },
 		uesc: function(content){ return unescape(content) },
 		trunc: app.jsl.utils.trunc,
-		drawSchema: app.jsl.jslModelController.drawSchema
+		drawSchema: app.jsl.jslModelController.drawSchema,
+		getImg: app.jsl.utils.getImg
 	});
 	
 	//Dynamic Helpers

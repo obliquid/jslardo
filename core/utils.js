@@ -191,11 +191,188 @@ function zeroPad(num, places) {
 }
 exports.zeroPad = zeroPad; 
 
+/* dato un modelId e un contentId, ritorna il path in cui salvare i relativi file uploadati */
+function getContentPath(modelId,contentId) {
+	//console.log('getContentPath:');
+	modelId = modelId.toString();
+	contentId = contentId.toString();
+	//console.log(modelId);
+	//console.log(contentId);
+	var path = '';
+	path += 'files/model/';
+	for(var i=0; i<String(modelId).length; i++) {
+		path += modelId.charAt(i)+'/';
+	}
+	path += 'content/';
+	for(i=0; i<String(contentId).length; i++) {
+		path += contentId.charAt(i)+'/';
+	}
+	return path;
+}
+exports.getContentPath = getContentPath; 
+
+/*
+crea tutte le directory che compongono un path
+in input si aspetta un path assoluto sul filesystem in cui gira l'application (inizia con /)
+*/
+function mkPath(path) {
+	console.log('mkPath con path:' + path);
+	var fs = require('fs');
+	var createdPath = '';
+	var dirs = path.split('/');
+	while ( dirs.length > 0 ) {
+		var dir = dirs.shift();
+		if (dir != '') {
+			createdPath += '/'+dir;
+			//controllo se esiste già
+			try
+			{
+				var stats = fs.lstatSync(createdPath);
+				console.log('la dir to esiste già');
+			}
+			catch (e)
+			{
+				console.log('la dir to non esiste');
+				console.log('creo dir: '+createdPath);
+				fs.mkdirSync(createdPath, 0775);
+				console.log('creato dir: '+createdPath);
+			}
+		}
+	}
+}
+
+/*
+è un helper da usare direttamente nei tpl jade.
+dato un url di un'immagine da visualizzare (completo di path) e una risoluzione
+crea l'immagine ridimensionata se già non esiste, e ne ritorna l'url.
+essendo usata nei tpl, viene eseguita prima che il tpl arrivi all'utente,
+che nel browser riceve sempre un url esplicito, e non l'url di uno script
+*/
+function getImg(app,path,name,width,height,cssClasses,domId) {
+	if ( !domId ) domId = '';
+	if ( !cssClasses ) cssClasses = '';
+	if ( !width ) width = 0;
+	if ( !height ) height = 0;
+	//costruisco l'url dell'immagine ridimensionata
+	var resizedName = 'size'+width+'x'+height+'_'+name;
+	var url = process.cwd()+'/public/'+path+name;
+	var resizedUrl = process.cwd()+'/public/'+path+resizedName;
+	/*
+	console.log('getImg()');
+	console.log('url:');
+	console.log(url);
+	console.log('resizedUrl:');
+	console.log(resizedUrl);
+	*/
+	
+	//considero i casi su width ed height = 0
+	if ( width == 0 && height == 0 ) {
+		//devo restituire l'immagine originale
+		return "<img id='"+domId+"' class='"+cssClasses+"' src='/"+path+name+"'/>";
+	}
+	
+	//controllo se esiste già l'immagine ridimensionata
+	try
+	{
+		var fs = require('fs');
+		var stats = fs.lstatSync(resizedUrl);
+		console.log('resized esiste già');
+		//ritorno l'immagine già esistente
+		//ritorno l'url, con uno slash davanti, altrimenti non funzia
+		return "<img id='"+domId+"' class='"+cssClasses+"' src='/"+path+resizedName+"'/>";
+	}
+	catch (e)
+	{
+		console.log('resized NON esiste, va creata');
+		console.log('width:');
+		console.log(width);
+		console.log('height:');
+		console.log(height);
+		var im = require('imagemagick');
+		//distinguo i casi di width o height = 0
+		if ( width == 0 ) {
+			console.log('fisso height');
+			//prima trovo le specs dell'immagine
+			im.identify(url, function(err, features){
+				if (err) throw err;
+				console.log(features);
+				// { format: 'JPEG', width: 3904, height: 2622, depth: 8 }
+				//trovo width in funzione di height
+				width = height*features.width/features.height;
+				im.resize({
+					srcPath: url,
+					dstPath: resizedUrl,
+					'width':   width,
+					'height':   height,
+					quality: 0.9,
+					//format: 'jpg',
+					//progressive: false,
+					strip: false,
+					//filter: 'Lagrange',
+					sharpening: 0.2
+					//customArgs: []			
+				}, function(err, stdout, stderr){
+					if (err) throw err;
+				});
+			});
+			//ritorno l'url, con uno slash davanti, altrimenti non funzia
+			//ritorno l'url originario perchè la cache sta venendo generata e non è ancora disponibile
+			return "<img id='"+domId+"' class='"+cssClasses+"' src='/"+path+name+"' style='height:"+height+"px;'/>";
+		} else if ( height == 0 ) {
+			console.log('fisso width');
+			//prima trovo le specs dell'immagine
+			im.identify(url, function(err, features){
+				if (err) throw err;
+				console.log(features);
+				// { format: 'JPEG', width: 3904, height: 2622, depth: 8 }
+				//trovo height in funzione di width
+				height = width*features.height/features.width;
+				im.resize({
+					srcPath: url,
+					dstPath: resizedUrl,
+					'width':   width,
+					'height':   height,
+					quality: 0.9,
+					strip: false,
+					sharpening: 0.2
+				}, function(err, stdout, stderr){
+					if (err) throw err;
+				});
+			});
+			//ritorno l'url, con uno slash davanti, altrimenti non funzia
+			//ritorno l'url originario perchè la cache sta venendo generata e non è ancora disponibile
+			return "<img id='"+domId+"' class='"+cssClasses+"' src='/"+path+name+"' style='width:"+width+"px;'/>";
+		} else {
+			console.log('croppo');
+			//prima trovo le specs dell'immagine
+			im.identify(url, function(err, features){
+				if (err) throw err;
+				console.log(features);
+				// { format: 'JPEG', width: 3904, height: 2622, depth: 8 }
+				im.crop({
+					srcPath: url,
+					dstPath: resizedUrl,
+					'width': width,
+					'height': height,
+					quality: 0.9,
+					sharpening: 0.2
+				}, function(err, stdout, stderr){
+					if (err) throw err;
+				});
+			});
+			//ritorno l'url, con uno slash davanti, altrimenti non funzia
+			//ritorno l'url originario perchè la cache sta venendo generata e non è ancora disponibile
+			return "<img id='"+domId+"' class='"+cssClasses+"' src='/"+path+name+"' style='width:"+width+"px;height:"+height+"px;'/>";
+		}
+	}
+}
+exports.getImg = getImg;
+
 /*
 questa serve quando mi arriva un'istanza di un content, e devo popolarla per poterla salvare nell'istanza mongoose di un element.
 si basa sullo schema del model mongoose, e in base a quello popola solo i fields necessari
 */
-function populateContentModel(app, req, res, content, contentData, next) {
+function populateContentModel(app, req, res, content, contentData, contentFiles, next) {
 	/*
 	console.log('###### populateContentModel:');
 	console.log('content:');
@@ -223,7 +400,7 @@ function populateContentModel(app, req, res, content, contentData, next) {
 				console.log('trovato lo schema!');
 				console.log(schema);
 				*/
-				//ciclo su ogni field, e popolo solo quelli nell'content
+				//ciclo su ogni field, e popolo solo quelli nel content
 				for(var field in schema) {
 					//non devo mai popolare alcuni field interni di jslardo, perchè non vengono gestiti dal form
 					if ( field == 'author' || field == 'created' ) {
@@ -265,7 +442,7 @@ function populateContentModel(app, req, res, content, contentData, next) {
 										delete content[field]; //tanto non serve a un cazzo perchè mongodb non resetta il field
 									}
 									break;
-								default:
+								case 'Boolean':
 									//porcheria per gestire i valori boolean
 									//il form tratta tutto come string mentre lo schema mongoose è tipizzato
 									//quandi un 'false' che arriva da un form diventerebbe un true nel db in quanto stringa non vuota castata a boolean
@@ -276,6 +453,99 @@ function populateContentModel(app, req, res, content, contentData, next) {
 									} else {
 										content[field] = contentData[field];
 									}
+									break;
+								case 'Image':
+									//console.log('tinculo!');
+									/*
+									(se nessun file è stato uploadto, è tutto uguale, tranne size:0, name:'', lastModifiedDate:null )
+									contentFiles:
+									{ foto: 
+										{ 	size: 760,
+											path: 'public/uploads/b89e47bbef608847129906e6b875c7a5',
+											name: 'package.json',
+											type: 'application/octet-stream',
+											lastModifiedDate: Mon, 13 Feb 2012 02:42:55 GMT,
+											_writeStream: 
+											{ 	path: 'public/uploads/b89e47bbef608847129906e6b875c7a5',
+												fd: 14,
+												writable: false,
+												flags: 'w',
+												encoding: 'binary',
+												mode: 438,
+												busy: false,
+												_queue: [],
+												drainable: true
+											},
+											length: [Getter],
+											filename: [Getter],
+											mime: [Getter]
+										}
+									}
+									*/
+									/* invece content, secondo lo schema del datatype Image, dovrebbe essere una roba tipo
+									content:
+									{ foto:
+										[ {
+											'file_name': 	{ type: String },
+											'file_path': 	{ type: String },
+											'file_type': 	{ type: String },
+											'file_size': 	{ type: Number },
+											'file_date':{ type: Date },
+											'width': 		{ type: Number },
+											'height': 		{ type: Number }
+										} ]
+									}
+									*/
+									
+									//controllo se effettivamente è stato uploadato un file
+									if ( contentFiles[field].name != '' &&  contentFiles[field].size > 0 ) {
+										//c'è il file
+										//prima devo spostare il file nella sua posizione definitiva
+										//console.log('sposto file');
+										var from = process.cwd()+'/'+contentFiles[field].path;
+										//var to = process.cwd()+'/public/'+getContentPath(modelId,content._id)+contentFiles[field].name;
+										var to = process.cwd()+'/public/'+getContentPath(modelId,content._id);
+										var fs = require('fs');
+										//console.log(from);
+										//console.log(to);
+										var statsFrom = fs.lstatSync(from);
+										//console.log(from + ": is a file? " + statsFrom.isFile());										
+										//console.log(from + ": is a directory? " + statsFrom.isDirectory());										
+										//se la dir non esiste, la creo
+										try
+										{
+											var statsTo = fs.lstatSync(to);
+											//console.log(to + ": is a file? " + statsTo.isFile());										
+											//console.log(to + ": is a directory? " + statsTo.isDirectory());										
+											//console.log('la dir to esiste già');
+										}
+										catch (e)
+										{
+											//la dir non esiste
+											//console.log('la dir to non esiste');
+											//la creo
+											mkPath(to);
+										}
+										
+										//sposto il file
+										fs.renameSync(from, to+contentFiles[field].name);
+										
+										//poi posso popolare il content[field]
+										var contentField = {};
+										contentField.file_name = contentFiles[field].name;
+										contentField.file_path = getContentPath(modelId,content._id);
+										contentField.file_type = contentFiles[field].type;
+										contentField.file_size = contentFiles[field].size;
+										contentField.file_date = contentFiles[field].lastModifiedDate;
+										//assegno come array, perchè così vuole lo schema
+										content[field] = [ contentField ];
+									} else {
+										//nessun file uplodato
+										//il mio contentField non viene popolato
+									}
+									break;
+								default:
+									content[field] = contentData[field];
 									break;
 							}
 						}
