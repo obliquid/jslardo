@@ -1,0 +1,13 @@
+.detailRow
+	h5.detailLabel #{content.fieldNameFull}:
+		span.adminIcon.datatypeIcon.floatLeft
+			img(src='#{icon}')
+	div.size2.floatRight
+		a(href='/#{content[field][0].file_path}#{content[field][0].file_name}', target='_blank', title='zoom').floatRight
+			!= getImg(app, content[field][0].file_path, content[field][0].file_name, 320,0,'imageDetail')
+	
+	//-
+		if description
+			div.clear
+			p.floatRight #{description}
+	div.clear
