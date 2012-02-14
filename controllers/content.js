@@ -1011,6 +1011,7 @@ function renderDynView(app, req, res, type, schema, content, next) {
 			__i: app.i18n.__,
 			trunc: app.jsl.utils.trunc,
 			getImg: app.jsl.utils.getImg,
+			emailObfuscate: app.jsl.utils.emailObfuscate,
 			app: app,
 			req: req,
 			res: res

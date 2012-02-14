@@ -43,7 +43,7 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 					h5.formLabel #{__i('layout')}
 					div.jstreeColumn.floatRight
 						if session.user_id != 'superadmin'
-							h6 #{__i('add new divs to layout')}:
+							h6 #{__i('drag and drop new divs to layout')}:
 							div#elementsTree.size2.jstree.jstreeElements
 							hr
 							h6 

@@ -13,7 +13,7 @@ div.size4.floatLeft
 		br
 		h4
 			span [
-				a(href='mailto:#{element.email}', title='#{__i('mail to')}') #{element.email}
+				a(href='mailto:#{emailObfuscate(element.email)}', title='#{__i('mail to')}') #{emailObfuscate(element.email)}
 				]
 		br
 		if element.profile

@@ -242,6 +242,14 @@ function mkPath(path) {
 }
 
 /*
+camuffa un poco un'email contro gli spammer
+*/
+function emailObfuscate(email) {
+	return email.replace("@", " - at - ");
+}
+exports.emailObfuscate = emailObfuscate;
+
+/*
 è un helper da usare direttamente nei tpl jade.
 dato un url di un'immagine da visualizzare (completo di path) e una risoluzione
 crea l'immagine ridimensionata se già non esiste, e ne ritorna l'url.

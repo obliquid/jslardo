@@ -215,7 +215,8 @@ app.configure(function(){
 		uesc: function(content){ return unescape(content) },
 		trunc: app.jsl.utils.trunc,
 		drawSchema: app.jsl.jslModelController.drawSchema,
-		getImg: app.jsl.utils.getImg
+		getImg: app.jsl.utils.getImg,
+		emailObfuscate: app.jsl.utils.emailObfuscate
 	});
 	
 	//Dynamic Helpers

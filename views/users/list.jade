@@ -10,7 +10,7 @@ each element,i in elements
 			h5 #{element.name} 
 			div.innerCont
 				span.textMini email: 
-					h6 #{element.email}
+					h6 #{emailObfuscate(element.email)}
 			include ../includes/listInfoBox
 			//- non ancora implementato
 				if ( mode == 'select' )
