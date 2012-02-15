@@ -41,6 +41,7 @@ div.size4.floatLeft
 				if (i+1)%6==0
 					div.clear
 			a(href='/filterBySite/#{element._id}/#{encURI('/pages/')}', title='#{__i('all pages for this site')}').floatLeft.elementButton.buttonPages #{__i('all')} (#{total})
+			a(href='/filterBySite/#{element._id}/#{encURI('/pages/edit/new')}', title='#{__i("new page")}').adminButton.addButton
 		div.clear
 div.size2.floatLeft
 	div.mainColRight

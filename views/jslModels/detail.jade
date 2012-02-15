@@ -33,6 +33,9 @@ div.size4.floatLeft
 				if (i+1)%6==0
 					div.clear
 			a(href='/contents/#{element._id}', title='#{__i('contents for this model')}').floatLeft.elementButton.buttonElements #{__i('all')} (#{total})
+			//- questo così non funziona
+				if session.canCreate
+					a(href='/contents/#{element._id}/edit/new', title='#{__i("new content")}').adminButton.addButton
 		div.clear
 div.size2.floatLeft
 	div.mainColRight

@@ -123,7 +123,7 @@ function defineRoutes(app) {
 	});
 	
 	//GET: content form (new)
-	app.get('/contents/:modelId/edit/new/:callback?', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermCreate, function(req, res, next){
+	app.get('/contents/:modelId/edit/new/:callback?', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnJslModelId, function(req, res, next){
 		app.jsl.routes.routeInit(req);
 		//è un NEW, renderizzo il form, ma senza popolarlo
 		//(devo ovviamente popolare solo il combo con i miei models)
@@ -174,7 +174,7 @@ function defineRoutes(app) {
 	});
 	//POST: content form (new)
 	//qui ci entro quando dal form faccio un submit ma non è definito l'id, altrimenti andrei nella route POST di modify
-	app.post('/contents/:modelId/edit', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermCreate, function(req, res, next){
+	app.post('/contents/:modelId/edit', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermModifyOnJslModelId, function(req, res, next){
 		app.jsl.routes.routeInit(req);
 		//creo nuovo content
 		var my_content = new app.jsl['jslmodel_'+req.params.modelId]();

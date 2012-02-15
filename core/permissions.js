@@ -125,7 +125,6 @@ function checkElementAuthorship(element, req, res, next) {
 			//se si tratta di un content, devo prima caricare il suo model mongoose
 			if ( element == 'content' ) {
 				//console.log(req.params.modelId);
-				//l'id del model lo devo avere nelle sessions
 				req.app.jsl.jslModelController.loadMongooseModelFromId(req.app, req.params.modelId, function(){
 					go_on('jslmodel_'+req.params.modelId);
 				});
@@ -134,8 +133,17 @@ function checkElementAuthorship(element, req, res, next) {
 			}
 			function go_on(element) {
 				//poi controllo se sono author dell'elemento di cui mi stanno passando l'id
+				var conditions = { 'author': req.session.user_id };
+				//se element è un jslModel, accetto come id anche params.modelId, se params.id non è definito
+				if ( element == 'jslModel' ) {
+					if ( !req.params.id && req.params.modelId ) {
+						conditions._id = req.params.modelId;
+					}
+				} else {
+					conditions._id = req.params.id;
+				}
 				req.app.jsl[element].findOne(
-					{ '_id': req.params.id, 'author': req.session.user_id },
+					conditions,
 					function(err, result) {
 						if (!err)
 						{

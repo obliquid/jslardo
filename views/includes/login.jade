@@ -10,7 +10,7 @@ div.outerCont
 				if session.user_id == 'superadmin'
 					span #{__i('super admin mode')}!
 				else
-					a(href='/users/edit/#{session.user_id}') #{__i('your profile')}
+					a(href='/users/#{session.user_id}') #{__i('your profile')}
 			else
 				span email
 				input(name='login_email').size1
