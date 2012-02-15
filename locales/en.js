@@ -178,5 +178,13 @@
 	"new page": "new page",
 	"modify content": "modify content",
 	"successfully saved": "successfully saved",
-	"deselect": "deselect"
+	"deselect": "deselect",
+	"create new page": "create new page",
+	"modify site": "modify site",
+	"title": "title",
+	"if do not have a domain yet for your site, use a subdomain of": "if do not have a domain yet for your site, use a subdomain of",
+	"for example": "for example",
+	"yourdomain": "yourdomain",
+	"also used as metatag for this site": "also used as metatag for this site",
+	"comma separated": "comma separated"
 }

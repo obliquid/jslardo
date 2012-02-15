@@ -136,7 +136,7 @@ function defineRoutes(app) {
 					
 				});	
 			});
-		});				
+		},true); //okkio che passo il parametro onlyMines per avere nel combo solo siti miei, perchè non posso creare una pagina per un sito non mio
 	});
 	//POST: page form (new)
 	//qui ci entro quando dal form faccio un submit ma non è definito l'id, altrimenti andrei nella route POST di modify
@@ -207,7 +207,7 @@ function defineRoutes(app) {
 								combo_pages: pages
 							});	
 						});
-					});						
+					},true); //okkio che passo il parametro onlyMines per avere nel combo solo siti miei, perchè non posso creare una pagina per un sito non mio					
 				}
 				else
 				{

@@ -318,13 +318,14 @@ exports.getRecords = getRecords;
 //questo metodo ritorna una lista di tutti i siti visibili dall'utente corrente
 //in base al fatto che sia loggato o meno, e che sia superadmin o meno
 //la differenza con getRecords è che getRecords è paginata, quindi più pesante
-function getSites(req,res,closure)
+function getSites(req,res,closure,forceOnlyMines)
 {
+	if ( !forceOnlyMines ) forceOnlyMines = false;
 	//prima di tutto distinguo se sono loggato o meno
 	if ( req.session.loggedIn )
 	{
 		//poi distinguo se sto filtrando solo sui miei elementi o su tutti (quelli visibili)
-		if ( req.session.filterAllOrMine == 'mine' )
+		if ( req.session.filterAllOrMine == 'mine' || forceOnlyMines )
 		{
 			//voglio vedere solo i miei siti (questa condizione non può avvenire se sono superadmin, quindi non sono sicuramente superadmin)
 			//e sono loggato, quindi vedrò solo i miei
