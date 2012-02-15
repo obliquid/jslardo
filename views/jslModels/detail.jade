@@ -6,7 +6,34 @@ hr
 div.size4.floatLeft
 	div.mainColLeft
 		h1 #{element.name}
-		!= drawSchema(element.jslSchema, app)
+		div.size1AndHalf.floatLeft.rightBorder
+			h4 #{__i('schema')}:
+			!= drawSchema(element.jslSchema, app)
+		div.floatLeft.size2
+			h4 #{__i('latest contents')}:
+			each content,i in contents
+				div.floatLeft.size2
+					//-
+						if callback
+							- var href = '';
+							- var onclick = callback+'("'+content._id+'")';
+						else
+							- var href = '/'+contentName+'s/'+req.params.modelId+'/'+content._id;
+							- var onclick = '';
+						a(onclick='window.parent.#{onclick};window.parent.$.modal.close();', href='#{href}').elemGrid.outerCont
+					a(href='/contents/#{element._id}/#{content._id}').elemGrid.outerCont
+						h5 #{content.jslModel.name}
+						div.innerCont
+							.dynView
+								if content.dynView
+									!= content.dynView			
+						//- sovrascrivo element.status per l'infoBox
+						- element.elementStatus = content.status
+						include ../includes/listInfoBox
+				if (i+1)%6==0
+					div.clear
+			a(href='/contents/#{element._id}', title='#{__i('contents for this model')}').floatLeft.elementButton.buttonElements #{__i('all')} (#{total})
+		div.clear
 div.size2.floatLeft
 	div.mainColRight
 		include ../includes/detailCommon

@@ -44,73 +44,20 @@ function defineRoutes(app) {
 		app.jsl.routes.routeInit(req);
 		if ( req.params.page == undefined || !isNaN(req.params.page) )
 		{
-			//leggo le page dal db, e assegno il result al tpl
-			//se sono superadmin vedo anche i non share
-			if ( req.session.filterAllOrMine == 'mine' )
-			{
-				//il superuser e gli utenti non loggati non possono filtrare per 'mine' o 'all', quindi se sto filtrando so che non sono superuser e so che sono loggato
-				var conditions = {'author': req.session.user_id };
-			}
-			else
-			{
-				var conditions = ( req.session.user_id == 'superadmin' ) 
-				? 
-				{} 
-				: 
-				{ $or: [
-						{ 'status': 'share' }, 
-						{'author': req.session.user_id }
-				]};
-			}
-			//alle conditions devo appendere anche la condizione sul filtraggio per sito, se definita
-			if ( req.session.filterBySite )
-			{
-				//console.log('dovrei filtrare per sito: '+req.session.filterBySite+' con queste conditions:');
-				conditions.site = req.session.filterBySite;
-				//console.log(conditions);
-			}
-			
-			
-			//per via della paginazione, ogni query di list va preceduta da una query di count
-			app.jsl.page.count(
-				conditions,
-				function(err, total) {
-					if ( !err )
-					{
-						//procedo col find paginato
-						app.jsl.page
-							.find(
-								conditions,
-								[], 
-								{ 
-									sort: ['route', 'ascending'],
-									skip: req.session.skip, 
-									limit: req.session.limit 
-								}
-							)
-							.populate('site')
-							.run(function(err, pages) {
-								//ho trovato le mie pagine
-								console.log(pages);
-								//devo popolare anche il combo con i siti
-								app.jsl.siteController.getSites(req,res,function(sites) {
-									//ho trovato anche i sites per popolare il combo
-									//posso finalmente procedere a visualizzare la lista delle pagine
-									res.render('pages/list', { 
-										elementName: 'page',
-										elements: pages,
-										pagination: app.jsl.pag.paginationDo(req, total, '/pages/'),
-										combo_sites: sites
-									});	
-								});								
-							});	
-					}
-					else
-					{
-						app.jsl.utils.errorPage(res, err, "GET: page list: failed query on db");
-					}	
-				}
-			);
+			getRecords(app,req,res,{},function(pages,total){
+				//devo popolare anche il combo con i siti
+				app.jsl.siteController.getSites(req,res,function(sites) {
+					//ho trovato anche i sites per popolare il combo
+					//posso finalmente procedere a visualizzare la lista delle pagine
+					res.render('pages/list', { 
+						elementName: 'page',
+						elements: pages,
+						pagination: app.jsl.pag.paginationDo(req, total, '/pages/'),
+						combo_sites: sites
+					});	
+				});
+				
+			});
 		}
 		else
 		{
@@ -352,6 +299,79 @@ function defineRoutes(app) {
 	
 }
 exports.defineRoutes = defineRoutes; 
+
+
+
+
+
+/* query di fetch dei dati usate dalle routes */
+
+/* list */
+function getRecords(app,req,res,customConditions,next) {
+	//leggo le page dal db, e assegno il result al tpl
+	//se sono superadmin vedo anche i non share
+	if ( req.session.filterAllOrMine == 'mine' )
+	{
+		//il superuser e gli utenti non loggati non possono filtrare per 'mine' o 'all', quindi se sto filtrando so che non sono superuser e so che sono loggato
+		var conditions = {'author': req.session.user_id };
+	}
+	else
+	{
+		var conditions = ( req.session.user_id == 'superadmin' ) 
+		? 
+		{} 
+		: 
+		{ $or: [
+				{ 'status': 'share' }, 
+				{'author': req.session.user_id }
+		]};
+	}
+	//alle conditions devo appendere anche la condizione sul filtraggio per sito, se definita
+	if ( req.session.filterBySite )
+	{
+		//console.log('dovrei filtrare per sito: '+req.session.filterBySite+' con queste conditions:');
+		conditions.site = req.session.filterBySite;
+		//console.log(conditions);
+	}
+	//applico eventuali customConditions
+	for (var field in customConditions) {
+		conditions[field] = customConditions[field];
+	}	
+	//per via della paginazione, ogni query di list va preceduta da una query di count
+	app.jsl.page.count(
+		conditions,
+		function(err, total) {
+			if ( !err )
+			{
+				//procedo col find paginato
+				app.jsl.page
+					.find(
+						conditions,
+						[], 
+						{ 
+							sort: ['route', 'ascending'],
+							skip: req.session.skip, 
+							limit: req.session.limit 
+						}
+					)
+					.populate('site')
+					.run(function(err, pages) {
+						//ho trovato le mie pagine
+						next(pages,total);
+					});	
+			}
+			else
+			{
+				app.jsl.utils.errorPage(res, err, "GET: page list: failed query on db");
+			}	
+		}
+	);
+}
+exports.getRecords = getRecords;
+
+
+
+
 
 //questo metodo ritorna una lista di tutte le pagina visibili dall'utente corrente
 //in base al fatto che sia loggato o meno, e che sia superadmin o meno

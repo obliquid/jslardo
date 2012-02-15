@@ -339,7 +339,8 @@ input.disabled:hover {
 
 /* light grey for backgrounds */
 .paginationButton,
-.elementButton
+.elementButton,
+.lightGreyBg
 {
 	background-color: #9C9C9C;
 }
@@ -478,6 +479,7 @@ form
 }
 
 /* rounded corners */
+.rounded,
 a,
 input, select,
 textarea,

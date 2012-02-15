@@ -44,56 +44,13 @@ function defineRoutes(app) {
 		app.jsl.routes.routeInit(req);
 		if ( req.params.page == undefined || !isNaN(req.params.page) )
 		{
-			//leggo gli jslModel dal db, e assegno il result al tpl
-			//se sono superadmin vedo anche i non share
-			if ( req.session.filterAllOrMine == 'mine' )
-			{
-				//il superuser e gli utenti non loggati non possono filtrare per 'mine' o 'all', quindi se sto filtrando so che non sono superuser e so che sono loggato
-				var conditions = {'author': req.session.user_id };
-			}
-			else
-			{
-				var conditions = ( req.session.user_id == 'superadmin' ) 
-				? 
-				{} 
-				: 
-				{ $or: [
-						{ 'status': 'share' }, 
-						{'author': req.session.user_id }
-				]};
-			}
-			
-			
-			//per via della paginazione, ogni query di list va preceduta da una query di count
-			app.jsl.jslModel.count(
-				conditions,
-				function(err, total) {
-					if ( !err )
-					{
-						//procedo col find paginato
-						app.jsl.jslModel.find(
-							conditions,
-							[], 
-							{ 
-								sort: ['name', 'ascending'],
-								skip: req.session.skip, 
-								limit: req.session.limit 
-							},
-							function(err, jslModels) {
-								res.render('jslModels/list', { 
-									elementName: 'jslModel',
-									elements: jslModels,
-									pagination: app.jsl.pag.paginationDo(req, total, '/jslModels/')
-								});	
-							}
-						);	
-					}
-					else
-					{
-						app.jsl.utils.errorPage(res, err, "GET: jslModel list: failed query on db");
-					}	
-				}
-			);
+			getRecords(app,req,res,{},function(jslModels,total){
+				res.render('jslModels/list', { 
+					elementName: 'jslModel',
+					elements: jslModels,
+					pagination: app.jsl.pag.paginationDo(req, total, '/jslModels/')
+				});	
+			});
 		}
 		else
 		{
@@ -122,13 +79,24 @@ function defineRoutes(app) {
 				if ( !err )
 				{
 					//la query può andare a buon fine anche se non esiste un jslModel col mio id e status: share,
-					//in questo caso ritorna uno jslModel null, quindi devo controllare se esiste lo jslModel, altrimenti rimando in home
+					//in questo caso ritorna un jslModel null, quindi devo controllare se esiste il jslModel, altrimenti rimando in home
 					if ( jslModel )
 					{
-						res.render('jslModels/detail', { 
-							elementName: 'jslModel',
-							element: jslModel
-						});	
+						//trovo anche gli ultimi contents per il mio model
+						//prima di chiamare il getRecords, devo aggiungere dei parametri che si aspetta
+						req.params.modelId = jslModel._id;
+						req.session.skip = 0;
+						req.session.limit = 10;
+						//console.log('jepasso: '+req.params.modelId);
+						app.jsl.contentController.getRecords(app,req,res,function(contents,total){
+							//finally, renderizzo sto detail
+							res.render('jslModels/detail', { 
+								elementName: 'jslModel',
+								element: jslModel,
+								'contents': contents,
+								total: total
+							});	
+						});
 					}
 					else
 					{
@@ -408,8 +376,69 @@ function defineRoutes(app) {
 }
 exports.defineRoutes = defineRoutes;
 
+
+
+/* query di fetch dei dati usate dalle routes */
+
+/* list */
+function getRecords(app,req,res,customConditions,next) {
+	//leggo gli jslModel dal db, e assegno il result al tpl
+	//se sono superadmin vedo anche i non share
+	if ( req.session.filterAllOrMine == 'mine' )
+	{
+		//il superuser e gli utenti non loggati non possono filtrare per 'mine' o 'all', quindi se sto filtrando so che non sono superuser e so che sono loggato
+		var conditions = {'author': req.session.user_id };
+	}
+	else
+	{
+		var conditions = ( req.session.user_id == 'superadmin' ) 
+		? 
+		{} 
+		: 
+		{ $or: [
+				{ 'status': 'share' }, 
+				{'author': req.session.user_id }
+		]};
+	}
+	//applico eventuali customConditions
+	for (var field in customConditions) {
+		conditions[field] = customConditions[field];
+	}	
+	//per via della paginazione, ogni query di list va preceduta da una query di count
+	app.jsl.jslModel.count(
+		conditions,
+		function(err, total) {
+			if ( !err )
+			{
+				//procedo col find paginato
+				app.jsl.jslModel.find(
+					conditions,
+					[], 
+					{ 
+						sort: ['name', 'ascending'],
+						skip: req.session.skip, 
+						limit: req.session.limit 
+					},
+					function(err, jslModels) {
+						next(jslModels,total);
+					}
+				);	
+			}
+			else
+			{
+				app.jsl.utils.errorPage(res, err, "GET: jslModel list: failed query on db");
+			}	
+		}
+	);
+	
+}
+exports.getRecords = getRecords;
+
+
+
 //questo metodo ritorna una lista di tutti i models visibili dall'utente corrente
 //in base al fatto che sia loggato o meno, e che sia superadmin o meno
+//la differenza con getRecords è che getRecords è paginata, quindi più pesante
 function getJslModels(req,res,closure)
 {
 	//prima di tutto distinguo se sono loggato o meno
@@ -1019,7 +1048,7 @@ function drawSchema(schema, app) {
 					} else {
 						var fieldObj = jsonChunk[field];
 					}
-					output += '<tr><td valign="top" align="right"><h5>'+fieldObj.name_full+'</h5></td><td>';
+					output += '<tr><td valign="top" align="right"><h6 class="textMini">'+fieldObj.name_full+'</h6></td><td>';
 					recurse(fieldObj);
 					output += '</td></tr>';
 				} else {
@@ -1032,17 +1061,18 @@ function drawSchema(schema, app) {
 							//if ( jsonChunk[field] == 'ObjectId' ) jsonChunk[field] = 'Model';
 							var datatype = app.jsl.datatypeByName(jsonChunk[field]);
 							//output
-							output += '<td colspan="2"><div class="innerCont"><img class="floatLeft" src="/images/pov/'+datatype.icon+'_40x30.png"/>&nbsp;<span>'+jsonChunk[field]+'</span></div></td>';
+							//output += '<td colspan="2"><div class=""><img class="floatLeft" src="/images/pov/'+datatype.icon+'_40x30.png"/>&nbsp;<span>'+jsonChunk[field]+'</span></div></td>';
+							output += '<td colspan="2"><div class=""><img class="floatLeft rounded lightGreyBg minimum_padding" src="/images/pov/'+datatype.icon+'_20x15.png"/>&nbsp;</div></td>';
 							break;
 						case 'required':
 							//output
 							if (app.jsl.utils.bool_parse(jsonChunk[field]))
-								output += '<td colspan="2"><h6>required</h6></td>';
+								output += '<td colspan="2"><h6>*<span class="textMini">required</span></h6></td>';
 							break;
 						case 'description':
 							//output
 							if (jsonChunk[field])
-								output += '<td colspan="2"><p>'+jsonChunk[field]+'</p></td>';
+								output += '<td colspan="2"><hr><p class="textMini">'+jsonChunk[field]+'</p></td>';
 							break;
 						default:
 							//output

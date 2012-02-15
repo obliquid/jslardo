@@ -44,89 +44,24 @@ function defineRoutes(app) {
 		app.jsl.routes.routeInit(req);
 		if ( req.params.page == undefined || !isNaN(req.params.page) )
 		{
-			//leggo gli content dal db, e assegno il result al tpl
-			//se sono superadmin vedo anche i non share
-			if ( req.session.filterAllOrMine == 'mine' )
-			{
-				//il superuser e gli utenti non loggati non possono filtrare per 'mine' o 'all', quindi se sto filtrando so che non sono superuser e so che sono loggato
-				var conditions = {'author': req.session.user_id };
-			}
-			else
-			{
-				var conditions = ( req.session.user_id == 'superadmin' ) 
-				? 
-				{} 
-				: 
-				{ $or: [
-						{ 'status': 'share' }, 
-						{'author': req.session.user_id }
-				]};
-			}
-			
-			//carico i mongoose models richiesti alla query
-			//console.log('/contents/:modelId/:page?/:callback? -> chiamo loadMongooseModelFromId con modelId = '+req.params.modelId);
-			app.jsl.jslModelController.loadMongooseModelFromId(app, req.params.modelId, function( modelName, fieldsToBePopulated ){
-				//console.log('/contents/:modelId/:page?/:callback? -> finito di chiamare loadMongooseModelFromId con modelId = '+req.params.modelId);
-				//console.log('fieldsToBePopulated:');
-				//console.log(fieldsToBePopulated);
-				//console.log('dove la metto qui dentro?');
-				//console.log(app.mongoose.Query);
-				//per via della paginazione, ogni query di list va preceduta da una query di count
-				app.jsl['jslmodel_'+req.params.modelId].count(
-					conditions,
-					function(err, total) {
-						if ( !err )
-						{
-							//console.log('count succeded');
-							fieldsToBePopulated.push('jslModel');
-							//procedo col find paginato
-							app.jsl['jslmodel_'+req.params.modelId].find(
-								conditions,
-								[], { 
-									skip: req.session.skip, 
-									limit: req.session.limit 
-								})
-							//.populate('jslModel')
-							.populateMulti(fieldsToBePopulated)
-							//non va?? .sort('jslModel.name', -1)
-							.sort('_id', -1)
-							.run( function(err, contents) {
-								if (!err) {
-									//console.log('find succeded:');
-									//console.log(contents);
-									//per tutti i content renderizzo il tpl e glielo appendo. sarà poi il tpl list principale,
-									//in un ciclo, a visualizzare i singoli tpl generati dinamicamente
-									renderDynViewList(app, req, res, contents, function(){
-										//adesso dentro ad contents, per ciascun content c'è anche una property 'dynView' con il pezzo di tpl popolato con i propri content
-										//procedo con il rendering della lista
-										if ( req.params.callback ) {
-											var layout = 'layoutPopup';
-											var callback = req.params.callback;
-										} else {
-											var layout = true;
-											var callback = '';
-										}
-										res.render('contents/list', {
-											layout: layout,
-											elementName: 'content',
-											elements: contents,
-											pagination: app.jsl.pag.paginationDo(req, total, '/contents/'+req.params.modelId+'/'),
-											//////combo_jslModels: jslModels,
-											callback: callback
-										});	
-									});
-								} else {
-									app.jsl.utils.errorPage(res, err, "GET: content list: failed query find on db: "+err);
-								}
-							});
-						}
-						else
-						{
-							app.jsl.utils.errorPage(res, err, "GET: content list: failed query count on db");
-						}	
-					}
-				);
-			}, false, true); //il 'true' significa che voglio caricare anche i models relazionati
+			getRecords(app,req,res,function(contents,total){
+				//procedo con il rendering della lista
+				if ( req.params.callback ) {
+					var layout = 'layoutPopup';
+					var callback = req.params.callback;
+				} else {
+					var layout = true;
+					var callback = '';
+				}
+				res.render('contents/list', {
+					layout: layout,
+					elementName: 'content',
+					elements: contents,
+					pagination: app.jsl.pag.paginationDo(req, total, '/contents/'+req.params.modelId+'/'),
+					//////combo_jslModels: jslModels,
+					callback: callback
+				});
+			});
 		}
 		else
 		{
@@ -598,12 +533,90 @@ function defineRoutes(app) {
 		}
 	});	
 	
-
-
-		
-	
 }
 exports.defineRoutes = defineRoutes;
+
+/* query di fetch dei dati usate dalle routes */
+
+/* list */
+function getRecords(app,req,res,next) {
+	//leggo i content dal db, e assegno il result al tpl
+	//se sono superadmin vedo anche i non share
+	if ( req.session.filterAllOrMine == 'mine' )
+	{
+		//il superuser e gli utenti non loggati non possono filtrare per 'mine' o 'all', quindi se sto filtrando so che non sono superuser e so che sono loggato
+		var conditions = {'author': req.session.user_id };
+	}
+	else
+	{
+		var conditions = ( req.session.user_id == 'superadmin' ) 
+		? 
+		{} 
+		: 
+		{ $or: [
+				{ 'status': 'share' }, 
+				{'author': req.session.user_id }
+		]};
+	}
+	//console.log('conditions:');
+	//console.log(conditions);
+	//carico i mongoose models richiesti alla query
+	//console.log('/contents/:modelId/:page?/:callback? -> chiamo loadMongooseModelFromId con modelId = '+req.params.modelId);
+	app.jsl.jslModelController.loadMongooseModelFromId(app, req.params.modelId, function( modelName, fieldsToBePopulated ){
+		//console.log('/contents/:modelId/:page?/:callback? -> finito di chiamare loadMongooseModelFromId con modelId = '+req.params.modelId);
+		//console.log('fieldsToBePopulated:');
+		//console.log(fieldsToBePopulated);
+		//console.log('dove la metto qui dentro?');
+		//console.log(app.mongoose.Query);
+		//per via della paginazione, ogni query di list va preceduta da una query di count
+		app.jsl['jslmodel_'+req.params.modelId].count(
+			conditions,
+			function(err, total) {
+				if ( !err )
+				{
+					//console.log('count succeded');
+					fieldsToBePopulated.push('jslModel');
+					//procedo col find paginato
+					app.jsl['jslmodel_'+req.params.modelId].find(
+						conditions,
+						[], { 
+							skip: req.session.skip, 
+							limit: req.session.limit 
+						})
+					//.populate('jslModel')
+					.populateMulti(fieldsToBePopulated)
+					//non va?? .sort('jslModel.name', -1)
+					.sort('_id', -1)
+					.run( function(err, contents) {
+						if (!err) {
+							//console.log('find succeded:');
+							//console.log(contents);
+							//per tutti i content renderizzo il tpl e glielo appendo. sarà poi il tpl list principale,
+							//in un ciclo, a visualizzare i singoli tpl generati dinamicamente
+							renderDynViewList(app, req, res, contents, function(){
+								//adesso dentro a contents, per ciascun content c'è anche una property 'dynView' con il pezzo di tpl popolato con i propri content
+								next(contents,total);
+							});
+						} else {
+							app.jsl.utils.errorPage(res, err, "GET: content list: failed query find on db: "+err);
+						}
+					});
+				}
+				else
+				{
+					app.jsl.utils.errorPage(res, err, "GET: content list: failed query count on db");
+				}	
+			}
+		);
+	}, false, true); //il 'true' significa che voglio caricare anche i models relazionati
+}
+exports.getRecords = getRecords;
+
+
+
+
+
+
 
 /* non più usate
 //ritorna un'istanza nuova (quindi non popolata) di un model di mongoose creato dinamicamente

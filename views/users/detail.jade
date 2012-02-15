@@ -10,16 +10,43 @@ hr
 div.size4.floatLeft
 	div.mainColLeft
 		h1 #{element.name}
+		if element.profile
+			p #{element.profile}
 		br
 		h4
 			span [
 				a(href='mailto:#{emailObfuscate(element.email)}', title='#{__i('mail to')}') #{emailObfuscate(element.email)}
 				]
-		br
-		if element.profile
-			p #{element.profile}
-			br
+		hr
+		div.size1AndHalf.floatLeft.rightBorder
+			h4 #{__i('latest models')}:
+			each jslModel,i in jslModels
+				div.floatLeft.size1
+					//- ok ma va ai relativi contents di ogni model: a(href='/contents/#{jslModel._id}', title='#{__i('contents for this model')}').elemGrid.outerCont
+					a(href='/jslModels/#{jslModel._id}').elemGrid.outerCont
+						h5 #{jslModel.name}
+						//- sovrascrivo element.status per l'infoBox
+						- element.elementStatus = jslModel.status
+						include ../includes/listInfoBox
+				if (i+1)%6==0
+					div.clear
 
+		div.floatLeft.size2
+			h4 #{__i('latest sites')}:
+			each site,i in sites
+				div.floatLeft.size2
+					//ok ma linka alle pagine invece che al dettaglio: a(href='/filterBySite/#{site._id}/#{encURI('/pages/')}', title='#{__i('all pages for this site')}').elemGrid.outerCont
+					a(href='/sites/#{site._id}').elemGrid.outerCont
+						h5 #{site.title} 
+						div.innerCont
+							span.textMini #{__i('domain')}: 
+								h6 #{site.domain}
+						//- sovrascrivo element.status per l'infoBox
+						- element.elementStatus = site.status
+						include ../includes/listInfoBox
+				if (i+1)%6==0
+					div.clear
+		div.clear
 div.size2.floatLeft
 	div.mainColRight
 		include ../includes/detailCommon

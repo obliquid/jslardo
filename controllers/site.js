@@ -44,56 +44,13 @@ function defineRoutes(app) {
 		app.jsl.routes.routeInit(req);
 		if ( req.params.page == undefined || !isNaN(req.params.page) )
 		{
-			//leggo gli site dal db, e assegno il result al tpl
-			//se sono superadmin vedo anche i non share
-			if ( req.session.filterAllOrMine == 'mine' )
-			{
-				//il superuser e gli utenti non loggati non possono filtrare per 'mine' o 'all', quindi se sto filtrando so che non sono superuser e so che sono loggato
-				var conditions = {'author': req.session.user_id };
-			}
-			else
-			{
-				var conditions = ( req.session.user_id == 'superadmin' ) 
-				? 
-				{} 
-				: 
-				{ $or: [
-						{ 'status': 'share' }, 
-						{'author': req.session.user_id }
-				]};
-			}
-			
-			
-			//per via della paginazione, ogni query di list va preceduta da una query di count
-			app.jsl.site.count(
-				conditions,
-				function(err, total) {
-					if ( !err )
-					{
-						//procedo col find paginato
-						app.jsl.site.find(
-							conditions,
-							[], 
-							{ 
-								sort: ['title', 'ascending'],
-								skip: req.session.skip, 
-								limit: req.session.limit 
-							},
-							function(err, sites) {
-								res.render('sites/list', { 
-									elementName: 'site',
-									elements: sites,
-									pagination: app.jsl.pag.paginationDo(req, total, '/sites/')
-								});	
-							}
-						);	
-					}
-					else
-					{
-						app.jsl.utils.errorPage(res, err, "GET: site list: failed query on db");
-					}	
-				}
-			);
+			getRecords(app,req,res,{},function(sites,total){
+				res.render('sites/list', { 
+					elementName: 'site',
+					elements: sites,
+					pagination: app.jsl.pag.paginationDo(req, total, '/sites/')
+				});	
+			});
 		}
 		else
 		{
@@ -125,10 +82,28 @@ function defineRoutes(app) {
 					//in questo caso ritorna uno site null, quindi devo controllare se esiste lo site, altrimenti rimando in home
 					if ( site )
 					{
-						res.render('sites/detail', { 
-							elementName: 'site',
-							element: site
-						});	
+						//trovo anche le ultime pages per il mio site
+						//prima di chiamare il getRecords, devo aggiungere dei parametri che si aspetta
+						//req.params.modelId = jslModel._id;
+						//req.session.filterBySite = site._id;
+						req.session.skip = 0;
+						req.session.limit = 10;
+						//console.log('jepasso: '+req.params.modelId);
+						app.jsl.pageController.getRecords(app,req,res,{site: site._id},function(pages,total){
+							
+						
+							//alla fine renderizzo sto detail
+							res.render('sites/detail', { 
+								elementName: 'site',
+								element: site,
+								pages: pages,
+								total: total
+							});	
+						});
+						
+						
+						
+						
 					}
 					else
 					{
@@ -280,8 +255,69 @@ function defineRoutes(app) {
 }
 exports.defineRoutes = defineRoutes;
 
+
+
+/* query di fetch dei dati usate dalle routes */
+
+/* list */
+function getRecords(app,req,res,customConditions,next) {
+	//leggo gli site dal db, e assegno il result al tpl
+	//se sono superadmin vedo anche i non share
+	if ( req.session.filterAllOrMine == 'mine' )
+	{
+		//il superuser e gli utenti non loggati non possono filtrare per 'mine' o 'all', quindi se sto filtrando so che non sono superuser e so che sono loggato
+		var conditions = {'author': req.session.user_id };
+	}
+	else
+	{
+		var conditions = ( req.session.user_id == 'superadmin' ) 
+		? 
+		{} 
+		: 
+		{ $or: [
+				{ 'status': 'share' }, 
+				{'author': req.session.user_id }
+		]};
+	}
+	//applico eventuali customConditions
+	for (var field in customConditions) {
+		conditions[field] = customConditions[field];
+	}	
+	//per via della paginazione, ogni query di list va preceduta da una query di count
+	app.jsl.site.count(
+		conditions,
+		function(err, total) {
+			if ( !err )
+			{
+				//procedo col find paginato
+				app.jsl.site.find(
+					conditions,
+					[], 
+					{ 
+						sort: ['title', 'ascending'],
+						skip: req.session.skip, 
+						limit: req.session.limit 
+					},
+					function(err, sites) {
+						next(sites,total);
+					}
+				);	
+			}
+			else
+			{
+				app.jsl.utils.errorPage(res, err, "GET: site list: failed query on db");
+			}	
+		}
+	);
+	
+}
+exports.getRecords = getRecords;
+
+
+
 //questo metodo ritorna una lista di tutti i siti visibili dall'utente corrente
 //in base al fatto che sia loggato o meno, e che sia superadmin o meno
+//la differenza con getRecords è che getRecords è paginata, quindi più pesante
 function getSites(req,res,closure)
 {
 	//prima di tutto distinguo se sono loggato o meno

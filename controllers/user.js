@@ -116,11 +116,32 @@ function defineRoutes(app) {
 					//in questo caso ritorna uno user null, quindi devo controllare se esiste lo user, altrimenti rimando in home
 					if ( user )
 					{
-						res.render('users/detail', { 
-							elementName: 'user',
-							element: user
-							
-						});	
+						//trovo anche gli ultimi models per il mio user
+						//prima di chiamare il getRecords, devo aggiungere dei parametri che si aspetta
+						//req.params.modelId = jslModel._id;
+						req.session.skip = 0;
+						req.session.limit = 1000; //in pratica per ora non pongo limite
+						//console.log('jepasso: '+req.params.modelId);
+						app.jsl.jslModelController.getRecords(app,req,res,{author: user._id},function(jslModels,totalModels){
+							//trovo anche gli ultimi sites per il mio user
+							//prima di chiamare il getRecords, devo aggiungere dei parametri che si aspetta
+							//req.params.modelId = jslModel._id;
+							req.session.skip = 0;
+							req.session.limit = 1000; //in pratica per ora non pongo limite
+							//console.log('jepasso: '+req.params.modelId);
+							app.jsl.siteController.getRecords(app,req,res,{author: user._id},function(sites,totalSites){
+								//finally, renderizzo sto detail
+								res.render('users/detail', { 
+									elementName: 'user',
+									element: user,
+									jslModels: jslModels,
+									totalModels: totalModels,
+									sites: sites,
+									totalSites: totalSites
+									
+								});
+							});
+						});
 					}
 					else
 					{

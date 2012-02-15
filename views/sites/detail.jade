@@ -9,18 +9,39 @@ div.size4.floatLeft
 		h4
 			span http://
 				a(href='http://#{element.domain}', target='_blank', title='#{__i('open')}') #{element.domain}
-		table.outerContMinimal
-			tr
-				td
-					h6 #{__i('description')}:
-				td 
-					span #{element.description}
-			tr
-				td 
-					h6 #{__i('keywords')}:
-				td 
-					span #{element.keywords}
-
+		hr
+		div.size1AndHalf.floatLeft.rightBorder
+			h4 #{__i('headers')}:
+			table.outerContMinimal
+				tr
+					td
+						h6 #{__i('description')}:
+					td 
+						span #{element.description}
+				tr
+					td 
+						h6 #{__i('keywords')}:
+					td 
+						span #{element.keywords}
+		div.floatLeft.size2
+			h4 #{__i('pages')}:
+			each page,i in pages
+				div.floatLeft.size2
+					a(href='/pages/#{page._id}').elemGrid.outerCont
+						if page.route != ''
+							h5 #{page.route}
+						else
+							h5 [root]
+						div.innerCont
+							span.textMini #{__i('site')}: 
+								h6 #{page.site.title}
+						//- sovrascrivo element.status per l'infoBox
+						- element.elementStatus = page.status
+						include ../includes/listInfoBox
+				if (i+1)%6==0
+					div.clear
+			a(href='/filterBySite/#{element._id}/#{encURI('/pages/')}', title='#{__i('all pages for this site')}').floatLeft.elementButton.buttonPages #{__i('all')} (#{total})
+		div.clear
 div.size2.floatLeft
 	div.mainColRight
 		include ../includes/detailCommon
