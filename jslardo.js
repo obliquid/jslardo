@@ -268,11 +268,9 @@ app.jsl.models.defineModels(app.mongoose, app, function() {
 	app.jsl.user = app.mongoose.model('user');
 	app.jsl.role = app.mongoose.model('role');
 	app.jsl.site = app.mongoose.model('site');
-	//app.jsl.element = app.mongoose.model('element');
 	app.jsl.page = app.mongoose.model('page');
 	app.jsl.div = app.mongoose.model('div');
 	app.jsl.jslModel = app.mongoose.model('jslModel');
-	app.jsl.module = app.mongoose.model('module');
 	app.jsl.debuggin = app.mongoose.model('debuggin');
 	//console.log("finito coi modelli!");
 })

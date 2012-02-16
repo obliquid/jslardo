@@ -141,6 +141,19 @@ function centerModal(f, originalYScroll) {
 })(jQuery);
 
 
+//select a tab, displaying its content
+function selectTab(tab,content) {
+	//deseleziono tutti i tab
+	$('#'+tab).parent().children().removeClass('tabButtonSelected');
+	//seleziono il tab cliccato
+	$('#'+tab).addClass('tabButtonSelected');
+	//nascondo tutti i content
+	$('#'+content).parent().children().fadeOut('fast');
+	//seleziono il tab cliccato
+	$('#'+content).delay(200).fadeIn('fast');
+}
+
+
 /* other functions */
 
 

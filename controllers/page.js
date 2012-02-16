@@ -539,9 +539,10 @@ function unlinkDiv(req, page_id, div, next) {
 exports.unlinkDiv = unlinkDiv; 
 
 
-function render(req, res, page) {
-	//algoritmo ricorsivo che fa 2 cose:
-	//prima la query ricorsiva che mette in un array tutti i partial (blocchi di codice jade, con all'interno variabili) con relativi dati da renderizzare
+function render(app, req, res, page) {
+	console.log('###### page.render()');
+	var pageOutput = '';
+	var divsStructure = [];
 	var divs = [
 		{
 			'partial' : 'h1  #{data.myVar},  #{data.myVar2}', //inteso come codice jade; sarà: '/page/json/render/:moduleDiv'
@@ -558,45 +559,347 @@ function render(req, res, page) {
 			}
 		}
 	];
+	//console.log('page.divs PRIMA DI SORT');
+	//console.log(page.divs);
+	//ordino i div della mia pagina in base al loro order
+	page.divs.sort(function (a, b){
+		//Compare "a" and "b" in some fashion, and return -1, 0, or 1
+		return (a.order - b.order);
+	});
+	//console.log('page.divs DOPO SORT');
+	//console.log(page.divs);
 	
-
-	//poi ciclo su ogni div, e renderizzo il partial jade in una relativa stringa html, con anche le variabili compilate col proprio valore
-	//in pratica uso il compilatore di jade direttamente, e non attraverso il solito res.render()
-	var jade = require('jade');
-	for (var i=0; i<divs.length; i++) {
-		var jadechunk = divs[i].partial;
-		var jadetemplate = jade.compile(jadechunk.toString('utf8'));
-		divs[i].content = jadetemplate({
-			data: divs[i].data
-		});
-		
+	//ciclo sui div della mia pagina, e creo un array con gli id che mi serve nel ciclo ricorsivo asincrono
+	var pageDivs = [];
+	for ( var i=0; i<page.divs.length; i++) {
+		pageDivs.push(page.divs[i].div);
 	}
-
-
-	/*
-	//usare jade dinamicamente
-	var jade = require('jade');
-	var jadechunk = "h1 #{myVar}!";
-	var jadetemplate = jade.compile(jadechunk.toString('utf8'));
-	var jadeoutput = jadetemplate({
-		myVar: 'myValue'
-	});
-	*/
-
-
-
-
-
+	console.log('pageDivs');
+	console.log(pageDivs);
+	
+	//prima devo fare un ciclo async per popolare tutta la struttura dati
+	//cioè ricorsivamente popolo di figli di ogni divs
 	
 	
 	
-	//poi l'array derivante dalla query viene dato ad un res.render sul layout che renderizza i partials
-	res.render('pageRender', {
-		'layout': 'layoutRender', 
-		'page': page,
-		'divs': divs,
-		'debug': 'will render the page - '+page.route+" - from the site - "+page.site.domain+" - "
-	});
+	
+	loopOnPageDivs();
+	function loopOnPageDivs() {
+		if ( pageDivs.length > 0 ) {
+			var divId = pageDivs.pop();
+			recurse(divId,divsStructure,loopOnPageDivs);
+			function recurse(divId,parent,next) {
+				//leggo il mio div dal db
+				//se sono superadmin vedo anche i non share
+				var conditions = ( req.session.user_id == 'superadmin' ) 
+				? 
+				{ '_id': divId } 
+				: 
+				{ $or: [
+					{ '_id': divId,  'status': 'share' },
+					{ '_id': divId,  'author': req.session.user_id }
+				]};
+				app.jsl.div
+				.findOne( conditions )
+				//ora no: .populate('author')
+				//ora no: .populate('children.div')
+				.run(function(err, div) {
+					//console.log(div);
+					if ( !err )
+					{
+						//la query può andare a buon fine anche se non esiste un div col mio id e status: share,
+						//in questo caso ritorna uno div null, quindi devo controllare se esiste lo div, altrimenti rimando in home
+						if ( div )
+						{
+							console.log('!!!trovato div:');
+							console.log(div);
+							//creo un div clonato, che poi popolerò ricorsivamente con i figli del mio div
+							var divPopulated = {
+								'type': div.type,
+								'class': div.class,
+								'dom_id': div.dom_id,
+								'inline_style': div.inline_style,
+								'is_table': div.is_table,
+								'children': [],
+								'view': div.view
+							};
+							
+							//clono l'array dei figli del mio div
+							var divChildren = [];
+							for ( var j=0; j<div.children.length; j++) {
+								divChildren.push(div.children[j].div);
+							}
+							//loop async su tutti i figli
+							recurseOnChildren();
+							function recurseOnChildren() {
+								if (divChildren.length>0) {
+									var divChild = divChildren.pop();
+									console.log("### ricorro su mio figlio: "+divChild);
+									recurse(divChild,divPopulated.children,recurseOnChildren);
+								} else {
+									//finito di ricorrere sui miei elementi
+									//aggiungo il div popolato all'array mio parent
+									parent.push(divPopulated);
+									//posso procedere
+									next();
+								}
+							}
+						}
+						else
+						{
+							//non esiste un div share col mio id, quindi torno in home
+							console.log('page.render(): div non trovato in db, torno in home');
+							res.redirect('/');
+						}
+					}
+					else
+					{
+						app.jsl.utils.errorPage(res, err, "page.render(): query error retrieving div: "+divId);
+					}
+				});	
+				
+			}
+		} else {
+			//finito il popolamento dei dati
+			console.log('finitoooooooooo POPULATION ####################################');
+			//for (var i=0;i<page.divs.length;i++) {
+				//console.log(page.divs[i].div);
+			//}
+			//console.log('divsStructure');
+			//console.log(divsStructure);
+			
+			
+			
+			
+			//posso procedere con l'algoritmo sincrono che li compila
+			while( divsStructure.length > 0 ) {
+				var div = divsStructure.pop();
+				compileRecursiveSync(div);
+			}
+			console.log(pageOutput);
+			console.log('################################## finito anche compilazione sync');
+			
+			function compileRecursiveSync(div,divFatherType) {
+				if (!divFatherType) divFatherType = ''; //se non mi passano divFatherType vuol dire che il mio div è nella root della pagina
+				
+				//renderizzo apertura del div
+				if (div.is_table)
+				{
+					var divTag = "<table cellspacing='0' cellpadding='0' id='"+div.dom_id+"' ";
+				}
+				else
+				{
+					var divTag = "<div id='"+div.dom_id+"' ";
+				}
+				
+				//renderizzo class
+				var divClass = " class=' "; 
+				if (div.class != "")
+				{
+					divClass += " "+div.class+" ";
+				}
+				divClass += "' ";
+				
+				//renderizzo style
+				var divStyle = " style='"; 
+				//if not override, add generated styles to style tag
+				if (div.inline_style)
+				{
+					switch ( divFatherType )
+					{
+						case "horizCont":
+							divStyle += " float:left; display:inline; ";
+							break;
+						case "vertCont":
+							divStyle += " clear:both; ";
+							break;
+						case "":
+							//this is the special case of root div for my page
+							//questi li usavo in ooogui, in cui però una pagina aveva sempre e solo un div di root, non molteplici: divStyle += " margin:0 auto; ";
+							divStyle += " clear:both; "; //ora per i div di root mi comporto come se loro padre fosse un vertical container
+							break;
+					}
+				}
+				//close style tag
+				divStyle +=  " ' ";
+				
+				//metto in output il div, con eventuale apertura della tabella
+				if (div.is_table)
+				{
+					pageOutput +=  divTag+divClass+" ><tbody>\n";
+				}
+				else
+				{
+					pageOutput +=  divTag+divClass+divStyle+" >\n";
+				}
+				
+				
+				//renderizzo il contenuto del div, in base al suo tipo
+				switch ( div.type )
+				{
+					case "horizCont":
+					case "vertCont":
+						//genero i container solo se non sto renderizzando un modulo unico
+						var divChildren = div.children;
+						if (divChildren.length>0)
+						{
+							if ( div.is_table && div.type == "horizCont" )
+							{
+								pageOutput +=  "<tr>";
+							}
+							for (var i=divChildren.length-1; i>=0; i--) //loop in ordine inverso
+							{
+								if ( div.is_table )
+								{
+									if ( div.type == "vertCont" )
+									{
+										pageOutput +=  "<tr>";
+									}				
+									pageOutput +=  "<td class='tableColumn'>";
+								}
+								
+								//$this->render( divChildren[i]->id_div_child, div.type, $myDivId ); //recursion
+								compileRecursiveSync(divChildren[i],div.type);
+								
+								if ( div.is_table )
+								{
+									if ( div.type == "vertCont" )
+									{
+										pageOutput +=  "</tr>";
+									}
+									pageOutput +=  "</td>";
+								}
+							}
+							if ( div.is_table && div.type == "horizCont" )
+							{
+								pageOutput +=  "</tr>";
+							}
+						}
+						
+						//at the end of a container, display a "closure" invisible div, that grants that the container will grow its size to fully contain its children divs
+						//must do that beacause, in horizontal containers, children are floating (left), and floating divs "come out" from the parent container layout
+						if ( div.type == "horizCont" && div.inline_style && !div.is_table )
+						{
+							pageOutput +=  "<div style='clear:both;'></div>";
+						}
+						break;
+					case "module":
+						//se sto renderizzando come tabella, allora devo aprire una riga con una cella per il contenuto del mio modulo
+						if (div.is_table)
+						{
+							pageOutput +=  "<tr><td>";
+						}
+						
+						//compilo la mia view
+						if (div.view) {
+							var jade = require('jade');
+							var jadetemplate = jade.compile(div.view.toString('utf8'));
+							pageOutput += jadetemplate({
+								//per ora non ho ancora data da passare: data: divs[i].data
+							});
+							
+							//pageOutput +=  'MODULO: '+div.view;
+							/*
+							if ( $myModule->template == "" && $myModuleClassName == "" )
+							{
+								//se non c'è nulla, non faccio nulla
+							}
+							else if ( $myModule->template != "" && $myModuleClassName == "" )
+							{
+								//se c'è solo un template, visualizzo quello
+								$mySmarty = new Smartybase();
+								$mySmarty->smarty->assign("params", $myModuleParams);
+								$mySmarty->smarty->assign("moduleTitle", utf8_encode($myModule->name));
+								$mySmarty->smarty->assign("moduleDescription", utf8_encode($myModule->name_description));
+								$mySmarty->smarty->assign("site", utf8_encode($this->site));
+								$mySmarty->smarty->assign("currentLan", $this->currentLan);
+								$mySmarty->smarty->assign("pageName", $_GET["page"]);
+								$mySmarty->smarty->assign("pageTitle", $this->pageTitle);
+								$mySmarty->smarty->display("noModule/"+$myModule->template);
+							}
+							else if ( $myModule->template != "" && $myModuleClassName != "" )
+							{
+								//ci sono sia template che classe, quindi istanzio la classe (e le passo il template che visualizzerà lei)
+								$myModuleClass = new $myModuleClassName($this->site, $myModule->name,$myModule->name_description,$myModuleClassName+"/"+$myModule->template,$myModuleParams,$myModule->id_module,$this->is_newsletter);
+							}
+							*/
+						}
+						
+						
+						//se sto renderizzando come tabella, allora devo chiudere una riga con una cella per il contenuto del mio modulo
+						if (div.is_table)
+						{
+							pageOutput +=  "</td></tr>";
+						}
+						
+						
+						break;
+				}
+				
+				//chiudo il div o la tabella
+				if (div.is_table)
+				{
+					pageOutput +=  "</tbody></table> ";
+				}
+				else
+				{
+					pageOutput +=  "</div> ";
+				}
+			}
+			
+			
+			
+			//finito anche la compilazione
+
+
+			/* QUESTO FUNZIA, MA ERA SOLO PER TESTING
+			//poi ciclo su ogni div, e renderizzo il partial jade in una relativa stringa html, con anche le variabili compilate col proprio valore
+			//in pratica uso il compilatore di jade direttamente, e non attraverso il solito res.render()
+			var jade = require('jade');
+			for (var i=0; i<divs.length; i++) {
+				var jadechunk = divs[i].partial;
+				var jadetemplate = jade.compile(jadechunk.toString('utf8'));
+				divs[i].content = jadetemplate({
+					data: divs[i].data
+				});
+				
+			}
+			*/
+		
+		
+			/*
+			//usare jade dinamicamente
+			var jade = require('jade');
+			var jadechunk = "h1 #{myVar}!";
+			var jadetemplate = jade.compile(jadechunk.toString('utf8'));
+			var jadeoutput = jadetemplate({
+				myVar: 'myValue'
+			});
+			*/
+			
+			
+			//poi l'array derivante dalla query viene dato ad un res.render sul layout che renderizza i partials
+			res.render('pageRender', {
+				'layout': 'layoutRender', 
+				'page': page,
+				//'divs': divs,
+				//'debug': 'will render the page - '+page.route+" - from the site - "+page.site.domain+" - ",
+				'pageOutput': pageOutput
+			});
+			
+			
+			
+			
+			
+			
+			
+			
+			
+		}
+	}
+	
+	
+	
 	
 	
 	

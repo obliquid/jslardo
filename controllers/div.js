@@ -435,8 +435,9 @@ function defineRoutes(app) {
 											'type' : div.children[i].div.type,
 											'dom_id' : div.children[i].div.dom_id,
 											'class' : div.children[i].div.class,
-											'is_table' : div.children[i].div.is_table,
-											'inline_style' : div.children[i].div.inline_style,
+											'is_table' : (div.children[i].div.is_table) ? 'sure_this_is_true' : 'sure_this_is_false',
+											'inline_style' : (div.children[i].div.inline_style) ? 'sure_this_is_true' : 'sure_this_is_false',
+											'view' : div.children[i].div.view,
 											'id' : div.children[i].div._id,
 											'children' : div.children[i].div.children,
 											'status' : div.children[i].div.status
@@ -502,8 +503,9 @@ function defineRoutes(app) {
 											'type' : page.divs[i].div.type,
 											'class' : page.divs[i].div.class,
 											'dom_id' : page.divs[i].div.dom_id,
-											'is_table' : page.divs[i].div.is_table,
-											'inline_style' : page.divs[i].div.inline_style,
+											'is_table' : (page.divs[i].div.is_table) ? 'sure_this_is_true' : 'sure_this_is_false',
+											'inline_style' : (page.divs[i].div.inline_style) ? 'sure_this_is_true' : 'sure_this_is_false',
+											'view' : page.divs[i].div.view,
 											'status' : page.divs[i].div.status,
 											'id' : page.divs[i].div._id,
 											'children' : page.divs[i].div.children
@@ -541,7 +543,8 @@ function defineRoutes(app) {
 	//creo un nuovo div dall'admin
 	app.post('/json/divs/new', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermCreate, function(req, res, next){
 		app.jsl.routes.routeInit(req);
-		//console.log(req.body);
+		console.log('div: POST divs new'); 
+		console.log(req.body);
 		//creo nuovo div
 		var my_div = new app.jsl.div();
 		//popolo il mio div

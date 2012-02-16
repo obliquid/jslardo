@@ -77,6 +77,7 @@ function defineRoutes(app) {
 								res.render('users/list', { 
 									elementName: 'user',
 									elements: users,
+									total: total,
 									pagination: app.jsl.pag.paginationDo(req, total, '/users/')
 								});	
 							}

@@ -355,6 +355,14 @@ input.disabled:hover {
 {
 	border-right: 2px dotted #9C9C9C;
 }
+.tabsButtonsCont
+{
+	border-bottom: 2px dotted #9C9C9C;
+}
+.tabButton
+{
+	border: 2px dotted #9C9C9C;
+}
 
 /* colors used for status */
 .redBg,
@@ -380,6 +388,14 @@ input.disabled:hover {
 .textMini
 {
 	font-size:12px;
+}
+.textBig
+{
+	font-size:32px;
+}
+.textSuperBig
+{
+	font-size:48px;
 }
 
 .code {
@@ -553,7 +569,8 @@ select:hover,
 textarea:hover,
 .formSuccess,
 .linkSelected,
-.QapTcha .dropSuccess
+.QapTcha .dropSuccess,
+.tabButtonSelected
 {
 	text-shadow: rgba(0, 0, 0, 0.5) 0px 1px 0px;
 }
@@ -788,6 +805,7 @@ textarea:hover,
 .mainColLeft {
 	padding-right: 10px;
 	margin-right: 10px;
+	overflow: hidden;
 }
 .mainColRight {
 	
@@ -1148,6 +1166,43 @@ textarea:hover,
 	top: 30px;
 	right: 170px;
 }
+
+
+
+/* TABS */
+.tabsButtonsCont
+{
+	text-align: left;
+	margin-top: 30px;
+	margin-bottom: 10px;
+	padding-bottom: 1px;
+}
+.tabButton
+{
+	font-size: 22px;
+	font-weight: normal;
+	
+	border-bottom-left-radius: 0px;
+	-moz-border-radius-bottomleft: 0px;
+	-webkit-border-bottom-left-radius: 0px;
+	
+	border-bottom-right-radius: 0px;
+	-moz-border-radius-bottomright: 0px;
+	-webkit-border-bottom-right-radius: 0px;
+	
+	background-image:url('../images/bg/nero20perc.png');
+	
+	background-color: white;
+}
+.tabButtonSelected
+{
+	color: white;
+	background-image:url('../images/bg/nero20perc.png');
+	border-bottom: none;
+	padding-bottom: 4px;
+	
+}
+
 
 
 

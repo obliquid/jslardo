@@ -86,6 +86,12 @@ function defineModels(mongoose, app, next) {
 		'order': { type: Number, index: true}
 	});
 	
+	//Schema query
+	var Query = new Schema({
+		'command': { type: String, required: true, enum: ['find', 'findOne'] },
+		'jslModel': { type: Schema.ObjectId, ref: 'jslModel' }
+	});
+	
 	//Schema div
 	var Div = new Schema({
 		'type': { type: String, required: true, enum: ['vertCont', 'horizCont', 'module'], index: true },
@@ -94,7 +100,8 @@ function defineModels(mongoose, app, next) {
 		'is_table': { type: Boolean, default: false },
 		'inline_style': { type: Boolean, default: true },
 		'children': [DivOrdered],
-		'module': { type: Schema.ObjectId, ref: 'module', index: true },
+		'view': { type: String },
+		'queries': [Query],
 		//common fields
 		'author': { type: Schema.ObjectId, ref: 'user', required: true, index: true },
 		'status': { type: String, required: true, enum: ['public', 'private', 'share'], index: true },
@@ -115,6 +122,7 @@ function defineModels(mongoose, app, next) {
 	});
 	mongoose.model('page', Page);
 	
+	/*
 	//Schema module
 	var Module = new Schema({
 		//common fields
@@ -123,6 +131,7 @@ function defineModels(mongoose, app, next) {
 		'created': { type: Date, required: true }
 	});
 	mongoose.model('module', Module);
+	*/
 	
 	//Schema jslModel
 	var JslModel = new Schema({

@@ -48,6 +48,7 @@ function defineRoutes(app) {
 				res.render('sites/list', { 
 					elementName: 'site',
 					elements: sites,
+					total: total,
 					pagination: app.jsl.pag.paginationDo(req, total, '/sites/')
 				});	
 			});

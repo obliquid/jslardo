@@ -15,6 +15,38 @@ script
 		*/
 	}
 
+	$(function()
+	{
+		//- on change del type, aggiorno i tabs
+		$('input.type_radio_button').click( function( event )
+		{
+			if( $(this).val() == 'module' ) {
+				$('#isTableInput').fadeOut('fast');
+				$('.tabsButtonsCont').fadeIn('fast');
+			} else {
+				$('#isTableInput').fadeIn('fast');
+				$('.tabsButtonsCont').fadeOut('fast');
+				selectTab('tabButtonBase','tabBase');
+			}
+		})
+		
+		//- on ready imposto i tab a seconda del type del mio div
+		$(document).ready(
+			function()
+			{
+				//- sempre imposto il primo tab (il base data)
+				selectTab('tabButtonBase','tabBase');
+				//- se type è module, visualizzo i tab, altrimenti no
+				if ('#{element.type}' == 'module') {
+					$('#isTableInput').fadeOut('fast');
+					$('.tabsButtonsCont').fadeIn('fast');
+				} else {
+					$('#isTableInput').fadeIn('fast');
+					$('.tabsButtonsCont').fadeOut('fast');
+				}
+			}
+		);					
+	});
 
 img(src='/images/pov/icon_core_div_60x45.png').floatLeft
 include ../includes/formHeader
@@ -27,43 +59,60 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 				h5.formLabel #{__i('type')}
 					span.formError *
 				if ( element.type != 'vertCont' && element.type != 'module' ) 
-					input(type='radio', name='type', value='horizCont', checked=true) 
+					input(type='radio', name='type', value='horizCont', checked=true).type_radio_button
 				else
-					input(type='radio', name='type', value='horizCont') 
+					input(type='radio', name='type', value='horizCont').type_radio_button
 				span #{__i('horizontal container')}
+				br
 				if (element.type == 'vertCont' )
-					input(type='radio', name='type', value='vertCont', checked=true) 
+					input(type='radio', name='type', value='vertCont', checked=true).type_radio_button
 				else
-					input(type='radio', name='type', value='vertCont') 
+					input(type='radio', name='type', value='vertCont').type_radio_button
 				span #{__i('vertical container')}
+				br
 				if (element.type == 'module' )
-					input(type='radio', name='type', value='module', checked=true) 
+					input(type='radio', name='type', value='module', checked=true).type_radio_button
 				else
-					input(type='radio', name='type', value='module') 
+					input(type='radio', name='type', value='module').type_radio_button
 				span #{__i('module')}		
-				
-			.formRow
-				h5.formLabel id
-				span &nbsp;=&nbsp;
-				input(id='dom_id', name='dom_id', value='#{element.dom_id || ""}').size3
-				p  #{__i('the id attribute of the div')}
-			.formRow
-				h5.formLabel class
-				span &nbsp;=&nbsp;
-				input(id='class', name='class', value='#{element.class || ""}').size3
-				p  #{__i('names of css classes to be used for this div, space separated')}
-			.formRow
-				h5.formLabel  #{__i('automatically generate inline styles')}
-				- var field = 'inline_style';
-				- var fieldValue = ( element.inline_style || element.inline_style === undefined ) ? true : false;
-				include ../includes/formBoolean
-				p #{__i('these are styles needed for horizontal and verdical alignment of children inside a container. omitting them will render a horizCont the same way of a vertCont.')}
-			.formRow
-				h5.formLabel  #{__i('render as table')}
-				- var field = 'is_table';
-				- var fieldValue = ( !element.is_table || element.is_table === undefined ) ? false : true;
-				include ../includes/formBoolean
-				p #{__i('render the div as an html table. for example this prevents new line wrapping for children of an horizontal container')}
+			div(style='display:none;').tabsButtonsCont
+				a(onclick='selectTab("tabButtonBase","tabBase")')#tabButtonBase.tabButton #{'div data'}
+				a(onclick='selectTab("tabButtonView","tabView")')#tabButtonView.tabButton #{'view'}
+				a(onclick='selectTab("tabButtonController","tabController")')#tabButtonController.tabButton #{'controller'}
+			div#tabsCont
+				div(style='display:none;')#tabBase
+					.formRow
+						h5.formLabel id
+						span &nbsp;=&nbsp;
+						input(id='dom_id', name='dom_id', value='#{element.dom_id || ""}').size3
+						p  #{__i('the id attribute of the div')}
+					.formRow
+						h5.formLabel class
+						span &nbsp;=&nbsp;
+						input(id='class', name='class', value='#{element.class || ""}').size3
+						p  #{__i('names of css classes to be used for this div, space separated')}
+					.formRow
+						h5.formLabel  #{__i('automatically generate inline styles')}
+						- var field = 'inline_style';
+						- var fieldValue = ( element.inline_style || element.inline_style === undefined ) ? true : false;
+						include ../includes/formBoolean
+						p #{__i('these are styles needed for horizontal and verdical alignment of children inside a container. omitting them will render a horizCont the same way of a vertCont.')}
+					div(style='display:none;')#isTableInput.formRow
+						h5.formLabel  #{__i('render as table')}
+						- var field = 'is_table';
+						- var fieldValue = ( !element.is_table || element.is_table === undefined ) ? false : true;
+						include ../includes/formBoolean
+						p #{__i('render the div as an html table. for example this prevents new line wrapping for children of an horizontal container')}
+				div(style='display:none;')#tabView
+					.formRow
+						h5.formLabel view
+						textarea(id='view', name='view').size3 #{element.view || ""}
+						p  #{__i('this is the html template for this div')}
+						p  #{__i("right now the default template engine is jade.js, so must use it in views")}
+				div(style='display:none;')#tabController
+					.formRow
+						h5.formLabel controller
+						p  #{__i('under development. not yet available')}
 	
 	div.size2.floatLeft
 		div.mainColRight

@@ -186,5 +186,10 @@
 	"for example": "for example",
 	"yourdomain": "yourdomain",
 	"also used as metatag for this site": "also used as metatag for this site",
-	"comma separated": "comma separated"
+	"comma separated": "comma separated",
+	"super admin mode": "super admin mode",
+	"this is the html template for this div": "this is the html template for this div",
+	"under development. not yet available": "under development. not yet available",
+	"children": "children",
+	"right now the default template engine is jade.js, so must use it in views": "right now the default template engine is jade.js, so must use it in views"
 }

@@ -1,10 +1,13 @@
-h1 this is the page renderer. it's under development. what follows is for debug purpose only. sorry, stay updated...
-hr
-h3 #{debug}
-hr
-div
-	ul
-	each div in divs
-		li
-			!=div.content
-			span / #{div.partial} / #{div.data} 
+!=pageOutput
+//-
+	h1 this is the page renderer. it's under development. what follows is for debug purpose only. sorry, stay updated...
+	hr
+	h3 #{debug}
+	hr
+	div
+		ul
+		each div in divs
+			li
+				!=div.content
+				span / #{div.partial} / #{div.data}
+

@@ -157,8 +157,8 @@ function defineRoutes(app) {
 													//ho trovato la pagina richiesta dall'utente
 													//posso finalmente procedere a visualizzare la pagina
 													
-													var pageController = require('../controllers/page');
-													pageController.render( req, res, page );
+													//var pageController = require('../controllers/page');
+													app.jsl.pageController.render( app, req, res, page );
 													/* questo funzia
 													res.render('debug', {
 														layout: false, 
