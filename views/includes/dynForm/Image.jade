@@ -28,7 +28,7 @@ else
 		div.formSubRow.size2
 			span.floatLeft #{__i('file preview')}:
 			a(href='/#{content[field][0].file_path}#{content[field][0].file_name}', target='_blank', title='zoom').floatRight
-				!= getImg(app, content[field][0].file_path, content[field][0].file_name,150,0,'imageDetail')
+				!= getImg(content[field],150,0,'imageDetail') //- nota che content[field] è un array perchè così è definito lo schema, ma poi getImg considera solo la prima immagine
 			div.clear
 		div.formSubRow.size2
 			span.floatLeft #{__i('delete file')}:

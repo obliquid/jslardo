@@ -43,16 +43,16 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 					h5.formLabel #{__i('layout')}
 					div.jstreeColumn.floatRight
 						if session.user_id != 'superadmin'
-							h6 #{__i('drag and drop new divs to layout')}:
-							div#elementsTree.size2.jstree.jstreeElements
+							h6.size1AndHalf #{__i('drag and drop new divs to layout')}:
+							div#elementsTree.size1AndHalf.jstree.jstreeElements
 							hr
-							h6 
+							h6.size1AndHalf
 								input(type='radio', name='link_or_copy', value='link', checked=true)
 								span.formChoice #{__i('link')}&nbsp;
 								input(type='radio', name='link_or_copy', value='copy')
 								span.formChoice #{__i('copy')}&nbsp;
 								| #{__i('divs from page')}:
-							select(id='page', name='page', onchange='loadExternalTree(this.options[this.selectedIndex].value)')
+							select(id='page', name='page', onchange='loadExternalTree(this.options[this.selectedIndex].value)').size1AndHalf
 								option(value='') -
 								each combo_page in combo_pages
 									if combo_page.route == ''
@@ -60,10 +60,11 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 									else
 										option(value='#{combo_page._id}') #{combo_page.site.title} - #{combo_page.route}
 							div.clear
-							div#otherPageTree.size2.jstree.jstreeOtherPage
-					div.jstreeColumn.floatRight
+							div#otherPageTree.size1AndHalf.jstree.jstreeOtherPage
+					div.jstreeColumn.floatRight.rightBorder
 						div#layoutTree.size2.jstree
 					div.clear
+					hr
 					p #{__i('warning: every change to the layout is automatically saved')}
 					script(language='JavaScript', type='text/javascript', src='/javascripts/jq/jstree/jquery.jstree.js')
 					include formJs

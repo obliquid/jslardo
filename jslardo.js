@@ -76,6 +76,8 @@ app.configure(function(){
 	app.jsl.pag = require('./core/pagination');
 	//utils
 	app.jsl.utils = require('./core/utils');
+	app.jsl.utils.app = app; //mi serve che utils conosca internamente app
+	
 	//routes
 	app.jsl.routes = require('./core/routes');
 	

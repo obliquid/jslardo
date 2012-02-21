@@ -947,7 +947,9 @@ function render(app, req, res, page) {
 							//console.log(div.data);
 							pageOutput += jadetemplate({
 								//per ora non ho ancora data da passare:
-								data: div.data
+								data: div.data,
+								//gli helpers
+								getImg: app.jsl.utils.getImg
 							});
 							
 							//pageOutput +=  'MODULO: '+div.view;

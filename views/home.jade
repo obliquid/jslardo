@@ -15,12 +15,13 @@ div.clear
 hr
 div.size2.floatLeft
 	ul.rightBorder
+		h2 1.
 		li
 			h5 #{__i('create your models')}
 			ul
 				li
 					span #{__i('create valid mongoose models with drag and drop gui')}
-					pre.outerContMinimal.code.
+					pre(style='margin-top:10px;margin-right:0px;').outerContMinimal.code.
 						"book": {
 							"title": {
 								"type": "String",
@@ -36,7 +37,9 @@ div.size2.floatLeft
 					span #{__i('DBRef like relations (1:1 and 1:N) are supported')}
 				li
 					span #{__i('jslardo runtime reloads mongoose models and update mongodb collections as you change your models schemas')}
-		hr
+div.size2.floatLeft
+	ul.rightBorder
+		h2 2.
 		li
 			h5 #{__i('create your contents')}
 			ul
@@ -44,7 +47,9 @@ div.size2.floatLeft
 					span #{__i('insert contents for your models through runtime generated forms')}
 				li
 					span #{__i('DBRef like relations are also managed in generated forms, with drag and drop ordering of related contents')}
-		hr
+div.size2.floatLeft
+	ul
+		h2 3.
 		li
 			h5 #{__i('create your sites')}
 			ul
@@ -55,6 +60,8 @@ div.size2.floatLeft
 				li
 					span *#{__i('and publish your contents')}
 			span.textMini * #{__i('under development, not yet available')}
+div.clear
+hr
 div.size2.floatLeft
 	ul.rightBorder
 		li
@@ -64,7 +71,8 @@ div.size2.floatLeft
 					span #{__i('every model, content, or site and page, can be shared with other users')}
 				li
 					span #{__i('or can be marked as private and no one will be able to see it')}
-		hr
+div.size2.floatLeft
+	ul.rightBorder
 		li
 			h5 #{__i("it's open source")}
 			ul
@@ -74,7 +82,9 @@ div.size2.floatLeft
 					span #{__i("so if you don't want to save your data on this server, you can set up your own server, for your own users")}
 				li
 					span #{__i("and since it's open source, any involvement or suggestion is appreciated")}
-		hr
+	
+div.size2.floatLeft
+	ul
 		li
 			h5 #{__i("it's an ongoing project")}
 			ul
@@ -82,9 +92,10 @@ div.size2.floatLeft
 					span #{__i("expect that only a few sections of the application are completed and stable")}
 				li
 					span #{__i("roadmap is long, so come back sometimes")}
-	
+div.clear
+hr
 div.size2.floatLeft
-	ul
+	ul.rightBorder
 		li
 			h5 #{__i('how to start?')}
 			ul
@@ -101,7 +112,8 @@ div.size2.floatLeft
 				li
 					span *#{__i('populate page with your contents')}
 			span.textMini * #{__i('under development, not yet available')}
-		hr
+div.size2.floatLeft
+	ul.rightBorder
 		li
 			h5 #{__i('links')}
 			ul
@@ -111,7 +123,8 @@ div.size2.floatLeft
 				li
 					span #{__i('created by')}
 						a(href='http://obliquid.org', target='_blank') obliquid
-		hr
+div.size2.floatLeft
+	ul
 		li
 			include includes/disclaimer
 div.clear

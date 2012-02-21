@@ -22,6 +22,23 @@
 
 
 
+// VARS
+
+/*
+questa var viene impostata da jslardo.js appena dopo il require di utils.js
+ 
+in generale app viene passato come parametro alle functions di utils e di tutti
+i moduli di jslardo.
+nel caso però si vogliano usare queste function come helper nelle view dei siti
+degli utenti, la variabile app non è definita e non può essere passata alle view
+per motivi di sicurezza. quindi per questi casi serve app definita come variabile
+interna di utils.
+*/
+var app;
+
+
+
+
 
 	
 
@@ -251,12 +268,17 @@ exports.emailObfuscate = emailObfuscate;
 
 /*
 è un helper da usare direttamente nei tpl jade.
-dato un url di un'immagine da visualizzare (completo di path) e una risoluzione
+data un'immagine da visualizzare (completa di file_name e file_path) e una risoluzione
 crea l'immagine ridimensionata se già non esiste, e ne ritorna l'url.
 essendo usata nei tpl, viene eseguita prima che il tpl arrivi all'utente,
 che nel browser riceve sempre un url esplicito, e non l'url di uno script
 */
-function getImg(app,path,name,width,height,cssClasses,domId) {
+function getImg(image,width,height,cssClasses,domId) {
+	//se invece di una singola immagine mi arriva un array, tengo la prima
+	if (is_array(image)) image = image[0];
+	
+	var path = image.file_path;
+	var name = image.file_name;
 	if ( !domId ) domId = '';
 	if ( !cssClasses ) cssClasses = '';
 	if ( !width ) width = 0;
@@ -265,13 +287,13 @@ function getImg(app,path,name,width,height,cssClasses,domId) {
 	var resizedName = 'size'+width+'x'+height+'_'+name;
 	var url = process.cwd()+'/public/'+path+name;
 	var resizedUrl = process.cwd()+'/public/'+path+resizedName;
-	/*
 	console.log('getImg()');
+	console.log('image:');
+	console.log(image);
 	console.log('url:');
 	console.log(url);
 	console.log('resizedUrl:');
 	console.log(resizedUrl);
-	*/
 	
 	//considero i casi su width ed height = 0
 	if ( width == 0 && height == 0 ) {

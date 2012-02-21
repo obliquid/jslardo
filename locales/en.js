@@ -204,5 +204,11 @@
 	"use this name in your views too": "use this name in your views too",
 	"javascript": "javascript",
 	"this is how your statement looks like in javascript pseudo code": "this is how your statement looks like in javascript pseudo code",
-	"modify statements": "modify statements"
+	"modify statements": "modify statements",
+	"right now there is only the find() statement available. the find() statement is a query on a model, with some conditions and fields specified": "right now there is only the find() statement available. the find() statement is a query on a model, with some conditions and fields specified",
+	"to learn how jade works": "to learn how jade works",
+	"right now the template engine implemented is jade.js, so must use it in views": "right now the template engine implemented is jade.js, so must use it in views",
+	"right now the only implemented template engine is jade.js, so must use it in views": "right now the only implemented template engine is jade.js, so must use it in views",
+	"right now the only implemented template engine is jade, so must use it in views": "right now the only implemented template engine is jade, so must use it in views",
+	"right now there is only the find() statement available. the find() statement is a query on a model, with conditions and fields support": "right now there is only the find() statement available. the find() statement is a query on a model, with conditions and fields support"
 }

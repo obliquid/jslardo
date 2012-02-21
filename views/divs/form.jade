@@ -108,20 +108,27 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 						h5.formLabel view
 						textarea(id='view', name='view', style='height:300px;').size4.code #{element.view || ""}
 						p  #{__i('this is the html template for this div')}
-						p  #{__i("right now the default template engine is jade.js, so must use it in views")}
+						p.textMini #{__i("right now the only implemented template engine is jade, so must use it in views")}
+						p.textMini #{__i("to learn how jade works")}:
+							a(href='http://jade-lang.com/',target='_blank') jade site (one page!)
+							a(href='https://github.com/visionmedia/jade',target='_blank') jade on github (all the info)
+						hr
+						p  #{__i('under development. not yet reliable')}
 				div(style='display:none;')#tabController
 					.formRow
 						h5.formLabel controller
 						div.jstreeColumn.floatRight
 							//- if session.user_id != 'superadmin'
-							h6 #{__i('drag and drop statements to controller')}:
-							div#statementsTree.size2.jstree.jstreeStatements
+							h6.size1AndHalf #{__i('drag and drop statements to controller')}:
+							div#statementsTree.size1AndHalf.jstree.jstreeStatements
+							p.textMini.size1AndHalf #{__i('right now there is only the find() statement available. the find() statement is a query on a model, with conditions and fields support')}
 							hr
 							h6 #{__i('json version')}:
-							textarea(id='controller', name='controller', readonly='readonly').size2.code #{element.controller || ""}
-						div.jstreeColumn.floatRight
+							textarea(id='controller', name='controller', readonly='readonly').size1AndHalf.code #{element.controller || ""}
+						div.jstreeColumn.floatRight.rightBorder
 							div#controllerTree.size2.jstree
 						div.clear
+						hr
 						p  #{__i('under development. not yet reliable')}
 						script(language='JavaScript', type='text/javascript', src='/javascripts/jq/jstree/jquery.jstree.js')
 						include formJs

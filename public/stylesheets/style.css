@@ -207,17 +207,21 @@ li
 /* other */
 hr
 {
-	margin-top: 15px;
-	margin-bottom: 15px;
+	margin-top: 10px;
+	margin-bottom: 10px;
 	color: transparent;
 	background-color: transparent;
 	border: none;
 	height: 0px;
 	/* border-top: 2px dotted #666; */
 	border-bottom: 1px solid #fff;
-	border-top: 1px solid #666;
+	border-top: 1px solid #999;
 }
 
+pre
+{
+	margin-top: 10px;
+}
 
 
 
@@ -614,7 +618,7 @@ textarea:hover,
 
 /* columns */
 .rightBorder {
-	margin-right: 20px;
+	margin-right: 10px;
 	padding-right: 10px;
 }
 .contentListColumn {
@@ -821,8 +825,10 @@ textarea:hover,
 	letter-spacing: -4px;
 }
 .code {
+	/* no perchè lo uso anche su elementi che hanno un proprio margin
 	margin-top: 10px;
 	margin-bottom: 10px;
+	*/
 }
 
 /* element in a grid view */
@@ -873,7 +879,7 @@ textarea:hover,
 {
   background-image:url('../images/bg/bianco50perc.png');
   background-repeat:repeat;
-  padding: 5px;
+  padding: 10px;
   margin-bottom: 10px;
 }
 
@@ -1213,7 +1219,7 @@ textarea:hover,
 
 /* JSTREE */
 .jstreeColumn {
-	text-align: center;
+	text-align: left; /* annulla il right delle form rows */
 }
 .jstree
 {

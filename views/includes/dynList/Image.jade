@@ -1,4 +1,4 @@
 div.contentListColumn
 	span.textMini #{trunc(content.fieldNameFull,12)}:
 	br
-	!= getImg(app, content[field][0].file_path, content[field][0].file_name, 85,60,'imageDetail')
+	!= getImg(content[field], 85,60,'imageDetail') //- nota che content[field] è un array perchè così è definito lo schema, ma poi getImg considera solo la prima immagine
