@@ -326,7 +326,7 @@ function getSites(req,res,closure,forceOnlyMines)
 	if ( req.session.loggedIn )
 	{
 		//poi distinguo se sto filtrando solo sui miei elementi o su tutti (quelli visibili)
-		if ( req.session.filterAllOrMine == 'mine' || forceOnlyMines )
+		if ( req.session.filterAllOrMine == 'mine' || ( forceOnlyMines && req.session.user_id != 'superadmin' ) )
 		{
 			//voglio vedere solo i miei siti (questa condizione non può avvenire se sono superadmin, quindi non sono sicuramente superadmin)
 			//e sono loggato, quindi vedrò solo i miei
@@ -378,3 +378,4 @@ function getSites(req,res,closure,forceOnlyMines)
 		});	
 }
 exports.getSites = getSites;
+

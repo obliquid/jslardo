@@ -779,7 +779,7 @@ function render(app, req, res, page) {
 									function recurseOnChildren() {
 										if (divChildren.length>0) {
 											var divChild = divChildren.pop();
-											console.log("### ricorro su mio figlio: "+divChild);
+											//console.log("### ricorro su mio figlio: "+divChild);
 											recurse(divChild,divPopulated.children,recurseOnChildren);
 										} else {
 											//finito di ricorrere sui miei elementi
