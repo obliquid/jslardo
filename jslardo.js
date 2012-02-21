@@ -93,7 +93,7 @@ app.configure(function(){
 	//route per gli elementi della struttura
 	require('./controllers/user').defineRoutes(app);
 	require('./controllers/role').defineRoutes(app);
-	require('./controllers/module').defineRoutes(app);
+	//require('./controllers/module').defineRoutes(app);
 	require('./controllers/debuggin').defineRoutes(app);
 	//per questi elementi oltre alle route, mi servono anche altri metodi esposti dal controller, quindi devo tenere tutto il controller
 	app.jsl.pageController = require('./controllers/page');
@@ -108,6 +108,8 @@ app.configure(function(){
 	app.jsl.divController.defineRoutes(app);
 	app.jsl.fieldController = require('./controllers/field');
 	app.jsl.fieldController.defineRoutes(app);
+	app.jsl.statementController = require('./controllers/statement');
+	app.jsl.statementController.defineRoutes(app);
 	app.jsl.jslModelController = require('./controllers/jslModel');
 	app.jsl.jslModelController.defineRoutes(app);
 
@@ -202,11 +204,55 @@ app.configure(function(){
 			if ( app.jsl.datatypes[i].name == name ) return app.jsl.datatypes[i];
 		}
 	}
+	
+	
+
+
+	/* statements supportati */
+	
+	/*
+	nota: se si modifica statementsDictionary va modificato anche statementsHierarchy
+	*/
+
+	/* questo è il dizionario di tutti gli statements supportati/implementati per i controller */
+	app.jsl.statementsDictionary = [
+		{ 
+			'name' : 'find',
+			'type' : 'find'
+		}
+	];
+	app.jsl.statementsDictionary.stringify = function() {
+		return JSON.stringify(app.jsl.statementsDictionary);
+	}
+	
+	/*
+	definisce l'ereditarietà degli statements
+	*/
+	//popolo statementsHierarchy
+	app.jsl.statementsHierarchy = {
+		'valid_children' : [ 'find' ],
+		'max_depth' : -2,
+		'max_children' : -2,					
+		'types' : {
+			'find' : {
+				'icon' : {
+					'image' : '/images/pov/icon_pagination_next10pages_20x20.png'
+				},
+				//'valid_children' : [ 'String','Number','Boolean' ]
+				'valid_children' : 'none'
+			}
+		}
+	};
+	app.jsl.statementsHierarchy.stringify = function() {
+		return JSON.stringify(app.jsl.statementsHierarchy);
+	}
 
 
 
 
 
+	
+	
 	//Static Helpers
 	app.helpers({
 		encURI: function(content){ return encodeURIComponent(content) },

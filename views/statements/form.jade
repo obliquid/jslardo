@@ -1,0 +1,99 @@
+script
+	function validate_elementForm() {
+		//- il nome è obbligatorio
+		if( $('#name').val() == '' )
+		{
+			alert("#{__i('name is required')}");
+			return false;
+		}
+		
+		//- se si sta cambiando il nome, non si può usare un nome già usato
+		if( $('#name').val() != $('#old_name').val() )
+		{
+			var liDom = $('#controllerTree li:data(name='+$('#name').val()+')');
+			var linkDom = liDom.children('a');
+			//console.log(linkDom);
+			if ( linkDom.length > 0 ) {
+				alert("#{__i('a statement already exists with name')}: "+$('#name').val());
+				return false;
+			}
+		}
+		//- se si sta cambiando il nome -> warning sulla perdita dati
+		//-
+		//-	if( $('#name').val() != $('#old_name').val() && $('#old_name').val().substr(0,8) != 'newfield' )
+		//-	{
+		//-		if (!confirm('#{__i("renaming the field means to loose all contents saved for (only) this field. continue?")}')) return false;
+		//-	}
+		//- se si sta cambiando type -> warning sulla perdita dati
+		//-
+		//-	if( $('#type').val() != $('#old_type').val() )
+		//-	{
+		//-		if (!confirm('#{__i("changing type means to loose all contents saved for (only) this field (unless changing from Number to String). continue?")}')) return false;
+		//-	}
+		//- occhio che qui richiamo jslModel che però è definito solo nel sottotemplate del type 'find'
+		window.parent.saveStatement( { 'old_name': $('#old_name').val(), 'name': $('#name').val(), 'type': $('#type').val(), 'jslModel': $('#jslModel').val() } ); 
+		window.parent.$.modal.close();
+		return false;
+	}
+	
+	function nameChanged() {
+		$('#name').val( nameuniquize( $('#name').val() ) );
+		updateJavascript();
+	}
+
+	/* questa renderizza il codice javascript relativo al mio statement */
+	function renderJavascript() {
+		var javascriptStatement = '';
+		var type = $('#type').val();
+		switch (type) {
+			case 'find':
+				javascriptStatement = 'var '+$('#name').val()+' = '+$('#jslModel option:selected').text()+'.'+$('#type').val()+'();';
+				break;
+		}
+		return javascriptStatement;
+	}
+	
+	function updateJavascript() {
+		$('#javascriptStatement').val( renderJavascript() );
+	}
+
+	$(document).ready(function() {
+		
+		//attivo il change event sul name
+		$('#name').keyup(function() {
+			nameChanged();
+		});
+		
+		//- richiamo comunque il nameChanged per far aggiornare anche l'input javascript
+		nameChanged();
+	});
+	
+
+img(src='/images/pov/icon_pagination_next10pages_50x30.png').floatLeft
+include ../includes/formHeader
+
+//- come primo parametro devo comunque passare l'id del div cui sto modificando lo statement, perchè controllerà i permessi sul div
+form(onsubmit='return validate_elementForm()').size4
+	.formRow
+		h5.formLabel #{__i('name')}
+			span.formError *
+		input(id='name', name='name', value='#{element.name || ""}').size3
+		p  #{__i('this is the name of the var that contains results of this statement')}
+		p  #{__i('use this name in your views too')}
+	.formRow
+		h5.formLabel #{__i('type')}
+		input(id='type', name='type', value='#{element.type}', readonly='readonly').size3
+	//- includo la parte specifica di template a seconda del type di statement
+	!= partial('form_'+element.type+'.jade')
+	//- ultima riga con il javascript generato relativo al mio statement
+	.formRow
+		h5.formLabel #{__i('javascript')}
+		input(id='javascriptStatement', name='javascriptStatement', readonly='readonly').code.size3	//- questo campo in realtà non viene salvato, è solo dimostrativo
+		p  #{__i('this is how your statement looks like in javascript pseudo code')}
+	
+	hr
+	input(type='hidden', id='old_name', name='old_name', value='#{element.old_name || ""}')
+	input(type='hidden', id='old_type', name='old_type', value='#{element.old_type || ""}')
+	input(type='submit', title='#{__i('set')}', value='#{__i('set')}').adminButton.saveButton
+
+

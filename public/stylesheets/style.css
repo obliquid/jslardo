@@ -588,6 +588,11 @@ textarea:hover,
 	boder: 0px;
 }
 
+.displayNone
+{
+	display: none;
+}
+
 /* floats */
 
 .floatLeft,
@@ -1218,6 +1223,10 @@ textarea:hover,
 	background-color:transparent;
 	background-image:url('../images/bg/nero20perc.png');
 	background-repeat:repeat;
+}
+
+.jstreeStatements {
+	height: 170px;
 }
 
 .jstreeElements {

@@ -168,25 +168,25 @@ function defineRoutes(app) {
 												}
 												else
 												{
-													app.jsl.utils.errorPage(res, err, "page '"+req.url+"' not found (or private) on site: "+site.domain, false);
+													app.jsl.utils.errorPage(res, err, "the page with route: '"+req.url+"' doesn't exist, or is private, on site: "+site.domain, 'layoutPopup');
 													//non ho trovato la pagina, procedo, potrebbe essere stato richiesto un file statico
 													//next();
 												}
 											}
 											else
 											{
-												app.jsl.utils.errorPage(res, err, "error on query to find page: "+req.url, false);
+												app.jsl.utils.errorPage(res, err, "error on query to find page: "+req.url, 'layoutPopup');
 											}
 										});							
 								}
 								else
 								{
-									app.jsl.utils.errorPage(res, err, "site not found (or private) on this server: "+req.headers.host, false);
+									app.jsl.utils.errorPage(res, err, "the site '"+req.headers.host+"' doesn't exist on this server, or is private", 'layoutPopup');
 								}
 							}
 							else
 							{
-								app.jsl.utils.errorPage(res, err, "error on query to find site: "+req.headers.host, false);
+								app.jsl.utils.errorPage(res, err, "error on query to find site: "+req.headers.host, 'layoutPopup');
 							}
 						}
 					);				

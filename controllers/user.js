@@ -69,7 +69,7 @@ function defineRoutes(app) {
 							conditions,
 							[], 
 							{ 
-								sort: ['createds', 'descending'],
+								sort: ['created', 'descending'],
 								skip: req.session.skip, 
 								limit: req.session.limit 
 							},

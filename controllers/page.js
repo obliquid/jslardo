@@ -540,9 +540,10 @@ exports.unlinkDiv = unlinkDiv;
 
 
 function render(app, req, res, page) {
-	console.log('###### page.render()');
+	//console.log('###### page.render()');
 	var pageOutput = '';
 	var divsStructure = [];
+	/*
 	var divs = [
 		{
 			'partial' : 'h1  #{data.myVar},  #{data.myVar2}', //inteso come codice jade; sarà: '/page/json/render/:moduleDiv'
@@ -559,6 +560,7 @@ function render(app, req, res, page) {
 			}
 		}
 	];
+	*/
 	//console.log('page.divs PRIMA DI SORT');
 	//console.log(page.divs);
 	//ordino i div della mia pagina in base al loro order
@@ -569,20 +571,16 @@ function render(app, req, res, page) {
 	//console.log('page.divs DOPO SORT');
 	//console.log(page.divs);
 	
-	//ciclo sui div della mia pagina, e creo un array con gli id che mi serve nel ciclo ricorsivo asincrono
+	//ciclo sui div della mia pagina (solo su quelli indicati in page.divs, non faccio ricorsione ora), e creo un array con gli id che mi serve nel ciclo ricorsivo asincrono
 	var pageDivs = [];
 	for ( var i=0; i<page.divs.length; i++) {
 		pageDivs.push(page.divs[i].div);
 	}
-	console.log('pageDivs');
-	console.log(pageDivs);
+	//console.log('pageDivs');
+	//console.log(pageDivs);
 	
 	//prima devo fare un ciclo async per popolare tutta la struttura dati
 	//cioè ricorsivamente popolo di figli di ogni divs
-	
-	
-	
-	
 	loopOnPageDivs();
 	function loopOnPageDivs() {
 		if ( pageDivs.length > 0 ) {
@@ -611,8 +609,8 @@ function render(app, req, res, page) {
 						//in questo caso ritorna uno div null, quindi devo controllare se esiste lo div, altrimenti rimando in home
 						if ( div )
 						{
-							console.log('!!!trovato div:');
-							console.log(div);
+							//console.log('!!!trovato div:');
+							//console.log(div);
 							//creo un div clonato, che poi popolerò ricorsivamente con i figli del mio div
 							var divPopulated = {
 								'type': div.type,
@@ -621,27 +619,176 @@ function render(app, req, res, page) {
 								'inline_style': div.inline_style,
 								'is_table': div.is_table,
 								'children': [],
-								'view': div.view
+								'view': div.view,
+								'controller': div.controller
 							};
 							
-							//clono l'array dei figli del mio div
-							var divChildren = [];
-							for ( var j=0; j<div.children.length; j++) {
-								divChildren.push(div.children[j].div);
+							
+							
+							//per ogni statement nel controller, devo fare un ciclo async che esegua i singoli statement,
+							//che per ora possono essere solo query sui content
+							
+							//prima traslformo l'oggetto controller in un array di statements
+							//lo faccio perchè il ciclo async vuole un array, non un oggetto, da cui fare pop()
+							//console.log( '### devo eseguire tutto ciò che è indicato nel controller:' );
+							var statements = [];
+							if ( div.controller && div.controller != {} ) {
+								var controllerJson = JSON.parse(div.controller);
+								//console.log( controllerJson );
+								for (var statement in controllerJson) {
+									if ( controllerJson.hasOwnProperty(statement) && typeof controllerJson[statement] !== 'function') {
+										//butto dentro a cazzo anche il nome dello statement, che altrimenti passando da un object
+										//ad un array andrebbe perso
+										controllerJson[statement].statementName = statement;
+										statements.push(controllerJson[statement]);
+										//console.log('## considero lo statement:'+statement);
+										//console.log(controllerJson[statement]);
+									}
+								}
 							}
-							//loop async su tutti i figli
-							recurseOnChildren();
-							function recurseOnChildren() {
-								if (divChildren.length>0) {
-									var divChild = divChildren.pop();
-									console.log("### ricorro su mio figlio: "+divChild);
-									recurse(divChild,divPopulated.children,recurseOnChildren);
+							
+							//poi eseguo il ciclo
+							recurseOnStatements();
+							function recurseOnStatements() {
+								if ( statements.length > 0 ) {
+									var statement = statements.shift(); //devo andare dal primo all'ultimo!
+									//console.log('## considero lo statement per eseguirlo:');
+									//console.log(statement);
+									//devo eseguire la query rappresentata dallo statement
+									//ora non differenzio in base a statement.type perchè gestisco solo il type 'find'
+									//quindi proseguo eseguendo la query di find
+									//##########################################################################################
+									
+									//definisco i permessi
+									//nel caso di query per i siti degli utenti, non considero gli utenti loggati
+									//quindi visualizzo solo public e share
+									var conditions = {
+										$or: [
+											{ 'status': 'public' }, 
+											{ 'status': 'share' }
+										]
+									};
+									//QUI!!!
+									//poi devo aggiungere le conditions che ha deciso l'utente per questo statement
+									
+									
+									//console.log('conditions:');
+									//console.log(conditions);
+									//carico i mongoose models richiesti alla query
+									app.jsl.jslModelController.loadMongooseModelFromId(app, statement.jslModel, function( modelName, fieldsToBePopulated ){
+										//console.log('/contents/:modelId/:page?/:callback? -> finito di chiamare loadMongooseModelFromId con modelId = '+req.params.modelId);
+										//console.log('fieldsToBePopulated:');
+										//console.log(fieldsToBePopulated);
+										//console.log('dove la metto qui dentro?');
+										//console.log(app.mongoose.Query);
+										//per via della paginazione, ogni query di list va preceduta da una query di count
+										app.jsl['jslmodel_'+statement.jslModel].count(
+											conditions,
+											function(err, total) {
+												if ( !err )
+												{
+													//console.log('count succeded');
+													fieldsToBePopulated.push('jslModel');
+													//procedo col find paginato
+													app.jsl['jslmodel_'+statement.jslModel].find(
+														conditions,
+														//QUI!!! devo mettere la paginazione decisa per questo statement
+														[], { 
+															skip: req.session.skip, 
+															limit: req.session.limit 
+														})
+													//.populate('jslModel')
+													//QUI!!! i campi da popolare non li decide lo statement?
+													.populateMulti(fieldsToBePopulated)
+													//non va?? .sort('jslModel.name', -1)
+													.sort('_id', -1)
+													.run( function(err, contents) {
+														if (!err) {
+															//console.log('find succeded:');
+															//console.log(contents);
+															/*
+															console.log('## dajeeeee, trovati i contents risultanti dal mio statement');
+															console.log('total:');
+															console.log(total);
+															console.log('contents:');
+															console.log(contents);
+															*/
+															//console.log('dovrei appendere i contents al divPopulated:');
+															//console.log(divPopulated);
+															//appendo il risultato del mio statement al div
+															//alla fine il div avrà i risultati di tutti gli statements che
+															//c'erano nel controller
+															//console.log('statement.statementName:');
+															//console.log(statement.statementName);
+															if ( !divPopulated.data) divPopulated.data = {};
+															divPopulated.data[statement.statementName] = contents;
+															divPopulated.data[statement.statementName].total = total;
+															//console.log('fatto!');
+															recurseOnStatements();
+															/*
+															//per tutti i content renderizzo il tpl e glielo appendo. sarà poi il tpl list principale,
+															//in un ciclo, a visualizzare i singoli tpl generati dinamicamente
+															renderDynViewList(app, req, res, contents, function(){
+																//adesso dentro a contents, per ciascun content c'è anche una property 'dynView' con il pezzo di tpl popolato con i propri content
+																//next(contents,total);
+															});
+															*/
+														} else {
+															app.jsl.utils.errorPage(res, err, "page.render(): failed query find on db: "+err);
+														}
+													});
+												}
+												else
+												{
+													app.jsl.utils.errorPage(res, err, "page.render(): failed query count on db");
+												}	
+											}
+										);
+									}, false, true); //il 'true' significa che voglio caricare anche i models relazionati
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									//##########################################################################################
+									
+									//doSomethingAsync(contentId, function() {
+									//	recurseOnStatements();
+									//});
+									
+									
+									
 								} else {
-									//finito di ricorrere sui miei elementi
-									//aggiungo il div popolato all'array mio parent
-									parent.push(divPopulated);
-									//posso procedere
-									next();
+									//finito di eseguire ogni singolo statement
+									//del controller del mio div
+									//console.log('### finito di eseguire ogni singolo statement');
+									//clono l'array dei figli del mio div
+									var divChildren = [];
+									for ( var j=0; j<div.children.length; j++) {
+										divChildren.push(div.children[j].div);
+									}
+									//loop async su tutti i figli
+									recurseOnChildren();
+									function recurseOnChildren() {
+										if (divChildren.length>0) {
+											var divChild = divChildren.pop();
+											console.log("### ricorro su mio figlio: "+divChild);
+											recurse(divChild,divPopulated.children,recurseOnChildren);
+										} else {
+											//finito di ricorrere sui miei elementi
+											//aggiungo il div popolato all'array mio parent
+											parent.push(divPopulated);
+											//posso procedere
+											next();
+										}
+									}
 								}
 							}
 						}
@@ -661,7 +808,7 @@ function render(app, req, res, page) {
 			}
 		} else {
 			//finito il popolamento dei dati
-			console.log('finitoooooooooo POPULATION ####################################');
+			//console.log('finitoooooooooo POPULATION ####################################');
 			//for (var i=0;i<page.divs.length;i++) {
 				//console.log(page.divs[i].div);
 			//}
@@ -676,8 +823,8 @@ function render(app, req, res, page) {
 				var div = divsStructure.pop();
 				compileRecursiveSync(div);
 			}
-			console.log(pageOutput);
-			console.log('################################## finito anche compilazione sync');
+			//console.log(pageOutput);
+			//console.log('################################## finito anche compilazione sync');
 			
 			function compileRecursiveSync(div,divFatherType) {
 				if (!divFatherType) divFatherType = ''; //se non mi passano divFatherType vuol dire che il mio div è nella root della pagina
@@ -789,13 +936,18 @@ function render(app, req, res, page) {
 						{
 							pageOutput +=  "<tr><td>";
 						}
+						//QUI!!!
+						//quando avrò a disposizione anche i dati derivanti dall'esecuzione del controller, allora dovrò passarli al compile di jade
 						
 						//compilo la mia view
 						if (div.view) {
 							var jade = require('jade');
 							var jadetemplate = jade.compile(div.view.toString('utf8'));
+							//console.log('sto per compilare un tpl con sti data:');
+							//console.log(div.data);
 							pageOutput += jadetemplate({
-								//per ora non ho ancora data da passare: data: divs[i].data
+								//per ora non ho ancora data da passare:
+								data: div.data
 							});
 							
 							//pageOutput +=  'MODULO: '+div.view;

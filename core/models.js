@@ -86,12 +86,6 @@ function defineModels(mongoose, app, next) {
 		'order': { type: Number, index: true}
 	});
 	
-	//Schema query
-	var Query = new Schema({
-		'command': { type: String, required: true, enum: ['find', 'findOne'] },
-		'jslModel': { type: Schema.ObjectId, ref: 'jslModel' }
-	});
-	
 	//Schema div
 	var Div = new Schema({
 		'type': { type: String, required: true, enum: ['vertCont', 'horizCont', 'module'], index: true },
@@ -101,7 +95,7 @@ function defineModels(mongoose, app, next) {
 		'inline_style': { type: Boolean, default: true },
 		'children': [DivOrdered],
 		'view': { type: String },
-		'queries': [Query],
+		'controller': { type: String },
 		//common fields
 		'author': { type: Schema.ObjectId, ref: 'user', required: true, index: true },
 		'status': { type: String, required: true, enum: ['public', 'private', 'share'], index: true },

@@ -191,5 +191,18 @@
 	"this is the html template for this div": "this is the html template for this div",
 	"under development. not yet available": "under development. not yet available",
 	"children": "children",
-	"right now the default template engine is jade.js, so must use it in views": "right now the default template engine is jade.js, so must use it in views"
+	"right now the default template engine is jade.js, so must use it in views": "right now the default template engine is jade.js, so must use it in views",
+	"drag and drop new statements to controller": "drag and drop new statements to controller",
+	"under development. not yet reliable": "under development. not yet reliable",
+	"drag and drop statements to controller": "drag and drop statements to controller",
+	"continue?": "continue?",
+	"modify statement": "modify statement",
+	"a statement already exists with name": "a statement already exists with name",
+	"file preview": "file preview",
+	"delete file": "delete file",
+	"this is the name of the var that contains results of this statement": "this is the name of the var that contains results of this statement",
+	"use this name in your views too": "use this name in your views too",
+	"javascript": "javascript",
+	"this is how your statement looks like in javascript pseudo code": "this is how your statement looks like in javascript pseudo code",
+	"modify statements": "modify statements"
 }

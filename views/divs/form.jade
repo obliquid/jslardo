@@ -28,7 +28,7 @@ script
 				$('.tabsButtonsCont').fadeOut('fast');
 				selectTab('tabButtonBase','tabBase');
 			}
-		})
+		});
 		
 		//- on ready imposto i tab a seconda del type del mio div
 		$(document).ready(
@@ -53,7 +53,7 @@ include ../includes/formHeader
 
 form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmit='return validate_elementForm()' )
 	include ../includes/formSubmitTop
-	div.size4.floatLeft
+	div.size5.floatLeft
 		div.mainColLeft
 			.formRow
 				h5.formLabel #{__i('type')}
@@ -76,7 +76,7 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 					input(type='radio', name='type', value='module').type_radio_button
 				span #{__i('module')}		
 			div(style='display:none;').tabsButtonsCont
-				a(onclick='selectTab("tabButtonBase","tabBase")')#tabButtonBase.tabButton #{'div data'}
+				a(onclick='selectTab("tabButtonBase","tabBase")')#tabButtonBase.tabButton #{'div container'}
 				a(onclick='selectTab("tabButtonView","tabView")')#tabButtonView.tabButton #{'view'}
 				a(onclick='selectTab("tabButtonController","tabController")')#tabButtonController.tabButton #{'controller'}
 			div#tabsCont
@@ -84,12 +84,12 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 					.formRow
 						h5.formLabel id
 						span &nbsp;=&nbsp;
-						input(id='dom_id', name='dom_id', value='#{element.dom_id || ""}').size3
+						input(id='dom_id', name='dom_id', value='#{element.dom_id || ""}').size4
 						p  #{__i('the id attribute of the div')}
 					.formRow
 						h5.formLabel class
 						span &nbsp;=&nbsp;
-						input(id='class', name='class', value='#{element.class || ""}').size3
+						input(id='class', name='class', value='#{element.class || ""}').size4
 						p  #{__i('names of css classes to be used for this div, space separated')}
 					.formRow
 						h5.formLabel  #{__i('automatically generate inline styles')}
@@ -106,15 +106,27 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 				div(style='display:none;')#tabView
 					.formRow
 						h5.formLabel view
-						textarea(id='view', name='view').size3 #{element.view || ""}
+						textarea(id='view', name='view', style='height:300px;').size4.code #{element.view || ""}
 						p  #{__i('this is the html template for this div')}
 						p  #{__i("right now the default template engine is jade.js, so must use it in views")}
 				div(style='display:none;')#tabController
 					.formRow
 						h5.formLabel controller
-						p  #{__i('under development. not yet available')}
-	
-	div.size2.floatLeft
+						div.jstreeColumn.floatRight
+							//- if session.user_id != 'superadmin'
+							h6 #{__i('drag and drop statements to controller')}:
+							div#statementsTree.size2.jstree.jstreeStatements
+							hr
+							h6 #{__i('json version')}:
+							textarea(id='controller', name='controller', readonly='readonly').size2.code #{element.controller || ""}
+						div.jstreeColumn.floatRight
+							div#controllerTree.size2.jstree
+						div.clear
+						p  #{__i('under development. not yet reliable')}
+						script(language='JavaScript', type='text/javascript', src='/javascripts/jq/jstree/jquery.jstree.js')
+						include formJs
+						
+	div.size1.floatLeft
 		div.mainColRight
 			include ../includes/formStatus
 	div.clear

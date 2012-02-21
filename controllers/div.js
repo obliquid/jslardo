@@ -151,11 +151,15 @@ function defineRoutes(app) {
 	app.get('/divs/edit/new', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermCreate, function(req, res, next){
 		app.jsl.routes.routeInit(req);
 		//è un NEW, renderizzo il form, ma senza popolarlo
-		res.render('divs/form', { 
-			title: app.i18n.t(req,'create new div'),
-			elementName: 'div',
-			element: ''
-		});	
+		//(devo ovviamente popolare solo il combo con i miei models)
+		app.jsl.jslModelController.getJslModels(req,res,function(jslModels) {		
+			res.render('divs/form', { 
+				title: app.i18n.t(req,'create new div'),
+				elementName: 'div',
+				element: '',
+				jslModels: jslModels
+			});
+		});
 	});
 	//POST: div form (new)
 	//qui ci entro quando dal form faccio un submit ma non è definito l'id, altrimenti andrei nella route POST di modify
@@ -194,11 +198,15 @@ function defineRoutes(app) {
 			function(err, div) {
 				if (!err)
 				{
-					res.render('divs/form', { 
-						title: app.i18n.t(req,'modify div'),
-						elementName: 'div',
-						element: div,
-						msg: req.params.msg
+					//(devo ovviamente popolare solo il combo con i miei models)
+					app.jsl.jslModelController.getJslModels(req,res,function(jslModels) {		
+						res.render('divs/form', { 
+							title: app.i18n.t(req,'modify div'),
+							elementName: 'div',
+							element: div,
+							jslModels: jslModels,
+							msg: req.params.msg
+						});	
 					});	
 				}
 				else
@@ -543,8 +551,8 @@ function defineRoutes(app) {
 	//creo un nuovo div dall'admin
 	app.post('/json/divs/new', app.jsl.perm.readStrucPermDefault, app.jsl.perm.needStrucPermCreate, function(req, res, next){
 		app.jsl.routes.routeInit(req);
-		console.log('div: POST divs new'); 
-		console.log(req.body);
+		//console.log('div: POST divs new'); 
+		//console.log(req.body);
 		//creo nuovo div
 		var my_div = new app.jsl.div();
 		//popolo il mio div
