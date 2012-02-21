@@ -1,0 +1,333 @@
+script
+
+
+	/* ### COMMON VARS && FUNCTIONS ### */
+	
+
+
+	/*
+	
+	un controller è un oggetto in cui ogni property è uno statements
+	esempio di controller
+	{
+		"ultime 3 news": {
+			type: "find"
+		}
+		
+	}
+	
+	ogni statement è embeddato nel dom del tree usando jQuery data():
+	data {
+		name: "ultime 3 news",
+		type: "find"
+		
+	}
+	
+	
+	*/
+
+
+	/*
+	converte un tree json (preso con tree.get_json()) in uno controller testuale per
+	mongoose pronto per essere salvato nel db come stringa
+	*/
+	function treeToController( next ) {
+		//siccome jstree fa cagare, non posso usare $('#controllerTree').jstree('get_json') che non funziona
+		//quindi devo ricostruire io a mano l'oggetto json di tutto il tree:
+		//ciclo su tutti i nodi del dom, e per ciascuno leggo i dati json gestiti da jquery con la funzione data()
+		var controllerJson = {};
+		var statements = $('#controllerTree').children().children();
+		//console.log('treeToController statements: ');
+		//console.log(statements);
+		if ( statements.length > 0 ) {
+			for ( var i=0; i<statements.length; i++ ) {
+				var statement = $(statements[i]).data();
+				//console.log(statement);
+				var statementObj = { 'type': statement.type, 'jslModel': statement.jslModel };
+				controllerJson[statement.name] = statementObj;
+			}
+		}
+		next( controllerJson );
+	}
+	
+	/*
+	converte un controller testuale (dal textarea) in un oggetto json 
+	normalizzato e compatibile con jstree
+	*/
+	function controllerToTree() {
+		//inizializzo il json digeribile dal tree
+		var treeJson = { 'data': []};
+		//leggo lo controller dal textarea
+		var controller = $('#controller').val();
+		//console.log('controllerToTree(): controller:');
+		//console.log(controller);
+		if (controller != '') {
+			//ho uno controller non vuoto, procedo nel parsing
+			var controllerJson = JSON.parse(controller);
+			//console.log('controllerJson:');
+			//console.log(controllerJson);
+			//normalizzo lo controller in modo da renderlo digeribile al tree
+			for ( var statement in controllerJson) {
+				if ( controllerJson.hasOwnProperty(statement) && typeof controllerJson.statement !== 'function') {
+					//console.log('ho trovato questa statement: '+statement+' che vale: '+controllerJson[statement]);
+					//ho trovato un statement
+					var treeProperty = {
+						'data' : statement, //questi servono a jstree
+						'attr' : { 'rel' : controllerJson[statement].type }, //questi servono a jstree
+						'metadata' : { //questi sono i dati veri e propri, e vengono salvati come json nel dom con jquery data()
+							'name' : statement,
+							'type' : controllerJson[statement].type,
+							'jslModel' : controllerJson[statement].jslModel
+						}
+					};
+					treeJson.data.push(treeProperty);
+				}
+			}
+		}
+		//console.log('controllerToTree(): treeJson:');
+		//console.log(treeJson);
+		return treeJson;
+	}
+	
+	/*
+	questa viene richiamata dai form popup per salvare
+	*/
+	function saveStatement(statement) {
+		//ora aggiorno il dom
+		var liDom = $('#controllerTree li:data(name='+statement.old_name+')');
+		var linkDom = liDom.children('a');
+		//salvo l'icona corrente
+		var linkIconDom = linkDom.children('ins');
+		//azzero il contenuto del nodo e scrivo il nome
+		linkDom.html(statement.name);
+		//poi rimetto l'icona
+		linkDom.prepend(linkIconDom);
+		//poi riassegno tutti i valori json
+		//console.log(statement);
+		linkDom.parent().attr('rel',statement.type);
+		linkDom.parent().data('name',statement.name);
+		linkDom.parent().data('type',statement.type);
+		linkDom.parent().data('jslModel',statement.jslModel);
+		//poi riassegno tutto aggiornato al textarea
+		treeToController(function( populatedController ){
+			$('#controller').html( JSON.stringify( populatedController ) );
+			//console.log(linkDom.parent().data());
+			//console.log(populatedController);
+			return;
+		});
+	}
+	
+	
+	
+	/* ### CONTROLLER TREE ### */
+	
+	//prima faccio il parsing di quanto ho nella textarea
+	
+	//creo l'albero con lo controller
+	$('#controllerTree').jstree({
+		'core' : {  },
+		'types' : !{app.jsl.statementsHierarchy.stringify()},				
+		'json_data' : controllerToTree(),
+		'themes' : {
+			'theme' : 'classic'
+		},
+		'dnd' : {
+			'tree' : 'controllerTree'
+		},
+		'contextmenu' : {
+			'items' : {
+				'remove' : false,
+				'rename' : false,
+				'create' : false,
+				'ccp' : false,
+				'delete' : {
+					'label'				: 'delete',
+					'icon'				: false,
+					'action'			: function (obj) {
+						//devo rimuovere l'elemento dal dom
+						//prima chiedo conferma
+						if (!confirm('#{__i("continue?")}')) return false;
+						var liDom = $('#controllerTree li:data(name='+$(obj).data().name+')');
+						liDom.remove();
+						//poi riassegno tutto aggiornato al textarea
+						treeToController(function( populatedController ){
+							$('#controller').html( JSON.stringify( populatedController ) );
+							return;
+						});
+					}
+				}
+			}
+		},
+		'plugins' : [ 'themes', 'json_data', 'ui', 'dnd', 'types', 'contextmenu' ]
+	})
+	
+	.bind("select_node.jstree", function (e, data) {
+		//console.log(data);
+		//non so perchè (jstree di merda) ma quando clicco un nodo, il tree perde tutti i suoi dati json tranne quelli del nodo.
+		//$('#controllerTree').jstree('refresh');
+		//$('#controllerTree').jstree('lock');
+		
+		var jsonStatement = $(data.rslt.obj).data();
+		//console.log('select_node.jstree: #controllerTree:');
+		//console.log($('#controllerTree').jstree('get_json'));
+		// Display an external page using an iframe
+		var src = '/statements/edit/'+'#{element._id}'+'/'+jsonStatement.name+'/'+jsonStatement.type+'/'+jsonStatement.jslModel;
+		openModal(src);
+		/*
+		$.modal('<iframe src="' + src + '" height="502" width="700" style="border:0">', {
+			closeHTML:'',
+			containerCss:{
+				backgroundColor:"#fff",
+				borderColor:"#fff",
+				height:502,
+				padding:0,
+				margin:0,
+				width:700
+			},
+			overlayClose:true,
+			modal:true,
+			opacity:70
+		});
+		*/
+	})
+	
+	.bind('prepare_move.jstree', function (e, data) {
+		//console.log('prepare_move');
+		//devo decidere se copiare o muovere
+		//se mi sto muovendo all'interno del mio tree sto muovendo, altrimenti copio
+		var oldTree = data.rslt.op.closest('.jstree').attr('id');
+		var newTree = data.rslt.np.closest('.jstree').attr('id');
+		if ( oldTree == newTree ) {
+			//se il tree non sta cambiando, vuol dire che sto muovendo un nodo dentro al tree, quindi non devo copiare il nodo
+			data.inst.set_copying(false);
+		}
+		else
+		{
+			//per ora in tutti gli altri casi copio
+			data.inst.set_copying(true);
+			
+			//sovrascrivo il nome del statement che mi arriva con un nome seriale automatico
+			var defaultStatementName = 'newstatement';
+			var newStatementName = '';
+			var obj = data.rslt.o;
+			var objJson = $(obj).data();
+			var counter = 0;
+			var found = false;
+			while ( !found ) {
+				//console.log('ciclo su: ');
+				//conto quanti elementi già esistono nel tree con il nome 'newstatement'
+				if ( $('#controllerTree a:contains("'+defaultStatementName+counter+'")').length > 0 ) {
+					counter++;
+				} else {
+					newStatementName = defaultStatementName+counter;
+					found = true;
+				}
+			}
+			
+			
+			//console.log('newStatementName:'+newStatementName);
+			
+			objJson.name = newStatementName;
+		}
+
+		
+	})
+	.bind('move_node.jstree', function (e, data) {
+		//console.log('move_node.jstree');
+		//console.log(data);
+		
+		//solo se sto copiando
+		if ( data.inst.get_copying() ) {
+			//forzo un aggiornamento del nome del nuovo elemento draggato dentro al tree
+			//il nome lo prendo dai dati json del nodo draggato
+			var obj = data.rslt.o;
+			var objJson = $(obj).data();
+			//var linkDom = $('#controllerTree a:contains("'+objJson.type+'")');
+			//var linkDom = $('#controllerTree li[ref="'+objJson.type+'"]').children('a');
+			
+			//var linkDom = $('#controllerTree li:data(type_model="jslmodel_none")').css('background-color', 'red');
+			//console.log($('#controllerTree li').data());
+			var liDom = $('#controllerTree li:data(isNew)');
+			//dopo che ho trovato il mio elemento appena draggato, gli resetto la property isNew
+			liDom.data('isNew', false);
+			var linkDom = liDom.children('a');
+			var linkIconDom = linkDom.children('ins');
+			linkDom.html(objJson.name);
+			linkDom.prepend(linkIconDom);
+		}
+		
+		//aggiorno il textarea
+		treeToController(function( populatedController ){
+			$('#controller').html( JSON.stringify( populatedController ) );
+		});
+	});
+
+
+
+
+
+
+
+	/* ### STATEMENTS TREE ### */
+	
+	//devo normalizzare l'array statementsDictionary in modo che sia digeribile al tree
+	var treeJson = []; //è json_data.data
+	var myStatements = !{app.jsl.statementsDictionary.stringify()};
+	for ( var i = 0; i < myStatements.length; i++ ) {
+		treeJson.push({ 
+			'data' : myStatements[i].name,
+			'attr' : { 'rel' : myStatements[i].type },
+			'metadata' : {
+				'name' : '', //viene definito runtime quando si copia dentro ad uno schema
+				'type' : myStatements[i].type,
+				'jslModel' : '#{jslModels[0]._id}', //- preassegno il primo model disponibile ai nuovi statements
+				'isNew' : true
+			}
+		});
+	}
+	
+
+	//alert(statementsDictionary);
+	//creo il tree con gli elementi da draggare
+	$('#statementsTree').jstree({
+		'core' : {  },
+		'types' : !{app.jsl.statementsHierarchy.stringify()},
+		'json_data' : {
+			'data' : treeJson
+		},
+		'themes' : {
+			'theme' : 'classic'
+		},
+		'dnd' : {
+			'tree' : 'statementsTree'
+		},
+		'plugins' : [ 'themes', 'json_data', 'ui', 'dnd', 'types' ]
+		
+	})
+	//.bind('select_node.jstree', function (e, data) { alert(data.rslt.obj.data('type')); });
+	.bind('prepare_move.jstree', function (e, data) {
+		//console.log('prepare_move');
+		//se sto cpiando qui dentro, devo sempre impostare il copying, altrimenti l'elemento droppato qui sparirebbe dal suo tree originario
+		//poi, in move_node, farò un rollback su questo albero per eliminare l'elemento copiato
+		data.inst.set_copying(true);
+	})
+	.bind('move_node.jstree', function (e, data) {
+		//console.log(data);
+		//console.log(data.rslt.o[0]);
+		$.jstree.rollback(data.rlbk);
+		alert('#{__i('forbidden')}');
+	});
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
