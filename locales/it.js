@@ -129,5 +129,17 @@
 	"model": "model",
 	"jslModel": "jslModel",
 	"you are": "you are",
-	"you": "you"
+	"you": "you",
+	"contents for this model": "contents for this model",
+	"contents": "contents",
+	"schema": "schema",
+	"latest contents": "latest contents",
+	"detail": "detail",
+	"content": "content",
+	"model for this content": "model for this content",
+	"user": "user",
+	"modify user": "modify user",
+	"mail to": "mail to",
+	"latest models": "latest models",
+	"latest sites": "latest sites"
 }

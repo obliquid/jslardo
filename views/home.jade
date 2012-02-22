@@ -9,49 +9,50 @@
 		p #{__i('created by')}
 			a(href='http://obliquid.org', target='_blank') obliquid
 
-h3.floatLeft #{__i('a social cms.')}
-h4(style='margin-top: 18px;').floatRight #{__i('sort of.')}
+h2.floatLeft #{__i('a social cms.')}
+h3(style='margin-top: 18px;').floatRight #{__i('sort of.')}
 div.clear
 hr
-div.size2.floatLeft
+div.size1AndHalf.floatLeft
 	ul.rightBorder
 		h2 1.
 		li
-			h5 #{__i('create your models')}
+			h4 #{__i('create your models')}
 			ul
 				li
 					span #{__i('create valid mongoose models with drag and drop gui')}
-					pre(style='margin-top:10px;margin-right:0px;').outerContMinimal.code.
-						"book": {
-							"title": {
-								"type": "String",
-								"required":"true"
-							},
-							"authors": [ {
-								"type":"ObjectId",
-								"ref":"jslmodel_4f22870d4eaa51dd0f00005e",
-								"required":"false"
-							} ]
-						}
+					//-
+						pre(style='margin-top:10px;margin-right:0px;').outerContMinimal.code.
+							"book": {
+								"title": {
+									"type": "String",
+									"required":"true"
+								},
+								"authors": [ {
+									"type":"ObjectId",
+									"ref":"jslmodel_4f22870d4eaa51dd0f00005e",
+									"required":"false"
+								} ]
+							}
 				li
 					span #{__i('DBRef like relations (1:1 and 1:N) are supported')}
 				li
 					span #{__i('jslardo runtime reloads mongoose models and update mongodb collections as you change your models schemas')}
-div.size2.floatLeft
+div.size1AndHalf.floatLeft
 	ul.rightBorder
 		h2 2.
 		li
-			h5 #{__i('create your contents')}
+			h4 #{__i('create your contents')}
 			ul
 				li
 					span #{__i('insert contents for your models through runtime generated forms')}
 				li
 					span #{__i('DBRef like relations are also managed in generated forms, with drag and drop ordering of related contents')}
-div.size2.floatLeft
-	ul
+div.size1AndHalf.floatLeft
+	ul.rightBorder
 		h2 3.
 		li
-			h5 #{__i('create your sites')}
+			h4 #{__i('create your sites')}
 			ul
 				li
 					span #{__i('start a new site: realtime third level subdomains assignment')}
@@ -60,21 +61,22 @@ div.size2.floatLeft
 				li
 					span *#{__i('and publish your contents')}
 			span.textMini * #{__i('under development, not yet available')}
-div.clear
-hr
-div.size2.floatLeft
-	ul.rightBorder
+div.size1AndHalf.floatLeft
+	ul
+		h2 4.
 		li
-			h5 #{__i('share what you want')}
+			h4 #{__i('share what you want')}
 			ul
 				li
 					span #{__i('every model, content, or site and page, can be shared with other users')}
 				li
 					span #{__i('or can be marked as private and no one will be able to see it')}
-div.size2.floatLeft
+div.clear
+hr
+div.size3.floatLeft
 	ul.rightBorder
 		li
-			h5 #{__i("it's open source")}
+			h4 #{__i("it's open source")}
 			ul
 				li
 					span #{__i("jslardo cms is released under a GPL v.3 licence")}
@@ -83,10 +85,10 @@ div.size2.floatLeft
 				li
 					span #{__i("and since it's open source, any involvement or suggestion is appreciated")}
 	
-div.size2.floatLeft
+div.size3.floatLeft
 	ul
 		li
-			h5 #{__i("it's an ongoing project")}
+			h4 #{__i("it's an ongoing project")}
 			ul
 				li
 					span #{__i("expect that only a few sections of the application are completed and stable")}
