@@ -50,7 +50,7 @@ div.headerCont
 			div.headerStatusSignedIn.size5.floatLeft
 				div(style='width:30px;height:23px;').buttonUsers.floatLeft
 				h6(style='margin-bottom:0px;line-height:16px;').floatLeft #{__i('you are')}:&nbsp;&nbsp;
-				h5(title='#{session.email}',style='margin-bottom:0px;line-height:16px;').floatLeft #{ trunc(session.email,25) }&nbsp;&nbsp;&nbsp;
+				h5(title='#{session.email}',style='margin-bottom:0px;line-height:16px;').floatLeft #{ trunc(session.email,35) }&nbsp;&nbsp;&nbsp;
 				a(href='/signout') #{__i('sign out')}
 				if session.user_id == 'superadmin'
 					span #{__i('super admin mode')}!
@@ -71,8 +71,8 @@ div.headerCont
 					if app.jsl.config.usersCanRegister
 						span or
 						a(href='/users/edit/new') #{__i('register')}
-		div.headerStatusMini.floatRight.size1
-			div.headerStatusSignedIn.size5.floatLeft
+		div.headerStatusMini.floatRight
+			div.headerStatusSignedIn
 				h6(style='margin-bottom:0px;line-height:16px;').floatLeft #{__i('languages')}
 				each locale in app.i18n.getLocalesNames()
 					if locale == app.i18n.getLocale()
