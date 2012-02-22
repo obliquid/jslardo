@@ -1,0 +1,46 @@
+a(onclick='$("#formHelp_view").fadeIn()').elementButton.buttonHelp
+	h6.formLabel #{__i('help')}
+div.clear
+div(style='display:none;')#formHelp_view.helpCont.alignLeft
+	p #{__i('suppose you have created a find() statement named "last_books" in the controller: than this would be a valid jade template to visualize all books in a loop:')}
+	pre.innerCont.code.size4.
+		h5 found \#{data.last_books.total} books:
+		ul
+		&nbsp;&nbsp;each book in data.last_books
+		&nbsp;&nbsp;&nbsp;&nbsp;li \#{book.title}
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; \!= getImg(book.cover,50,30)
+	p #{__i('as well as implementing all jade methods, jslardo has some custom helpers:')}
+	hr
+	h4 \!= getImg(image,width,height,css_class,dom_id)
+	p #{__i('this method returns an <img> tag, with specified size. a custom resized image will be created server side if necessary. a cache of resized images is used so that image resizing happens only once for each size.')}
+	ul
+		li
+			h5 #{__i('parameters')}:
+			ul
+				li
+					h6 image:
+					p #{__i('mandatory. this is a field of type "image" of some model. for example if your model "book" has a field "cover" of type "image", then you could use:')}
+					pre.innerCont.code.size4.
+						\!= getImg(book.cover)
+				li
+					h6 width:
+					p #{__i('optional. default 0. width of the image to be returned, in px')}
+				li
+					h6 height:
+					p #{__i('optional. default 0. height of the image to be returned, in px')}
+					p #{__i('for width and height the default value is 0. if width=height=0 then no resize will occur and will be returned the original image. if only width or only height is passed (>0), then the other measure will be automatically calculated to respect image ratio')}
+				li
+					h6 css_class:
+					p #{__i('optional. default "". the css classes, space separated, to be used for the <img>')}
+				li
+					h6 dom_id:
+					p #{__i('optional. default "". the DOM id to be used for the <img>')}
+		li
+			h5 #{__i('example')}:
+			p #{__i('if you use in your jade template a code like this:')}
+			pre.innerCont.code.size4.
+				\!= getImg(book.cover,100,50,'thumbImages noBorder','image1')
+			p #{__i('it will be rendered with html code like this:')}
+			pre.innerCont.code.size4.
+				<img id="image1" class="thumbImages noBorder"
+				src="/internal/path/to/your/image/size100x50_bigBoat.jpg">
