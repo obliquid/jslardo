@@ -42,17 +42,26 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 					h5.formLabel  #{__i('schema')}
 						span.formError *
 					//- tree con i datatypes e i miei models
-					div.jstreeColumn.floatRight
-						//- if session.user_id != 'superadmin'
-						h6.size1AndHalf #{__i('drag and drop new fields to schema')}:
-						div#elementsTree.size1AndHalf.jstree.jstreeDatatypes
-						hr
-						h6.size1AndHalf #{__i('json version')}:
-						textarea(id='jslSchema', name='jslSchema', readonly='readonly').size1AndHalf.code #{element.jslSchema || ""}
-						p.textMini.size1AndHalf #{__i('this is a valid mongoose schema')}
-					//- tree con lo schema
-					div.jstreeColumn.floatRight.rightBorder
-						div#schemaTree.size2.jstree
+					div(style='margin-top:0px;').tabsButtonsContMini.floatRight.size4
+						a(onclick='selectTab("tabButtonEdit","tabEdit")')#tabButtonEdit.tabButtonMini.tabButtonSelected #{'edit'}
+						a(onclick='selectTab("tabButtonJsonView","tabJsonView")')#tabButtonJsonView.tabButtonMini #{'json view'}
+					div#tabsCont
+						div#tabEdit
+							div.jstreeColumn.floatRight
+								//- if session.user_id != 'superadmin'
+								h6.size1AndHalf #{__i('drag and drop new fields to schema')}:
+								div#elementsTree.size1AndHalf.jstree.jstreeDatatypes
+								textarea(id='jslSchema', name='jslSchema', readonly='readonly').invisible #{element.jslSchema || ""}
+							//- tree con lo schema
+							div.jstreeColumn.floatRight.rightBorder
+								div#schemaTree.size2.jstree
+						div(style='display:none;')#tabJsonView
+							pre.size4.code.floatRight.
+								#{renderJson(element.jslSchema)}
+							p.textMini.size1AndHalf.floatRight #{__i('this is a valid mongoose schema')}
+						
+						
+						
 					div.clear
 					include formJs
 	

@@ -66,7 +66,7 @@ jQuery.fn.center = function () {
 
 //open modal iframe popup
 function openModal(src, width) {
-	if ( !width ) width = 700;
+	if ( !width ) width = 680;
 	//var elementId = 'orcodio';
 	var originalYScroll = window.pageYOffset;
 	//var modalFrame = $.modal('<iframe id="'+ elementId +'" src="' + src + '" width="' + width + '" onload="centerModal(this,' + originalYScroll + ')" style="border:0">', {

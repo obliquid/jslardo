@@ -32,7 +32,8 @@ function defineRoutes(app) {
 	
 	//NON-ADMIN route
 	//prima considero le route dei siti degli utenti
-	app.get('/:route?', app.jsl.perm.readStrucPermDefault, function(req, res, next)
+	app.get('/:route?/:param0?/:param1?/:param2?/:param3?/:param4?/:param5?/:param6?/:param7?/:param8?/:param9?', app.jsl.perm.readStrucPermDefault, function(req, res, next)
+	//app.get('/:route?', app.jsl.perm.readStrucPermDefault, function(req, res, next)
 	{
 		//non so perchè ma quando viene richiesto un file statico, le sessions non sono definite
 		//quindi se non sono deifnite, deduco si tratti di un file statico, e skippo

@@ -54,7 +54,7 @@ script
 	}
 	
 	function updateJavascript() {
-		$('#javascriptStatement').val( renderJavascript() );
+		$('#javascriptStatement').html( renderJavascript() );
 	}
 
 	$(document).ready(function() {
@@ -80,18 +80,18 @@ form(onsubmit='return validate_elementForm()').size4
 		input(id='name', name='name', value='#{element.name || ""}').size3
 		p  #{__i('this is the name of the var that contains results of this statement')}
 		p  #{__i('use this name in your views too')}
-	.formRow
-		h5.formLabel #{__i('type')}
-		input(id='type', name='type', value='#{element.type}', readonly='readonly').size3
 	//- includo la parte specifica di template a seconda del type di statement
 	!= partial('form_'+element.type+'.jade')
-	//- ultima riga con il javascript generato relativo al mio statement
-	.formRow
-		h5.formLabel #{__i('javascript')}
-		input(id='javascriptStatement', name='javascriptStatement', readonly='readonly').code.size3	//- questo campo in realtà non viene salvato, è solo dimostrativo
-		p  #{__i('this is how your statement looks like in javascript pseudo code')}
-	
 	hr
+	//- ultima riga con il javascript generato relativo al mio statement
+	.detailRow
+		h6.formLabel #{__i('javascript')}
+		//- questo campo in realtà non viene salvato, è solo dimostrativo
+		pre(id='javascriptStatement', name='javascriptStatement').code.size3.floatRight
+		.clear
+		p  #{__i('this is how your statement looks like in javascript pseudo code')}
+	hr
+	input(type='hidden', id='type', name='type', value='#{element.type}')
 	input(type='hidden', id='old_name', name='old_name', value='#{element.old_name || ""}')
 	input(type='hidden', id='old_type', name='old_type', value='#{element.old_type || ""}')
 	input(type='submit', title='#{__i('set')}', value='#{__i('set')}').adminButton.saveButton

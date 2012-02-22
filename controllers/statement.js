@@ -58,7 +58,7 @@ function defineRoutes(app) {
 			//posso popolare il form per il mio statement
 			res.render('statements/form', {
 				layout: 'layoutPopup',
-				title: app.i18n.t(req,'modify statements'),
+				title: app.i18n.t(req,'modify statement')+' '+element.type,
 				elementName: 'statement',
 				element: element,
 				msg: req.params.msg,

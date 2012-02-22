@@ -946,8 +946,19 @@ function render(app, req, res, page) {
 							//console.log('sto per compilare un tpl con sti data:');
 							//console.log(div.data);
 							pageOutput += jadetemplate({
-								//per ora non ho ancora data da passare:
+								//i dati deirvati dall'esecuzione del controller
 								data: div.data,
+								//eventuali params nella route
+								param0: (req.params.param0) ? req.params.param0 : '',
+								param1: (req.params.param1) ? req.params.param1 : '',
+								param2: (req.params.param2) ? req.params.param2 : '',
+								param3: (req.params.param3) ? req.params.param3 : '',
+								param4: (req.params.param4) ? req.params.param4 : '',
+								param5: (req.params.param5) ? req.params.param5 : '',
+								param6: (req.params.param6) ? req.params.param6 : '',
+								param7: (req.params.param7) ? req.params.param7 : '',
+								param8: (req.params.param8) ? req.params.param8 : '',
+								param9: (req.params.param9) ? req.params.param9 : '',
 								//gli helpers
 								getImg: app.jsl.utils.getImg
 							});

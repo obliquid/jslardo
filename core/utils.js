@@ -267,6 +267,53 @@ function emailObfuscate(email) {
 exports.emailObfuscate = emailObfuscate;
 
 /*
+renderizza una stringa json come literal leggibile
+ovvero mette tab e mandate a capo
+*/
+function renderJson(jsonString,tabString) {
+	if (!jsonString) return '';
+	if ( !tabString ) tabString = '&nbsp;&nbsp;';
+	var recursionCount = 0;
+	return recurse(JSON.parse(jsonString));
+	function recurse(jsonObj) {
+		var rowPrefix = '';
+		for ( var i=0; i<recursionCount; i++ ) {
+			rowPrefix += tabString;
+		}
+		var output = '{';
+		var isFirst = true;
+		for (var property in jsonObj) {
+			if ( jsonObj.hasOwnProperty(property) && typeof jsonObj[property] !== 'function') {
+				if (!isFirst) {
+					output += ',';
+				}
+				isFirst = false;
+				output += '\n'+rowPrefix+tabString;
+				//butto fuori il nome della property
+				output += '"'+property+'": ';
+				//se la mia property è un object, devo ricorrere
+				if ( typeof jsonObj[property] === 'object' && !is_array(jsonObj[property]) ) {
+					recursionCount++;
+					output += recurse(jsonObj[property]);
+					recursionCount--;
+				} else if ( is_array(jsonObj[property]) ) {
+					output += '[';
+					for ( i=0; i<jsonObj[property].length; i++ ) {
+						if (i>0) output += ',';
+						output += '"'+jsonObj[property][i]+'"';
+					}
+					output += ']';
+				} else {
+					output += '"'+jsonObj[property]+'"';
+				}
+			}
+		}
+		return output+'\n'+rowPrefix+'}';
+	}
+}
+exports.renderJson = renderJson;
+
+/*
 è un helper da usare direttamente nei tpl jade.
 data un'immagine da visualizzare (completa di file_name e file_path) e una risoluzione
 crea l'immagine ridimensionata se già non esiste, e ne ritorna l'url.

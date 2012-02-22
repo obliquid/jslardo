@@ -359,11 +359,13 @@ input.disabled:hover {
 {
 	border-right: 2px dotted #9C9C9C;
 }
-.tabsButtonsCont
+.tabsButtonsCont,
+.tabsButtonsContMini
 {
 	border-bottom: 2px dotted #9C9C9C;
 }
-.tabButton
+.tabButton,
+.tabButtonMini
 {
 	border: 2px dotted #9C9C9C;
 }
@@ -405,9 +407,10 @@ input.disabled:hover {
 .code {
 	font-family:monospace;
 	font-weight:bold;
-	font-size:14px;
-	overflow:auto;
+	font-size:15px;
+	text-align: left;
 	/* font-family: "Courier New", Courier, monospace; */
+	padding: 10px;
 }
 
 
@@ -492,7 +495,9 @@ form
 }
 
 /* box shadow */
-.outerCont {
+.outerCont,
+.helpCont
+{
 	-moz-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.6);
 	-webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.6);
 	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.6);
@@ -506,7 +511,9 @@ textarea,
 .outerCont,
 .outerContMinimal,
 .innerCont,
+.code,
 .innerContOutline,
+.helpCont,
 .adminIcon,
 .statusIcon,
 .formSuccess,
@@ -678,17 +685,11 @@ textarea:hover,
 /* CUSTOM CLASSES */
 /* styles dedicated to specific elements */
 
-.outerCont
+.outerCont,
+.helpCont
 {
-	/*
-	margin-right:15px;
-	margin-bottom:15px;
-	*/
 	display:inline-block;
 	overflow: hidden;
-}
-.outerCont
-{
 	padding:5px;
 	margin-top:0px;
 	margin-left:0px;
@@ -696,6 +697,11 @@ textarea:hover,
 	margin-bottom:5px;
 	background-image:url('../images/bg/bianco66perc.png');
 	background-repeat:repeat;
+}
+.helpCont
+{
+	margin-top:10px;
+	padding: 10px;
 }
 .elemGrid.outerCont
 {
@@ -715,6 +721,7 @@ textarea:hover,
 
 .innerCont,
 .innerContOutline,
+.code,
 .formSubRow
 {
 	display: block;
@@ -828,7 +835,7 @@ textarea:hover,
 .mainColLeft {
 	padding-right: 10px;
 	margin-right: 10px;
-	overflow: hidden;
+	/* overflow: hidden; */
 }
 .mainColRight {
 	
@@ -839,6 +846,7 @@ textarea:hover,
 	letter-spacing: -4px;
 }
 .code {
+	overflow:auto;
 	/* no perchè lo uso anche su elementi che hanno un proprio margin
 	margin-top: 10px;
 	margin-bottom: 10px;
@@ -1111,6 +1119,12 @@ textarea:hover,
 	background-image:url('../images/pov/icon_core_role_30x23.png');
 }
 
+.buttonHelp
+{
+	background-image:url('../images/pov/icon_core_name_20x15.png');
+}
+
+
 
 
 /* PAGINATION RELATED */
@@ -1195,14 +1209,21 @@ textarea:hover,
 
 
 /* TABS */
-.tabsButtonsCont
+.tabsButtonsCont,
+.tabsButtonsContMini
 {
 	text-align: left;
 	margin-top: 30px;
 	margin-bottom: 10px;
 	padding-bottom: 1px;
 }
-.tabButton
+.tabsButtonsContMini
+{
+	text-align: right;
+	padding-bottom: 2px;
+}
+.tabButton,
+.tabButtonMini
 {
 	font-size: 22px;
 	font-weight: normal;
@@ -1218,6 +1239,10 @@ textarea:hover,
 	background-image:url('../images/bg/nero20perc.png');
 	
 	background-color: white;
+}
+.tabButtonMini
+{
+	font-size: 16px;
 }
 .tabButtonSelected
 {

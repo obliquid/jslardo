@@ -264,7 +264,8 @@ app.configure(function(){
 		trunc: app.jsl.utils.trunc,
 		drawSchema: app.jsl.jslModelController.drawSchema,
 		getImg: app.jsl.utils.getImg,
-		emailObfuscate: app.jsl.utils.emailObfuscate
+		emailObfuscate: app.jsl.utils.emailObfuscate,
+		renderJson: app.jsl.utils.renderJson
 	});
 	
 	//Dynamic Helpers

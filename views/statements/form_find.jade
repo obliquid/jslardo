@@ -1,8 +1,28 @@
-.formRow
-	h5.formLabel #{__i('model')}
-	select(id='jslModel', name='jslModel', onchange='updateJavascript()')
-		each combo_model in combo_models
-			if element.jslModel == combo_model._id
-				option(value='#{combo_model._id}',selected='true') #{combo_model.name}
-			else
-				option(value='#{combo_model._id}') #{combo_model.name}
+div.tabsButtonsCont
+	a(onclick='selectTab("tabButtonModel","tabModel")')#tabButtonModel.tabButton.tabButtonSelected #{'model'}
+	a(onclick='selectTab("tabButtonConditions","tabConditions")')#tabButtonConditions.tabButton #{'conditions'}
+	a(onclick='selectTab("tabButtonFields","tabFields")')#tabButtonFields.tabButton #{'fields'}
+	a(onclick='selectTab("tabButtonPagination","tabPagination")')#tabButtonPagination.tabButton #{'pagination'}
+div#tabsCont
+	div#tabModel
+		.formRow
+			h5.formLabel #{__i('model')}
+			select(id='jslModel', name='jslModel', onchange='updateJavascript()')
+				each combo_model in combo_models
+					if element.jslModel == combo_model._id
+						option(value='#{combo_model._id}',selected='true') #{combo_model.name}
+					else
+						option(value='#{combo_model._id}') #{combo_model.name}
+			p #{__i('choose a model from which fetch contents with your find() statement')}
+	div(style='display:none;')#tabConditions
+		.formRow
+			h5.formLabel #{__i('conditions')}
+			p #{__i('under development. not yet available, sorry')}
+	div(style='display:none;')#tabFields
+		.formRow
+			h5.formLabel #{__i('fields')}
+			p #{__i('under development. not yet available, sorry')}
+	div(style='display:none;')#tabPagination
+		.formRow
+			h5.formLabel #{__i('pagination')}
+			p #{__i('under development. not yet available, sorry')}
