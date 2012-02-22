@@ -127,5 +127,7 @@
 	"use this name in your views too": "use this name in your views too",
 	"this is how your statement looks like in javascript pseudo code": "this is how your statement looks like in javascript pseudo code",
 	"model": "model",
-	"jslModel": "jslModel"
+	"jslModel": "jslModel",
+	"you are": "you are",
+	"you": "you"
 }

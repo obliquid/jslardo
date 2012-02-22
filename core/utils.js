@@ -288,8 +288,8 @@ function getImg(image,width,height,cssClasses,domId) {
 	var url = process.cwd()+'/public/'+path+name;
 	var resizedUrl = process.cwd()+'/public/'+path+resizedName;
 	console.log('getImg()');
-	console.log('image:');
-	console.log(image);
+	//console.log('image:');
+	//console.log(image);
 	console.log('url:');
 	console.log(url);
 	console.log('resizedUrl:');

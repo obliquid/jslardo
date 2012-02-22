@@ -105,6 +105,9 @@ form(method='post', action='/#{elementName}s/edit/#{element._id || ""}', onsubmi
 						p #{__i('render the div as an html table. for example this prevents new line wrapping for children of an horizontal container')}
 				div(style='display:none;')#tabView
 					.formRow
+						h5.formLabel #{__i('help')}
+						a.adminButton.addButton
+					.formRow
 						h5.formLabel view
 						textarea(id='view', name='view', style='height:300px;').size4.code #{element.view || ""}
 						p  #{__i('this is the html template for this div')}

@@ -791,11 +791,25 @@ textarea:hover,
 	margin: 0 auto;
 	padding: 5px;
 }
+.headerStatus
+{
+	margin: 0 auto;
+	padding: 0px;
+}
+.headerStatusSignedIn
+{
+	height: 20px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+}
+.headerStatusSignedOut
+{
+	height: 36px;
+}
 .footer
 {
 	margin: 0 auto;
 	padding-top: 10px;
-	padding-bottom: 10px;
 }
 .feedback
 {

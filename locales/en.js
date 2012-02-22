@@ -210,5 +210,9 @@
 	"right now the template engine implemented is jade.js, so must use it in views": "right now the template engine implemented is jade.js, so must use it in views",
 	"right now the only implemented template engine is jade.js, so must use it in views": "right now the only implemented template engine is jade.js, so must use it in views",
 	"right now the only implemented template engine is jade, so must use it in views": "right now the only implemented template engine is jade, so must use it in views",
-	"right now there is only the find() statement available. the find() statement is a query on a model, with conditions and fields support": "right now there is only the find() statement available. the find() statement is a query on a model, with conditions and fields support"
+	"right now there is only the find() statement available. the find() statement is a query on a model, with conditions and fields support": "right now there is only the find() statement available. the find() statement is a query on a model, with conditions and fields support",
+	"create new user": "create new user",
+	"retype": "retype",
+	"you": "you",
+	"you are": "you are"
 }
